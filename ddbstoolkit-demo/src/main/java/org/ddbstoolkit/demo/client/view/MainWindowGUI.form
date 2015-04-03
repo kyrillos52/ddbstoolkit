@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="uk.co.cyril_grandjean.demo.client.view.MainWindowGUI">
+  <grid id="27dc6" binding="panelMainWindow" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="5b49e" binding="labelSearch" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+        <constraints border-constraint="North"/>
+        <properties/>
+        <border type="etched" title="Search">
+          <font/>
+          <title-color color="-16777216"/>
+        </border>
+        <children>
+          <component id="d93cb" class="javax.swing.JFormattedTextField" binding="textFieldSearch">
+            <constraints/>
+            <properties>
+              <columns value="15"/>
+            </properties>
+          </component>
+          <component id="542c7" class="javax.swing.JComboBox" binding="comboBoxType" custom-create="true">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="759db" class="javax.swing.JComboBox" binding="comboBoxLocation" custom-create="true">
+            <constraints/>
+            <properties/>
+          </component>
+          <component id="4552b" class="javax.swing.JButton" binding="buttonSearch">
+            <constraints/>
+            <properties>
+              <text value="Search"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="55275" binding="panelCommands" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+        <constraints border-constraint="South"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="f2e48" class="javax.swing.JButton" binding="addButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Add"/>
+            </properties>
+          </component>
+          <component id="ae3a5" class="javax.swing.JButton" binding="updateButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Update"/>
+            </properties>
+          </component>
+          <component id="9e9e5" class="javax.swing.JButton" binding="deleteButton" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Delete"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="1597d" binding="panelTable" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <scrollpane id="26dc7">
+            <constraints border-constraint="Center"/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="3a7b" class="javax.swing.JTable" binding="tableBooks" custom-create="true">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
+          </scrollpane>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

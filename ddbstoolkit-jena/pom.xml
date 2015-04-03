@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ddbstoolkit.toolkit.modules.datastore.jena</groupId>
+  <artifactId>ddbstoolkit-jena</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>DDBS Toolkit Jena</name>
+  <description>DDBS Toolkit Jena Module</description>
+   <dependencies>
+  	<dependency>
+  		<groupId>org.ddbstoolkit.toolkit.core</groupId>
+  		<artifactId>ddbstoolkit-core</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+		<groupId>com.hp.hpl.jena</groupId>
+		<artifactId>jena</artifactId>
+		<version>2.6.4</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.jena</groupId>
+		<artifactId>jena-arq</artifactId>
+		<version>2.13.0</version>
+	</dependency>
+	<dependency>
+		<groupId>com.hp.hpl.jena</groupId>
+		<artifactId>tdb</artifactId>
+		<version>0.8.10</version>
+	</dependency>
+  </dependencies>
+</project>

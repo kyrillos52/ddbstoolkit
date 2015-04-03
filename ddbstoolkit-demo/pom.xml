@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.ddbstoolkit.toolkit.demo</groupId>
+  <artifactId>ddbstoolkit-demo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>DDBS Toolkit Demonstration Project</name>
+  <description>DDBS Toolkit Demonstration Project</description>
+   <dependencies>
+	  	<dependency>
+	  		<groupId>org.ddbstoolkit.toolkit.core</groupId>
+	  		<artifactId>ddbstoolkit-core</artifactId>
+	  		<version>0.0.1-SNAPSHOT</version>
+	  		<scope>compile</scope>
+	  	</dependency>
+	  	<dependency>
+			<groupId>org.ddbstoolkit.toolkit.modules.datastore.mysql</groupId>
+			<artifactId>ddbstoolkit-mysql</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+	  		<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ddbstoolkit.toolkit.modules.datastore.jena</groupId>
+			<artifactId>ddbstoolkit-jena</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+	  		<scope>compile</scope>
+		</dependency>
+	  	<dependency>
+			<groupId>org.ddbstoolkit.toolkit.modules.middleware.jgroups</groupId>
+			<artifactId>ddbstoolkit-jgroups</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+	  		<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ddbstoolkit.toolkit.modules.middleware.sqlspaces</groupId>
+			<artifactId>ddbstoolkit-sqlspaces</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+	  		<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>
