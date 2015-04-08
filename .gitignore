@@ -1,0 +1,9 @@
+/ddbstoolkit-core/target/**
+/ddbstoolkit-jena/target/**
+/ddbstoolkit-demo/target/**
+/ddbstoolkit-jgroups/target/**
+/ddbstoolkit-sqlite/target/**
+/ddbstoolkit-sqlspaces/target/**
+**/.DS_Store
+**/.classpath
+**/.settings/**
