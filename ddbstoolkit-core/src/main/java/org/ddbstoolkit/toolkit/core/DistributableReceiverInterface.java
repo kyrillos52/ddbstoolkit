@@ -2,11 +2,8 @@ package org.ddbstoolkit.toolkit.core;
 
 /**
  * Interface to receive commands
- * User: Cyril GRANDJEAN
- * Date: 21/06/2012
- * Time: 10:12
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public interface DistributableReceiverInterface {
 
@@ -18,19 +15,19 @@ public interface DistributableReceiverInterface {
 
     /**
      * Return the peer associated with the interface
-     * @return
+     * @return Peer associated with the receiver
      */
     public Peer getMyPeer();
 
     /**
      * Start to listen on the interface
-     * @throws Exception
+     * @throws Exception Error during opening the connection
      */
     public void start() throws Exception;
 
     /**
      * Stop to listen on the interface
-     * @throws Exception
+     * @throws Exception Error during opening the connection
      */
     public void stop() throws Exception;
 }

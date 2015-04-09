@@ -6,11 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicate the name of the property inside a database or data source
- * User: Cyril GRANDJEAN
- * Date: 26/06/2012
- * Time: 10:20
- *
+ * Name of the property inside a database or data source
+ * @author Cyril Grandjean
  * @version Creation of the class
  */
 @Target(value = {ElementType.FIELD})

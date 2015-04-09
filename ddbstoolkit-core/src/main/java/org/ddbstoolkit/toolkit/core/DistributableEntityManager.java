@@ -5,12 +5,9 @@ import java.util.ArrayList;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 
 /**
- * Interface to access to distributed entities
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 10:57
- *
- * @version Creation of the class
+ * Interface to access to distributed data sources
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public interface DistributableEntityManager {
 
@@ -28,19 +25,20 @@ public interface DistributableEntityManager {
 
     /**
      * Check if the connection is open
-     * @return state of the connector
+     * @return State of the connector
+     * @throws DDBSToolkitException Error to check the state of the connection
      */
     public boolean isOpen() throws DDBSToolkitException;
 
     /**
-     * Open the connection
+     * Open the data source connection
      * @throws DDBSToolkitException : Error to open the connection
      */
     public void open() throws DDBSToolkitException;
 
     /**
      * Close the connection
-     * @throws Exception : Error to close the connection
+     * @throws DDBSToolkitException : Error to close the connection
      */
     public void close() throws DDBSToolkitException;
 
@@ -50,7 +48,7 @@ public interface DistributableEntityManager {
      * @param conditionList List of conditions to filter the results
      * @param orderBy String to order the results : field order (Example : myField ASC)
      * @return list of entities that match the request
-     * @throws Exception
+     * @throws DDBSToolkitException Error during the process
      */
     public <T extends IEntity> ArrayList<T> listAll(T object, ArrayList<String> conditionList, String orderBy) throws DDBSToolkitException;
 
@@ -58,7 +56,7 @@ public interface DistributableEntityManager {
      * Read details about an object
      * @param object object to read
      * @return Object with all the details
-     * @throws Exception Error during reading
+     * @throws DDBSToolkitException Error during reading
      */
     public <T extends IEntity> T read(T object) throws DDBSToolkitException;
 
@@ -66,31 +64,31 @@ public interface DistributableEntityManager {
      * Read the last element added of a table or a type of data source (Id annotation has to be used)
      * @param object object to read
      * @return Last object added
-     * @throws Exception Error during reading
+     * @throws DDBSToolkitException Error during reading
      */
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException;
 
     /**
-     * Add an element to a data store
-     * @param objectToAdd Add an object to a data store
+     * Add an element to a data source
+     * @param objectToAdd Object to add in a data source
      * @return boolean if the transaction has succeeded
-     * @throws Exception Problem during query
+     * @throws DDBSToolkitException Problem during operation
      */
     public boolean add(IEntity objectToAdd) throws DDBSToolkitException;
 
     /**
-     * Update an element in a data store
+     * Update an element in a data source
      * @param objectToUpdate Object to update
      * @return boolean if the transaction has succeeded
-     * @throws Exception
+     * @throws DDBSToolkitException  Problem during operation
      */
     public boolean update(IEntity objectToUpdate) throws DDBSToolkitException;
 
     /**
-     * Delete an object in a data store
+     * Delete an object in a data source
      * @param objectToDelete Object to delete
      * @return boolean if the transaction has succeeded
-     * @throws Exception
+     * @throws DDBSToolkitException Problem during operation
      */
     public boolean delete(IEntity objectToDelete) throws DDBSToolkitException;
 
@@ -99,7 +97,7 @@ public interface DistributableEntityManager {
      * @param objectToLoad Object to load
      * @param field Array to load
      * @return the entity with the new field loaded
-     * @throws Exception
+     * @throws DDBSToolkitException Problem during operation
      */
     public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException;
 
@@ -107,7 +105,7 @@ public interface DistributableEntityManager {
      * Create the structure of the entity
      * @param objectToCreate Object to create
      * @return boolean if the transaction has succeeded
-     * @throws Exception
+     * @throws DDBSToolkitException Problem during operation
      */
     public boolean createEntity(IEntity objectToCreate) throws DDBSToolkitException;
 }

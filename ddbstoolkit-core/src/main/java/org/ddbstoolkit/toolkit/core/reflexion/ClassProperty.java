@@ -2,15 +2,22 @@ package org.ddbstoolkit.toolkit.core.reflexion;
 
 /**
  * Class representing a class property
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 09:52
- * Class
+ * @author Cyril Grandjean
  * @version 1.0: Creation of the class
  * @version 1.1: Add of propertyName property
  */
 public class ClassProperty {
 
+	/**
+	 * Class property constructor
+	 * @param isId Indicates if the field is a data source id
+	 * @param hasAutoIncrement Indicates if the field is auto incrementing
+	 * @param isArray Indicate if the field is an array
+	 * @param name Name of the field
+	 * @param type Type of the field
+	 * @param value Value of the field
+	 * @param propertyName Property name
+	 */
     public ClassProperty(boolean isId, boolean hasAutoIncrement,
 			boolean isArray, String name, String type, Object value,
 			String propertyName) {
@@ -30,12 +37,12 @@ public class ClassProperty {
     private boolean isId = false;
     
     /**
-     * Indicate if the key has auto-increment
+     * Indicates if the key is auto incrementing
      */
     private boolean isAutoIncrement = true;
 
     /**
-     * Indicate if the property is an array
+     * Indicates if the property is an array
      */
     private boolean isArray;
 
@@ -61,7 +68,7 @@ public class ClassProperty {
 
     /**
      * Get the type of the property
-     * @return  type of the property
+     * @return Type of the property
      */
     public String getType() {
         return type;
@@ -69,7 +76,7 @@ public class ClassProperty {
 
     /**
      * Get the name of the property
-     * @return name of the property
+     * @return Name of the property
      */
     public String getName() {
         return name;
@@ -100,13 +107,17 @@ public class ClassProperty {
     }
 
     /**
-     * Get the name of the property in a database or datasource
+     * Get the name of the property in a database or data source
      * @return
      */
     public String getPropertyName() {
         return propertyName;
     }
 
+    /**
+     * Indicates if the property is auto incrementing
+     * @return
+     */
 	public boolean isAutoIncrement() {
 		return isAutoIncrement;
 	}

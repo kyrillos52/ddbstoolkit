@@ -5,20 +5,17 @@ import java.util.ArrayList;
 
 /**
  * Class which represents commands sent through a network
- * User: Cyril GRANDJEAN
- * Date: 21/06/2012
- * Time: 10:06
- *
+ * @author Cyril GRANDJEAN
  * @version Creation of the class
  */
 public class DDBSCommand implements Serializable {
 
     /**
-     * Default Serial ID
-     */
-    private static final long serialVersionUID = 1L;
+	 * Version Id
+	 */
+	private static final long serialVersionUID = 8335153155410423134L;
 
-    /**
+	/**
      * Destination of the command
      */
     private String destination;
@@ -55,7 +52,7 @@ public class DDBSCommand implements Serializable {
      * Field to load : loadArray command only
      */
     private String fieldToLoad;
-
+    
     public final static int LIST_ALL_COMMAND = 1;
 
     public final static int READ_COMMAND = 2;
@@ -110,7 +107,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Get the list of conditions of a command : listAll command only
-     * @return list of conditions
+     * @return List of conditions
      */
     public ArrayList<String> getConditionList() {
         return conditionList;
@@ -171,4 +168,11 @@ public class DDBSCommand implements Serializable {
     public void setFieldToLoad(String fieldToLoad) {
         this.fieldToLoad = fieldToLoad;
     }
+
+	@Override
+	public String toString() {
+		return "DDBSCommand [destination=" + destination + ", action=" + action
+				+ ", object=" + object + ", conditionList=" + conditionList
+				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad + "]";
+	}
 }

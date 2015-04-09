@@ -4,15 +4,17 @@ import java.io.Serializable;
 
 /**
  * Class representing a peer
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 10:58
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class Peer implements Serializable {
 
     /**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 886731428324212350L;
+
+	/**
      * Unique identifier (UID) of a peer
      */
     protected String uid;
@@ -53,4 +55,9 @@ public class Peer implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+	@Override
+	public String toString() {
+		return "Peer [uid=" + uid + ", name=" + name + "]";
+	}
 }

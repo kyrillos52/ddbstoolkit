@@ -7,17 +7,22 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation representing the identifier of an element
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 10:03
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Id {
 
+	/**
+	 * Name of the field
+	 * @return Name of the field
+	 */
     String name() default "";
     
+    /**
+     * Indicates if the field is auto incrementing
+     * @return
+     */
     boolean autoincrement() default true;
 }

@@ -7,6 +7,11 @@ package org.ddbstoolkit.toolkit.core.exception;
  */
 public class DDBSToolkitException extends Exception {
 
+	/**
+	 * Serial version id
+	 */
+	private static final long serialVersionUID = -5076241885943951698L;
+
 	public DDBSToolkitException(String message, Throwable throwable)
 	{
 		super(message, throwable);

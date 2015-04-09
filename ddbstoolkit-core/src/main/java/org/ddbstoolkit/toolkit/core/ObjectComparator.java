@@ -6,11 +6,8 @@ import java.util.Comparator;
 
 /**
  * Class to sort collections of objects
- * User: Cyril GRANDJEAN
- * Date: 25/06/2012
- * Time: 14:28
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class ObjectComparator implements Comparator<IEntity> {
 

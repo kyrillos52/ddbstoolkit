@@ -4,11 +4,8 @@ import java.io.Serializable;
 
 /**
  * Interface representing an element in a data store
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 10:07
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public interface IEntity extends Serializable {
 }

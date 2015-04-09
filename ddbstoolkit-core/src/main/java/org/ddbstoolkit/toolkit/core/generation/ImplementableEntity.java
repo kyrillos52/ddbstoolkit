@@ -1,19 +1,24 @@
 package org.ddbstoolkit.toolkit.core.generation;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 
 /**
- * Interface implemented an implemented Entity which will not use reflection mechanism
- * Created with IntelliJ IDEA.
- * User: cgrandjean
- * Date: 25/09/13
- * Time: 09:28
+ * Distributed entity which will not use reflection mechanism
+ * @author Cyril Grandjean
+ * @version 1.0 Class creation
  */
 public interface ImplementableEntity extends IEntity {
 
-    <T extends IEntity> ArrayList<T> conversionResultSet(ResultSet results, T myObject) throws DDBSToolkitException;
+	/**
+	 * Convert a JDBC ResultSet into an array of objects
+	 * @param aResultSet A JDBC Resultset
+	 * @param convertionObject Corresponding conversion object
+	 * @return List of converted objects
+	 * @throws DDBSToolkitException Generic DDBSToolkit exception
+	 */
+    <T extends IEntity> List<T> conversionResultSet(ResultSet aResultSet, T convertionObject) throws DDBSToolkitException;
 }
