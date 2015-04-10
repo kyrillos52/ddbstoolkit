@@ -7,11 +7,8 @@ import java.util.ArrayList;
 
 /**
  * TableModel of characters
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 14:17
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class CharacterDataModel extends DefaultTableModel {
 
@@ -21,7 +18,7 @@ public class CharacterDataModel extends DefaultTableModel {
     private Character[] listCharacters;
 
     /**
-     * List of genre filtered
+     * List of characters filtered
      */
     private ArrayList<Character> listCharactersFiltered = new ArrayList<Character>();
 
@@ -114,14 +111,14 @@ public class CharacterDataModel extends DefaultTableModel {
         listCharactersFiltered = new ArrayList<Character>();
         String substring = "@en";
 
-        for(int i = 0; i < listCharacters.length; i++)
+        for(int counterCharacter = 0; counterCharacter < listCharacters.length; counterCharacter++)
         {
-            int indexSubString = listCharacters[i].character_name.indexOf(substring);
+            int indexSubString = listCharacters[counterCharacter].character_name.indexOf(substring);
             //If data found
             if(indexSubString != -1)
             {
-                Character myCharacter = listCharacters[i];
-                myCharacter.character_name = listCharacters[i].character_name.substring(0, indexSubString);
+                Character myCharacter = listCharacters[counterCharacter];
+                myCharacter.character_name = listCharacters[counterCharacter].character_name.substring(0, indexSubString);
                 listCharactersFiltered.add(myCharacter);
             }
         }

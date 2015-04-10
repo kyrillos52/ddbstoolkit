@@ -5,11 +5,8 @@ import org.ddbstoolkit.toolkit.core.Id;
 
 /**
  * Class representing a link between a book and a genre
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 09:25
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class Link_Book_Genre extends DistributedEntity {
 

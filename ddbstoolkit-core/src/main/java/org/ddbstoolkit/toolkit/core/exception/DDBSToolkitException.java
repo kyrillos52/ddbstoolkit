@@ -12,6 +12,11 @@ public class DDBSToolkitException extends Exception {
 	 */
 	private static final long serialVersionUID = -5076241885943951698L;
 
+	public DDBSToolkitException(String message)
+	{
+		super(message);
+	}
+	
 	public DDBSToolkitException(String message, Throwable throwable)
 	{
 		super(message, throwable);

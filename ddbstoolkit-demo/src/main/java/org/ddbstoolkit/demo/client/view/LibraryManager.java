@@ -9,11 +9,8 @@ import java.io.File;
 
 /**
  * Launch class of the application
- * User: Cyril GRANDJEAN
- * Date: 26/06/2012
- * Time: 09:39
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class LibraryManager {
 

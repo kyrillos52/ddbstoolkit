@@ -6,11 +6,8 @@ import java.util.ArrayList;
 
 /**
  * TableModel of Genres
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 14:16
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class GenreDataModel extends DefaultTableModel {
 

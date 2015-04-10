@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.Id;
 
@@ -40,11 +41,11 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return list of properties
      */
-    public static ArrayList<ClassProperty> exploreProperties(Object object)
+    public static List<DDBSEntityProperty> exploreProperties(Object object)
     {
         Field[] fields = object.getClass().getFields();
 
-        ArrayList<ClassProperty> listProperties = new ArrayList<ClassProperty>();
+        List<DDBSEntityProperty> listProperties = new ArrayList<DDBSEntityProperty>();
 
         for(int counterProperties = 0; counterProperties < fields.length; ++counterProperties)
         {
@@ -87,20 +88,10 @@ public class ClassInspector {
                 propertyName = nameProperty;
             }
 
-            listProperties.add(new ClassProperty(isId, hasAutoIncrement, isArray, nameProperty, typeProperty, value, propertyName));
+            listProperties.add(new DDBSEntityProperty(isId, hasAutoIncrement, isArray, nameProperty, typeProperty, value, propertyName));
         }
 
         return listProperties;
-    }
-
-    /**
-     * Indicates if the property is a database type
-     * @param property : property to check
-     * @return boolean indicating if the property is compatible with DDBSToolkit supported types
-     */
-    public static boolean isDatabaseType(ClassProperty property)
-    {
-        return property.getType().equals("int") || property.getType().equals("long") || property.getType().equals("float") || property.getType().equals("java.lang.String") || property.getType().equals("Timestamp");
     }
 
 }

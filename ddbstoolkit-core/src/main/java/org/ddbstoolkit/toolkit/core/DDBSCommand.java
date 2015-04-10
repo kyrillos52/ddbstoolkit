@@ -2,11 +2,12 @@ package org.ddbstoolkit.toolkit.core;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class which represents commands sent through a network
  * @author Cyril GRANDJEAN
- * @version Creation of the class
+ * @version 1.0 Creation of the class
  */
 public class DDBSCommand implements Serializable {
 
@@ -41,7 +42,7 @@ public class DDBSCommand implements Serializable {
     /**
      * List of conditions : listAll command only
      */
-    private ArrayList<String> conditionList;
+    private List<String> conditionList;
 
     /**
      * Order by condition : listAll and loadArray command only
@@ -53,29 +54,59 @@ public class DDBSCommand implements Serializable {
      */
     private String fieldToLoad;
     
+    /**
+     * List all elements action number
+     */
     public final static int LIST_ALL_COMMAND = 1;
 
+    /**
+     * Read element action number
+     */
     public final static int READ_COMMAND = 2;
 
+    /**
+     * Read last element action number
+     */
     public final static int READ_LAST_ELEMENT_COMMAND = 3;
 
+    /**
+     * Add an element action number
+     */
     public final static int ADD_COMMAND = 4;
 
+    /**
+     * Update an element action number
+     */
     public final static int UPDATE_COMMAND = 5;
 
+    /**
+     * Delete an element action number
+     */
     public final static int DELETE_COMMAND = 6;
 
+    /**
+     * List all peers action number
+     */
     public final static int LIST_PEERS_COMMAND = 7;
 
+    /**
+     * Load an array of objects action number
+     */
     public final static int LOAD_ARRAY_COMMAND = 8;
 
+    /**
+     * Create an entity action number
+     */
     public final static int CREATE_ENTITY = 9;
 
+    /**
+     * Code action to send to all peers
+     */
     public final static String DESTINATION_ALL_PEERS = "ALL";
 
     /**
      * Get the action number of a command
-     * @return number corresponding to an action
+     * @return Action number corresponding to an action
      */
     public int getAction() {
         return action;
@@ -83,7 +114,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the action number of a command
-     * @param action number corresponding to an action
+     * @param Action number corresponding to an action
      */
     public void setAction(int action) {
         this.action = action;
@@ -91,7 +122,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Get the object of a command
-     * @return object of a command
+     * @return Object of a command
      */
     public IEntity getObject() {
         return object;
@@ -99,7 +130,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the object of a command
-     * @param object object of a command
+     * @param object Object of a command
      */
     public void setObject(IEntity object) {
         this.object = object;
@@ -109,7 +140,7 @@ public class DDBSCommand implements Serializable {
      * Get the list of conditions of a command : listAll command only
      * @return List of conditions
      */
-    public ArrayList<String> getConditionList() {
+    public List<String> getConditionList() {
         return conditionList;
     }
 
@@ -117,13 +148,13 @@ public class DDBSCommand implements Serializable {
      * Set the list of conditions of a command : listAll command only
      * @param conditionList list of conditions
      */
-    public void setConditionList(ArrayList<String> conditionList) {
+    public void setConditionList(List<String> conditionList) {
         this.conditionList = conditionList;
     }
 
     /**
      * Get the order by value : listAll command only
-     * @return  order by value
+     * @return  Order by value
      */
     public String getOrderBy() {
         return orderBy;
@@ -131,7 +162,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the order by value : listAll command only
-     * @param orderBy order by value
+     * @param orderBy Order by value
      */
     public void setOrderBy(String orderBy) {
         this.orderBy = orderBy;

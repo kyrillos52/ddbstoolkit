@@ -1,7 +1,7 @@
 package org.ddbstoolkit.toolkit.core.exception;
 
 /**
- * Exception throwned when a condition is invalid
+ * Exception throw when a condition is invalid
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */

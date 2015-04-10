@@ -15,20 +15,18 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.DistributedSPARQLManager;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupSender;
-import org.ddbstoolkit.toolkit.modules.middleware.jgroups.SqlSpacesSender;
+import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesSender;
 import org.ddbstoolkit.demo.model.Character;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Window to manage information about a book
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 10:59
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class BookWindowGUI extends JFrame {
     private JFormattedTextField formattedTextFieldTitle;
@@ -82,7 +80,7 @@ public class BookWindowGUI extends JFrame {
     /**
      * Array of peers connected
      */
-    private ArrayList<Peer> listPeers = new ArrayList<Peer>();
+    private List<Peer> listPeers = new ArrayList<Peer>();
 
     /**
      * Book to update
@@ -152,7 +150,7 @@ public class BookWindowGUI extends JFrame {
                     sender.open();
 
                     Book bookToAdd = new Book();
-                    bookToAdd.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                    bookToAdd.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                     bookToAdd.title = formattedTextFieldTitle.getText();
                     bookToAdd.summary = textAreaSummary.getText();
 
@@ -163,19 +161,19 @@ public class BookWindowGUI extends JFrame {
 
                     //Add the authors linked to the book
                     for (Author author : authorDataModel.getListAuthors()) {
-                        author.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                         author.book_id = bookToAdd.book_id;
                         sender.add(author);
                     }
 
                     //Add the genres
                     for (Genre genre : genreDataModel.getListGenres()) {
-                        genre.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
 
-                        ArrayList<String> conditionList = new ArrayList<String>();
+                        List<String> conditionList = new ArrayList<String>();
                         conditionList.add("name = '" + genre.name + "'");
 
-                        ArrayList<? extends IEntity> listGenre = sender.listAll(genre, conditionList, null);
+                        List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                         //If the genre didn't exist, the genre is added
                         if (listGenre == null || listGenre.size() == 0) {
@@ -187,7 +185,7 @@ public class BookWindowGUI extends JFrame {
 
                         //Add the link to the genre
                         Link_Book_Genre newLink = new Link_Book_Genre();
-                        newLink.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                         newLink.book_id = bookToAdd.book_id;
                         newLink.genre_id = genre.genre_id;
                         sender.add(newLink);
@@ -196,7 +194,7 @@ public class BookWindowGUI extends JFrame {
 
                     //Add the characters
                     for (Character character : characterDataModel.getListCharacters()) {
-                        character.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                         character.book_id = bookToAdd.book_id;
                         sender.add(character);
                     }
@@ -253,7 +251,7 @@ public class BookWindowGUI extends JFrame {
 
             for(Peer myPeer : listPeers)
             {
-                if(myPeer.getUid().equals(bookToUpdate.node_id))
+                if(myPeer.getUid().equals(bookToUpdate.peerUid))
                 {
                     comboBoxLibrary.setSelectedItem(myPeer.getName());
                     break;
@@ -261,18 +259,18 @@ public class BookWindowGUI extends JFrame {
 
             }
 
-            bookToUpdate = (Book) sender.loadArray(bookToUpdate, "author", "name ASC");
+            bookToUpdate = sender.loadArray(bookToUpdate, "author", "name ASC");
             authorDataModel.setListAuthors(bookToUpdate.author);
             authorDataModel.reloadDataFromMySQLDatabase();
 
-            bookToUpdate = (Book) sender.loadArray(bookToUpdate, "linkedGenre", null);
+            bookToUpdate = sender.loadArray(bookToUpdate, "linkedGenre", null);
             if(bookToUpdate.linkedGenre != null)
             {
                 Genre[] listGenre = new Genre[bookToUpdate.linkedGenre.length];
                 for(int i = 0; i < bookToUpdate.linkedGenre.length; i++)
                 {
                     Genre myGenre = new Genre();
-                    myGenre.node_id = bookToUpdate.node_id;
+                    myGenre.peerUid = bookToUpdate.peerUid;
                     myGenre.genre_id = bookToUpdate.linkedGenre[i].genre_id;
                     listGenre[i] = (Genre) sender.read(myGenre);
                 }
@@ -281,7 +279,7 @@ public class BookWindowGUI extends JFrame {
                 genreDataModel.reloadDataFromMySQLDatabase();
             }
 
-            bookToUpdate = (Book) sender.loadArray(bookToUpdate, "character", "character_name ASC");
+            bookToUpdate = sender.loadArray(bookToUpdate, "character", "character_name ASC");
             characterDataModel.setListCharacters(bookToUpdate.character);
             characterDataModel.reloadDataFromMySQLDatabase();
 
@@ -316,7 +314,7 @@ public class BookWindowGUI extends JFrame {
                     Book bookToModify = myBook;
 
                     //Book is updated on the same library
-                    if(bookToModify.node_id.equals(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid()))
+                    if(bookToModify.peerUid.equals(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid()))
                     {
                         bookToModify.title = formattedTextFieldTitle.getText();
                         bookToModify.summary = textAreaSummary.getText();
@@ -338,13 +336,13 @@ public class BookWindowGUI extends JFrame {
                         //Add the authors linked to the book
                         for(Author author : authorDataModel.getListAuthors())
                         {
-                            author.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             author.book_id = bookToModify.book_id;
                             sender.add(author);
                         }
 
                         //Delete the links to the genre
-                        bookToModify = (Book)sender.loadArray(bookToModify, "linkedGenre", null);
+                        bookToModify = sender.loadArray(bookToModify, "linkedGenre", null);
 
                         if(bookToModify.linkedGenre != null)
                         {
@@ -357,27 +355,27 @@ public class BookWindowGUI extends JFrame {
                         //Add the links to the genres
                         for(Genre genre : genreDataModel.getListGenres())
                         {
-                            genre.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
 
-                            ArrayList<String> conditionList = new ArrayList<String>();
+                            List<String> conditionList = new ArrayList<String>();
                             conditionList.add("name = '"+genre.name+"'");
 
-                            ArrayList<? extends IEntity> listGenre = sender.listAll(genre, conditionList, null);
+                            List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                             //If no genre
                             if(listGenre == null || listGenre.size() == 0)
                             {
                                 sender.add(genre);
-                                genre = (Genre)sender.readLastElement(genre);
+                                genre = sender.readLastElement(genre);
                             }
                             else
                             {
-                                genre = (Genre)listGenre.get(0);
+                                genre = listGenre.get(0);
                             }
 
                             //Add the link to the entity
                             Link_Book_Genre newLink = new Link_Book_Genre();
-                            newLink.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             newLink.book_id = bookToModify.book_id;
                             newLink.genre_id = genre.genre_id;
                             sender.add(newLink);
@@ -385,7 +383,7 @@ public class BookWindowGUI extends JFrame {
                         }
 
                         //Delete the list of authors
-                        bookToModify = (Book)sender.loadArray(bookToModify, "character", null);
+                        bookToModify = sender.loadArray(bookToModify, "character", null);
 
                         if(bookToModify.character != null)
                         {
@@ -398,7 +396,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the new characters
                         for(Character character : characterDataModel.getListCharacters())
                         {
-                            character.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             character.book_id = bookToModify.book_id;
                             sender.add(character);
                         }
@@ -410,17 +408,17 @@ public class BookWindowGUI extends JFrame {
                         Book oldBook = bookToModify;
 
                         Book newBook = new Book();
-                        newBook.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        newBook.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                         newBook.title = formattedTextFieldTitle.getText();
                         newBook.summary = textAreaSummary.getText();
 
                         //Add the book
                         sender.add(newBook);
 
-                        newBook = (Book)sender.readLastElement(newBook);
+                        newBook = sender.readLastElement(newBook);
 
                         //Delete the list of authors in the current library
-                        oldBook = (Book)sender.loadArray(oldBook, "author", null);
+                        oldBook = sender.loadArray(oldBook, "author", null);
 
                         if(oldBook.author != null)
                         {
@@ -433,13 +431,13 @@ public class BookWindowGUI extends JFrame {
                         //Add the authors linked to the book
                         for(Author author : authorDataModel.getListAuthors())
                         {
-                            author.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             author.book_id = newBook.book_id;
                             sender.add(author);
                         }
 
                         //Delete the links of genre in the current library
-                        oldBook = (Book)sender.loadArray(oldBook, "linkedGenre", null);
+                        oldBook = sender.loadArray(oldBook, "linkedGenre", null);
 
                         if(oldBook.linkedGenre != null)
                         {
@@ -452,27 +450,27 @@ public class BookWindowGUI extends JFrame {
                         //Add the genres
                         for(Genre genre : genreDataModel.getListGenres())
                         {
-                            genre.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
 
-                            ArrayList<String> conditionList = new ArrayList<String>();
+                            List<String> conditionList = new ArrayList<String>();
                             conditionList.add("name = '"+genre.name+"'");
 
-                            ArrayList<? extends IEntity> listGenre = sender.listAll(genre, conditionList, null);
+                            List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                             //If no genre, add the genre
                             if(listGenre == null || listGenre.size() == 0)
                             {
                                 sender.add(genre);
-                                genre = (Genre)sender.readLastElement(genre);
+                                genre = sender.readLastElement(genre);
                             }
                             else
                             {
-                                genre = (Genre)listGenre.get(0);
+                                genre = listGenre.get(0);
                             }
 
                             //Add the link to the entity
                             Link_Book_Genre newLink = new Link_Book_Genre();
-                            newLink.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             newLink.book_id = newBook.book_id;
                             newLink.genre_id = genre.genre_id;
                             sender.add(newLink);
@@ -480,7 +478,7 @@ public class BookWindowGUI extends JFrame {
                         }
 
                         //Delete the list of characters to the current library
-                        oldBook = (Book)sender.loadArray(oldBook, "character", null);
+                        oldBook = sender.loadArray(oldBook, "character", null);
 
                         if(oldBook.character != null)
                         {
@@ -493,7 +491,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the characters
                         for(Character character : characterDataModel.getListCharacters())
                         {
-                            character.node_id = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
                             character.book_id = newBook.book_id;
                             sender.add(character);
                         }
@@ -532,12 +530,12 @@ public class BookWindowGUI extends JFrame {
                     DistributedSPARQLManager manager = new DistributedSPARQLManager();
 
                     //1st try : Exact match (Much faster)
-                    ArrayList<String> listCondition = listCondition = new ArrayList<String>();
+                    List<String> listCondition = listCondition = new ArrayList<String>();
                     listCondition.add(DistributedSPARQLManager.getObjectVariable(new Book())+" fb:type.object.name '"+formattedTextFieldTitle.getText()+"'@en");
                     listCondition.add("FILTER ( lang(?title) =  'en' )");
                     listCondition.add("FILTER ( lang(?summary) = 'en' )");
 
-                    ArrayList<Book> listBook = manager.listAll(new Book(), listCondition, null);
+                    List<Book> listBook = manager.listAll(new Book(), listCondition, null);
 
                     //If the first matching didn't succeed
                     if(listBook.size() == 0)
@@ -560,7 +558,7 @@ public class BookWindowGUI extends JFrame {
                     //One book found
                     else if(listBook.size() == 1)
                     {
-                        Book foundBook = (Book) listBook.get(0);
+                        Book foundBook = listBook.get(0);
 
                         String substring = "@en";
 
@@ -581,15 +579,15 @@ public class BookWindowGUI extends JFrame {
                         formattedTextFieldTitle.setText(foundBook.title);
                         textAreaSummary.setText(foundBook.summary);
 
-                        foundBook = (Book) manager.loadArray(foundBook, "author", "name ASC");
+                        foundBook = manager.loadArray(foundBook, "author", "name ASC");
                         authorDataModel.setListAuthors(foundBook.author);
                         authorDataModel.reloadDataFromEndpoint();
 
-                        foundBook = (Book) manager.loadArray(foundBook, "genre", "name ASC");
+                        foundBook = manager.loadArray(foundBook, "genre", "name ASC");
                         genreDataModel.setListGenres(foundBook.genre);
                         genreDataModel.reloadDataFromEndpoint();
 
-                        foundBook = (Book) manager.loadArray(foundBook, "character", "character_name ASC");
+                        foundBook = manager.loadArray(foundBook, "character", "character_name ASC");
                         characterDataModel.setListCharacters(foundBook.character);
                         characterDataModel.reloadDataFromEndpoint();
                     }
@@ -656,15 +654,15 @@ public class BookWindowGUI extends JFrame {
                             formattedTextFieldTitle.setText(foundBook.title);
                             textAreaSummary.setText(foundBook.summary);
 
-                            foundBook = (Book) manager.loadArray(foundBook, "author", "name ASC");
+                            foundBook = manager.loadArray(foundBook, "author", "name ASC");
                             authorDataModel.setListAuthors(foundBook.author);
                             authorDataModel.reloadDataFromEndpoint();
 
-                            foundBook = (Book) manager.loadArray(foundBook, "genre", "name ASC");
+                            foundBook = manager.loadArray(foundBook, "genre", "name ASC");
                             genreDataModel.setListGenres(foundBook.genre);
                             genreDataModel.reloadDataFromEndpoint();
 
-                            foundBook = (Book) manager.loadArray(foundBook, "character", "character_name ASC");
+                            foundBook = manager.loadArray(foundBook, "character", "character_name ASC");
                             characterDataModel.setListCharacters(foundBook.character);
                             characterDataModel.reloadDataFromEndpoint();
                         }

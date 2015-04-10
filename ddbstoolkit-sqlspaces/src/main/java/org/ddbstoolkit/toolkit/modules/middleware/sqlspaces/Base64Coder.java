@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
+package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 
 /**
  * A Base64 encoder/decoder.

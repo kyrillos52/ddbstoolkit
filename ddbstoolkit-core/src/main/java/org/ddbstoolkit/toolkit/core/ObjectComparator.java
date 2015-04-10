@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.util.Comparator;
 
 /**
- * Class to sort collections of objects
+ * Comparator to sort collections of objects
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */

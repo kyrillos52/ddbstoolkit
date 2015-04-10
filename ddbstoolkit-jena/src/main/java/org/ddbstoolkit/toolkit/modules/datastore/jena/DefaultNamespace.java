@@ -7,15 +7,13 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation corresponding to the default namespace of a class
- * User: Cyril GRANDJEAN
- * Date: 19/06/2012
- * Time: 09:36
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 @Target(value = {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DefaultNamespace {
+	
     String name() default "";
     String url() default "";
 }

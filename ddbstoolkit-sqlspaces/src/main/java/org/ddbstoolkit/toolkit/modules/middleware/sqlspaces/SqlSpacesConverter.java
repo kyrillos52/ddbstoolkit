@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
+package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 
 import info.collide.sqlspaces.commons.Tuple;
 

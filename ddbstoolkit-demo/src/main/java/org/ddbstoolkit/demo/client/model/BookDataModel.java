@@ -8,11 +8,8 @@ import java.util.ArrayList;
 
 /**
  * TableModel of Books
- * User: Cyril GRANDJEAN
- * Date: 26/06/2012
- * Time: 14:36
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class BookDataModel extends DefaultTableModel {
 

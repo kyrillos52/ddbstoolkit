@@ -14,7 +14,7 @@ public interface DistributableReceiverInterface {
     public void setEntityManager(DistributableEntityManager entityManager);
 
     /**
-     * Return the peer associated with the interface
+     * Return the peer associated with the receiver
      * @return Peer associated with the receiver
      */
     public Peer getMyPeer();
@@ -27,7 +27,7 @@ public interface DistributableReceiverInterface {
 
     /**
      * Stop to listen on the interface
-     * @throws Exception Error during opening the connection
+     * @throws Exception Error during closing the connection
      */
     public void stop() throws Exception;
 }

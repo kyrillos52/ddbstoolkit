@@ -11,11 +11,8 @@ import org.ddbstoolkit.toolkit.modules.datastore.jena.URI;
 
 /**
  * Class representing a book
- * User: Cyril GRANDJEAN
- * Date: 26/06/2012
- * Time: 11:03
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 @Service(url="http://www.factforge.net/sparql")
 @DefaultNamespace(name="fb",url="http://rdf.freebase.com/ns/")

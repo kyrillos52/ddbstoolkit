@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
+package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 
 import info.collide.sqlspaces.client.TupleSpace;
 import info.collide.sqlspaces.commons.TupleSpaceException;
@@ -7,6 +7,7 @@ import info.collide.sqlspaces.commons.Callback;
 import info.collide.sqlspaces.commons.Tuple;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
@@ -190,7 +191,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 switch (myCommand.getAction()) {
                     case DDBSCommand.LIST_ALL_COMMAND:
                         //Get the list of entities
-                        ArrayList<? extends IEntity> results = entityManager.listAll(myCommand.getObject(), myCommand.getConditionList(), myCommand.getOrderBy());
+                        List<? extends IEntity> results = entityManager.listAll(myCommand.getObject(), myCommand.getConditionList(), myCommand.getOrderBy());
 
                         //System.out.println("Size = "+results.size());
 

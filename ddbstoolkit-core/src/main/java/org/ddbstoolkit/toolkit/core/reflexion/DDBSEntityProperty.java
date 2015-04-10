@@ -1,13 +1,18 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
 /**
- * Class representing a class property
+ * Class representing a DDBS Entity property
  * @author Cyril Grandjean
  * @version 1.0: Creation of the class
  * @version 1.1: Add of propertyName property
  */
-public class ClassProperty {
+public class DDBSEntityProperty {
 
+	/**
+	 * Peer UID property name
+	 */
+	private static final String PEER_UID_PROPERTY_NAME = "peerUid";
+	
 	/**
 	 * Class property constructor
 	 * @param isId Indicates if the field is a data source id
@@ -18,7 +23,7 @@ public class ClassProperty {
 	 * @param value Value of the field
 	 * @param propertyName Property name
 	 */
-    public ClassProperty(boolean isId, boolean hasAutoIncrement,
+    public DDBSEntityProperty(boolean isId, boolean hasAutoIncrement,
 			boolean isArray, String name, String type, Object value,
 			String propertyName) {
 		super();
@@ -121,12 +126,37 @@ public class ClassProperty {
 	public boolean isAutoIncrement() {
 		return isAutoIncrement;
 	}
+	
+	/**
+	 * Indicates if its the Peer UID property
+	 * @return boolean indicating if the property is the Peer UID property
+	 */
+	public boolean isPeerUid() {
+		return name.equals(PEER_UID_PROPERTY_NAME);
+	}
+	
+	/**
+	 * Indicates if it is a DDBSToolkit supported entity
+	 * @return boolean indicating if the property is a DDBSToolkit supported entity
+	 */
+	public boolean isDDBSToolkitSupportedEntity()
+	{
+		for(DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity : DDBSToolkitSupportedEntity.values())
+		{
+			if(ddbsToolkitSupportedEntity.getType().equals(type))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof ClassProperty)
+		if(obj instanceof DDBSEntityProperty)
 		{
-			ClassProperty classProperty = (ClassProperty)obj;
+			DDBSEntityProperty classProperty = (DDBSEntityProperty)obj;
 			if(classProperty.getPropertyName().equals(this.propertyName))
 			{
 				return true;

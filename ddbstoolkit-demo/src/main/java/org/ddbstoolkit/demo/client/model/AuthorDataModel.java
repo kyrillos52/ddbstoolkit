@@ -9,11 +9,8 @@ import java.util.ArrayList;
 
 /**
  * TableModel of authors
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 14:16
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class AuthorDataModel extends DefaultTableModel {
 
@@ -135,14 +132,14 @@ public class AuthorDataModel extends DefaultTableModel {
         String substring = "@en";
         listAuthorsFiltered = new ArrayList<Author>();
 
-        for(int i = 0; i < listAuthors.length; i++)
+        for(int counterAuthor = 0; counterAuthor < listAuthors.length; counterAuthor++)
         {
-            int indexSubString = listAuthors[i].name.indexOf(substring);
+            int indexSubString = listAuthors[counterAuthor].name.indexOf(substring);
             //If data found
             if(indexSubString != -1)
             {
-                 Author myAuthor = listAuthors[i];
-                 myAuthor.name = listAuthors[i].name.substring(0, indexSubString);
+                 Author myAuthor = listAuthors[counterAuthor];
+                 myAuthor.name = listAuthors[counterAuthor].name.substring(0, indexSubString);
                  listAuthorsFiltered.add(myAuthor);
             }
         }

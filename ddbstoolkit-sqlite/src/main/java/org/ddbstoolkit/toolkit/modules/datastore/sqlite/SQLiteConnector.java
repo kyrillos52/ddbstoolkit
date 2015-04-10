@@ -34,7 +34,7 @@ public class SQLiteConnector {
         super();
         this.name = name;
 
-        String driver = "org.sqlite.JDBC";
+        final String driver = "org.sqlite.JDBC";
         try {
             //Load the JDBC driver class dynamically.
             Driver d = (Driver)Class.forName(driver).newInstance();
@@ -52,7 +52,7 @@ public class SQLiteConnector {
         this.path = path;
         this.name = name;
 
-        String driver = "org.sqlite.JDBC";
+        final String driver = "org.sqlite.JDBC";
         try {
             //Load the JDBC driver class dynamically.
             Driver d = (Driver)Class.forName(driver).newInstance();

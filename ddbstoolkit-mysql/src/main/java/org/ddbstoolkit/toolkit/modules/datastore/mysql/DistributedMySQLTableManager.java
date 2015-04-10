@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.IEntity;
@@ -15,15 +16,13 @@ import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
-import org.ddbstoolkit.toolkit.core.reflexion.ClassProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
 /**
  * Class representing a distributed MySQL Database
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 11:08
- *
- * @version 1.0 : Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  * @version 1.1 : Manage the PropertyName annotation used for properties such as "1characters" table
  */
 public class DistributedMySQLTableManager implements DistributableEntityManager {
@@ -91,11 +90,11 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
     }
 
     @Override
-    public <T extends IEntity> ArrayList<T> listAll(T object, ArrayList<String> conditionList, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> List<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
 
-        //If the connector is opened
         try {
-			if(myConnector.isOpen() && object != null)
+			
+        	if(myConnector.isOpen() && object != null)
 			{
 		        //Inspect object
 		        String tableName = ClassInspector.getClassName(object);
@@ -130,11 +129,9 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
 		        sb.append(";");
 
-		        //System.out.println(sb.toString());
-
 		        ResultSet results = myConnector.query(sb.toString());
 
-		        ArrayList<T> resultList;
+		        List<T> resultList;
 
 		        IEntity myObject = (IEntity) object;
 
@@ -147,12 +144,19 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 		           resultList = conversionResultSet(results, object);
 		        }
 
-
 		        return resultList;
 			}
 			else
 			{
-			    return null;
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
+				
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
@@ -162,75 +166,76 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
     @Override
     public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
-        //If the connector is opened
         try {
+        	
 			if(myConnector.isOpen() && object != null)
 			{
-			    if(object != null)
-			    {
-			        //Inspect the object
-			        String tableName = ClassInspector.getClassName(object);
+			    //Inspect the object
+				String tableName = ClassInspector.getClassName(object);
 
-			        //List properties
-			        ArrayList<ClassProperty> properties = ClassInspector.exploreProperties(object);
+				//List properties
+				List<DDBSEntityProperty> properties = ClassInspector.exploreProperties(object);
 
-			        String sqlRequest = "SELECT * FROM "+tableName+" WHERE ";
-			        
-			        int counterPrimaryKey = 0;
-			        for(ClassProperty property : properties)
-			        {
-			            if(property.isId())
-			            {
-			            	if(counterPrimaryKey > 0)
-			            	{
-			            		sqlRequest += "AND ";
-			            	}
-			            	
-			            	sqlRequest += property.getPropertyName() +" = '"+property.getValue()+"' ";
-			            	counterPrimaryKey++;
-			            }
-			        }
+				String sqlRequest = "SELECT * FROM "+tableName+" WHERE ";
+				
+				int counterPrimaryKey = 0;
+				for(DDBSEntityProperty property : properties)
+				{
+				    if(property.isId())
+				    {
+				    	if(counterPrimaryKey > 0)
+				    	{
+				    		sqlRequest += "AND ";
+				    	}
+				    	
+				    	sqlRequest += property.getPropertyName() +" = '"+property.getValue()+"' ";
+				    	counterPrimaryKey++;
+				    }
+				}
 
-			        //Execute the request
-			        ResultSet results;
-			        if (counterPrimaryKey > 0) {
-			            results = myConnector.query(sqlRequest);
+				//Execute the request
+				ResultSet results;
+				if (counterPrimaryKey > 0) {
+					
+				    results = myConnector.query(sqlRequest);
 
-			            ArrayList<T> resultList;
-			            IEntity myObject = (IEntity) object;
+				    List<T> resultList;
+				    IEntity myObject = (IEntity) object;
 
-			            if(myObject instanceof ImplementableEntity)
-			            {
-			                resultList = ((ImplementableEntity) myObject).conversionResultSet(results, object);
-			            }
-			            else
-			            {
-			                resultList = conversionResultSet(results, object);
-			            }
+				    if(myObject instanceof ImplementableEntity)
+				    {
+				        resultList = ((ImplementableEntity) myObject).conversionResultSet(results, object);
+				    }
+				    else
+				    {
+				        resultList = conversionResultSet(results, object);
+				    }
 
-			            //Return the object
-			            if(resultList.size() == 1)
-			            {
-			                return resultList.get(0);
-			            }
-			            else
-			            {
-			                return null;
-			            }
-			        }
-			        else
-			        {
-			            return null;
-			        }
-			    }
-			    else
-			    {
-			        return null;
-			    }
+				    //Return the object
+				    if(resultList.size() == 1)
+				    {
+				        return resultList.get(0);
+				    }
+				    else
+				    {
+				        return null;
+				    }
+				}
+				else
+				{
+				    return null;
+				}
 			}
 			else
 			{
-			    return null;
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
@@ -240,18 +245,18 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
     @Override
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
-        //If the connector is opened
         try {
+        	
 			if(myConnector.isOpen() && object != null)
 			{
 			    //Inspect the object
 			    String tableName = ClassInspector.getClassName(object);
 
 			    //List properties
-			    ArrayList<ClassProperty> properties = ClassInspector.exploreProperties(object);
+			    List<DDBSEntityProperty> properties = ClassInspector.exploreProperties(object);
 
-			    ClassProperty primaryKey = null;
-			    for(ClassProperty property : properties)
+			    DDBSEntityProperty primaryKey = null;
+			    for(DDBSEntityProperty property : properties)
 			    {
 			        if(property.isId())
 			        {
@@ -264,7 +269,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			    ResultSet results = myConnector.query("SELECT * FROM "+tableName+" WHERE "+ primaryKey.getPropertyName() +" = (SELECT MAX("+primaryKey.getPropertyName()+") FROM "+tableName+")");
 
 			    //Return object
-			    ArrayList<T> resultList;
+			    List<T> resultList;
 			    IEntity myObject = (IEntity) object;
 
 			    if(myObject instanceof ImplementableEntity)
@@ -285,10 +290,20 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			        return null;
 			    }
 			}
+			else
+			{
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
+			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
 		}
-        return null;
     }
 
     @Override
@@ -296,6 +311,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
         //If the connector is opened
         try {
+        	
 			if(myConnector.isOpen() && objectToAdd != null)
 			{
 				//Prepare the SQL Request
@@ -312,20 +328,20 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			    sqlPart2.append(" VALUES (");
 
 			    //Select properties
-			    ArrayList<ClassProperty> listOfProperties = ClassInspector.exploreProperties(objectToAdd);
+			    List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToAdd);
 			    
-			    //The auto-incrementing primary keys, arrays and node_id are removed
-			    Iterator<ClassProperty> classPropertyIterator = listOfProperties.iterator();
-			    while(classPropertyIterator.hasNext())
+			    //The auto-incrementing primary keys, arrays and peerUid are removed
+			    Iterator<DDBSEntityProperty> DDBSEntityPropertyIterator = listOfProperties.iterator();
+			    while(DDBSEntityPropertyIterator.hasNext())
 			    {
-			    	ClassProperty property = classPropertyIterator.next();
-			        if((property.isId() && property.isAutoIncrement()) || property.isArray() || property.getPropertyName().equals("node_id"))
+			    	DDBSEntityProperty property = DDBSEntityPropertyIterator.next();
+			        if((property.isId() && property.isAutoIncrement()) || property.isArray() || property.isPeerUid())
 			        {
-			        	classPropertyIterator.remove();
+			        	DDBSEntityPropertyIterator.remove();
 			        }
 			    }
 			    
-			    for(ClassProperty property : listOfProperties)
+			    for(DDBSEntityProperty property : listOfProperties)
 			    {
 			    	sqlPart1.append(property.getPropertyName());
 		            sqlPart2.append("?");
@@ -342,27 +358,25 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
 			    String sqlToAdd = sqlPart1.toString()+sqlPart2.toString();
 
-			    //System.out.println(sqlToAdd);
-
 			    //Prepare the request
 			    PreparedStatement preparedRequest = myConnector.prepareStatement(sqlToAdd);
 
 			    int index = 1;
-			    for(ClassProperty myProperty : listOfProperties)
+			    for(DDBSEntityProperty myProperty : listOfProperties)
 			    {
-			        if(myProperty.getType().equals("int"))
+			        if(myProperty.getType().equals(DDBSToolkitSupportedEntity.INTEGER.getType()))
 			        {
 			            preparedRequest.setInt(index, (Integer)myProperty.getValue());
 			        }
-			        else if(myProperty.getType().equals("long"))
+			        else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.LONG.getType()))
 			        {
 			            preparedRequest.setLong(index, (Long) myProperty.getValue());
 			        }
-			        else if(myProperty.getType().equals("float"))
+			        else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.FLOAT.getType()))
 			        {
 			            preparedRequest.setFloat(index, (Float)myProperty.getValue());
 			        }
-			        else if(myProperty.getType().equals("java.lang.String"))
+			        else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.STRING.getType()))
 			        {
 			            if(myProperty.getValue() != null)
 			            {
@@ -374,7 +388,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			            }
 
 			        }
-			        else if(myProperty.getType().equals("java.sql.Timestamp"))
+			        else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.TIMESTAMP.getType()))
 			        {
 			            preparedRequest.setTimestamp(index, (Timestamp)myProperty.getValue());
 			        }
@@ -382,14 +396,22 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			    }
 
 			    //Execute the prepared request
-			    myConnector.executePreparedQuery(preparedRequest);
-
-			    return true;
+			    return myConnector.executePreparedQuery(preparedRequest) == 1;
+			}
+			else
+			{
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
 		}
-        return false;
     }
 
     @Override
@@ -397,26 +419,27 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
         //If the connector is opened
         try {
+        	
 			if(myConnector.isOpen() && objectToUpdate != null)
 			{
 			    //Inspect object
 			    String tableName = ClassInspector.getClassName(objectToUpdate);
 
 			    //Find properties
-			    ArrayList<ClassProperty> listPrimaryKeys = new ArrayList<ClassProperty>(); 
-			    ArrayList<ClassProperty> listOfProperties = ClassInspector.exploreProperties(objectToUpdate);
-			    Iterator<ClassProperty> classPropertyIterator = listOfProperties.iterator();
-			    while(classPropertyIterator.hasNext())
+			    List<DDBSEntityProperty> listPrimaryKeys = new ArrayList<DDBSEntityProperty>(); 
+			    List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToUpdate);
+			    Iterator<DDBSEntityProperty> DDBSEntityPropertyIterator = listOfProperties.iterator();
+			    while(DDBSEntityPropertyIterator.hasNext())
 			    {
-			    	ClassProperty property = classPropertyIterator.next();
+			    	DDBSEntityProperty property = DDBSEntityPropertyIterator.next();
 			    	if(property.isId())
 			    	{
 			    		listPrimaryKeys.add(property);
-			    		classPropertyIterator.remove();
+			    		DDBSEntityPropertyIterator.remove();
 			    	}
-			    	else if(property.isArray() || property.getPropertyName().equals("node_id"))
+			    	else if(property.isArray() || property.isPeerUid())
 			        {
-			        	classPropertyIterator.remove();
+			        	DDBSEntityPropertyIterator.remove();
 			        }
 			    }
 
@@ -450,7 +473,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			            sqlStatement.append(" WHERE ");
 			            
 			            int counterPrimaryKey = 0;
-			            for(ClassProperty property : listPrimaryKeys)
+			            for(DDBSEntityProperty property : listPrimaryKeys)
 				        {
 			            	if(counterPrimaryKey > 0)
 			            	{
@@ -462,31 +485,29 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 				        }
 
 			            sqlStatement.append("LIMIT 1 ;");
-			            
-			            //System.out.println(sqlStatement.toString());
 
 			            PreparedStatement preparedRequest = myConnector.prepareStatement(sqlStatement.toString());
 
 			            int index = 1;
-			            for(ClassProperty myProperty : listOfProperties)
+			            for(DDBSEntityProperty myProperty : listOfProperties)
 			            {
-		                    if(myProperty.getType().equals("int"))
+		                    if(myProperty.getType().equals(DDBSToolkitSupportedEntity.INTEGER.getType()))
 		                    {
 		                        preparedRequest.setInt(index, (Integer)myProperty.getValue());
 		                    }
-		                    else if(myProperty.getType().equals("long"))
+		                    else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.LONG.getType()))
 		                    {
 		                        preparedRequest.setLong(index, (Long) myProperty.getValue());
 		                    }
-		                    else if(myProperty.getType().equals("float"))
+		                    else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.FLOAT.getType()))
 		                    {
 		                        preparedRequest.setFloat(index, (Float)myProperty.getValue());
 		                    }
-		                    else if(myProperty.getType().equals("java.lang.String"))
+		                    else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.STRING.getType()))
 		                    {
-		                        preparedRequest.setString(index, myProperty.getValue().toString());
+		                        preparedRequest.setString(index, (String)myProperty.getValue());
 		                    }
-		                    else if(myProperty.getType().equals("java.sql.Timestamp"))
+		                    else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.TIMESTAMP.getType()))
 		                    {
 		                        preparedRequest.setTimestamp(index, (Timestamp)myProperty.getValue());
 		                    }
@@ -494,25 +515,25 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			            }
 
 			            //The primary keys are set in where clause
-			            for(ClassProperty property : listPrimaryKeys)
+			            for(DDBSEntityProperty property : listPrimaryKeys)
 				        {
-			            	if(property.getType().equals("int"))
+			            	if(property.getType().equals(DDBSToolkitSupportedEntity.INTEGER.getType()))
 				            {
 				                preparedRequest.setInt(index, (Integer)property.getValue());
 				            }
-				            else if(property.getType().equals("long"))
+				            else if(property.getType().equals(DDBSToolkitSupportedEntity.LONG.getType()))
 				            {
 				                preparedRequest.setLong(index, (Long) property.getValue());
 				            }
-				            else if(property.getType().equals("float"))
+				            else if(property.getType().equals(DDBSToolkitSupportedEntity.FLOAT.getType()))
 				            {
 				                preparedRequest.setFloat(index, (Float)property.getValue());
 				            }
-				            else if(property.getType().equals("java.lang.String"))
+				            else if(property.getType().equals(DDBSToolkitSupportedEntity.STRING.getType()))
 				            {
 				                preparedRequest.setString(index, property.getValue().toString());
 				            }
-				            else if(property.getType().equals("java.sql.Timestamp"))
+				            else if(property.getType().equals(DDBSToolkitSupportedEntity.TIMESTAMP.getType()))
 				            {
 				                preparedRequest.setTimestamp(index, (Timestamp)property.getValue());
 				            }
@@ -520,9 +541,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 				        }
 			            
 			            //Execute the prepared request
-			            myConnector.executePreparedQuery(preparedRequest);
-
-			            return true;
+			            return myConnector.executePreparedQuery(preparedRequest) == 1;
 			        }
 			        else
 			        {
@@ -530,10 +549,20 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			        }
 			    }
 			}
+			else
+			{
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
+			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
 		}
-        return false;
     }
 
     @Override
@@ -541,25 +570,26 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
         //If the connector is opened
         try {
+        	
 			if(myConnector.isOpen() && objectToDelete != null)
 			{
 			    //Inspect object
 			    String tableName = ClassInspector.getClassName(objectToDelete);
 
-			    ArrayList<ClassProperty> listPrimaryKeys = new ArrayList<ClassProperty>(); 
-			    ArrayList<ClassProperty> listOfProperties = ClassInspector.exploreProperties(objectToDelete);
-			    Iterator<ClassProperty> classPropertyIterator = listOfProperties.iterator();
-			    while(classPropertyIterator.hasNext())
+			    List<DDBSEntityProperty> listPrimaryKeys = new ArrayList<DDBSEntityProperty>(); 
+			    List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToDelete);
+			    Iterator<DDBSEntityProperty> DDBSEntityPropertyIterator = listOfProperties.iterator();
+			    while(DDBSEntityPropertyIterator.hasNext())
 			    {
-			    	ClassProperty property = classPropertyIterator.next();
+			    	DDBSEntityProperty property = DDBSEntityPropertyIterator.next();
 			    	if(property.isId())
 			    	{
 			    		listPrimaryKeys.add(property);
-			    		classPropertyIterator.remove();
+			    		DDBSEntityPropertyIterator.remove();
 			    	}
-			    	else if(property.isArray() || property.getPropertyName().equals("node_id"))
+			    	else if(property.isArray() || property.isPeerUid())
 			        {
-			        	classPropertyIterator.remove();
+			        	DDBSEntityPropertyIterator.remove();
 			        }
 			    }
 
@@ -575,7 +605,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 		            sqlStatement += " WHERE ";
 		            
 		            int counterPrimaryKey = 0;
-		            for(ClassProperty property : listPrimaryKeys)
+		            for(DDBSEntityProperty property : listPrimaryKeys)
 			        {
 		            	if(counterPrimaryKey > 0)
 		            	{
@@ -586,8 +616,6 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 		            	counterPrimaryKey++;
 			        }
 		            sqlStatement += "LIMIT 1 ;";
-
-		            //System.out.println(sqlStatement);
 		            
 		            //Prepare the request
 		            PreparedStatement preparedRequest = myConnector.prepareStatement(sqlStatement);
@@ -596,26 +624,26 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
 		                int index = 1;
 
-		                for(ClassProperty primaryKey : listPrimaryKeys)
+		                for(DDBSEntityProperty primaryKey : listPrimaryKeys)
 				        {
 		                	//The primary key is set in where clause
-			                if(primaryKey.getType().equals("int"))
+			                if(primaryKey.getType().equals(DDBSToolkitSupportedEntity.INTEGER.getType()))
 			                {
 			                    preparedRequest.setInt(index, (Integer)primaryKey.getValue());
 			                }
-			                else if(primaryKey.getType().equals("long"))
+			                else if(primaryKey.getType().equals(DDBSToolkitSupportedEntity.LONG.getType()))
 			                {
 			                    preparedRequest.setLong(index, (Long) primaryKey.getValue());
 			                }
-			                else if(primaryKey.getType().equals("float"))
+			                else if(primaryKey.getType().equals(DDBSToolkitSupportedEntity.FLOAT.getType()))
 			                {
 			                    preparedRequest.setFloat(index, (Float)primaryKey.getValue());
 			                }
-			                else if(primaryKey.getType().equals("java.lang.String"))
+			                else if(primaryKey.getType().equals(DDBSToolkitSupportedEntity.STRING.getType()))
 			                {
 			                    preparedRequest.setString(index, primaryKey.getValue().toString());
 			                }
-			                else if(primaryKey.getType().equals("java.sql.Timestamp"))
+			                else if(primaryKey.getType().equals(DDBSToolkitSupportedEntity.TIMESTAMP.getType()))
 			                {
 			                    preparedRequest.setTimestamp(index, (Timestamp)primaryKey.getValue());
 			                }
@@ -623,9 +651,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 				        }
 
 		                //Execute prepared request
-		                myConnector.executePreparedQuery(preparedRequest);
-
-		                return true;
+		                return myConnector.executePreparedQuery(preparedRequest) == 1;
 
 			            } catch (SQLException e) {
 			                e.printStackTrace();
@@ -635,7 +661,14 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			}
 			else
 			{
-				throw new DDBSToolkitException("Error during execution of the SQL request - MySQL Connection not open", null);
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during execution of the SQL request", sqle);
@@ -646,13 +679,14 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
     public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException {
     	
         try {
-			if(myConnector.isOpen() && objectToLoad != null && field != null && !field.isEmpty())
-			{
-			    ArrayList<ClassProperty> listOfProperties = ClassInspector.exploreProperties(objectToLoad);
+        	
+        	if(myConnector.isOpen() && objectToLoad != null && field != null && !field.isEmpty())
+	        {
+			    List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToLoad);
 
-			    ClassProperty linkProperty = null;
-			    ClassProperty primaryKey = null;
-			    for(ClassProperty property : listOfProperties)
+			    DDBSEntityProperty linkProperty = null;
+			    DDBSEntityProperty primaryKey = null;
+			    for(DDBSEntityProperty property : listOfProperties)
 			    {
 			        if(property.isId())
 			        {
@@ -673,7 +707,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 
 			        IEntity objectLinked = (IEntity) Class.forName(objectName).newInstance();
 
-			        ArrayList<IEntity> listObject = listAll(objectLinked, listCondition, orderBy);
+			        List<IEntity> listObject = listAll(objectLinked, listCondition, orderBy);
 
 			        Field f = objectToLoad.getClass().getField(field);
 
@@ -697,7 +731,14 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			}
 			else
 			{
-			    return null;
+				if(!myConnector.isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
 			}
 		} catch (Exception e) {
 			throw new DDBSToolkitException("Error during use of the reflection mechanism", e);
@@ -707,8 +748,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
     @Override
     public boolean createEntity(IEntity objectToCreate) throws DDBSToolkitException {
 
-        //TODO
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     protected <T extends IEntity> ArrayList<T> conversionResultSet(ResultSet results, T myObject) throws DDBSToolkitException {
@@ -716,7 +756,6 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
         ArrayList<T> resultList = new ArrayList<T>();
         
         
-
         //For each object
         try {
 			while(results.next()){
@@ -725,35 +764,35 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			    String nameClass = ClassInspector.getFullClassName(myObject);
 
 			    //List properties
-			    ArrayList<ClassProperty> listProperties = ClassInspector.exploreProperties(myObject);
+			    List<DDBSEntityProperty> listProperties = ClassInspector.exploreProperties(myObject);
 
 			    //Instantiate the object
 			    T myData = (T) Class.forName(nameClass).newInstance();
 
 			    //Set object properties
-			    for(ClassProperty myProperty : listProperties)
+			    for(DDBSEntityProperty myProperty : listProperties)
 			    {
 			        Field f = myData.getClass().getField(myProperty.getName());
 
 			        //If it's not an array
 			        if(!myProperty.isArray())
 			        {
-			            if(myProperty.getType().equals("int"))
+			            if(myProperty.getType().equals(DDBSToolkitSupportedEntity.INTEGER.getType()))
 			            {
 			                f.set(myData, results.getInt(myProperty.getPropertyName()));
 			            }
-			            else if(myProperty.getType().equals("long"))
+			            else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.LONG.getType()))
 			            {
 			                f.set(myData, results.getLong(myProperty.getPropertyName()));
 			            }
-			            else if(myProperty.getType().equals("float"))
+			            else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.FLOAT.getType()))
 			            {
 			                f.set(myData, results.getFloat(myProperty.getPropertyName()));
 			            }
-			            else if(myProperty.getType().equals("java.lang.String"))
+			            else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.STRING.getType()))
 			            {
-			                //If it's the node_id property
-			                if(myProperty.getPropertyName().equals("node_id"))
+			                //If it's the peerUid property
+			                if(myProperty.isPeerUid())
 			                {
 			                    if(myPeer != null)
 			                    {
@@ -769,7 +808,7 @@ public class DistributedMySQLTableManager implements DistributableEntityManager 
 			                    f.set(myData, results.getString(myProperty.getPropertyName()));
 			                }
 			            }
-			            else if(myProperty.getType().equals("java.sql.Timestamp"))
+			            else if(myProperty.getType().equals(DDBSToolkitSupportedEntity.TIMESTAMP.getType()))
 			            {
 			                f.set(myData, results.getTimestamp(myProperty.getPropertyName()));
 			            }

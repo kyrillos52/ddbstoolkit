@@ -8,19 +8,17 @@ import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupSender;
-import org.ddbstoolkit.toolkit.modules.middleware.jgroups.SqlSpacesSender;
+import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesSender;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main window of the application
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 12:12
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class MainWindowGUI {
     private JButton addButton;
@@ -44,7 +42,7 @@ public class MainWindowGUI {
     /**
      * List of peers connected
      */
-    private ArrayList<Peer> listPeers = new ArrayList<Peer>();
+    private List<Peer> listPeers = new ArrayList<Peer>();
 
     public JPanel getPanelMainWindow() {
         return panelMainWindow;
@@ -82,7 +80,7 @@ public class MainWindowGUI {
                     //If a library has been selected
                     if(comboBoxLocation.getSelectedIndex() > 0)
                     {
-                        myBook.node_id = listPeers.get(comboBoxLocation.getSelectedIndex() - 1).getUid();
+                        myBook.peerUid = listPeers.get(comboBoxLocation.getSelectedIndex() - 1).getUid();
                     }
 
                     String conditionString = "";
@@ -131,13 +129,13 @@ public class MainWindowGUI {
                     }
 
                     System.out.println(conditionString);
-                    ArrayList<String> conditionList = new ArrayList<String>();
+                    List<String> conditionList = new ArrayList<String>();
                     conditionList.add(conditionString);
 
                     ArrayList<Book> listBooks = new ArrayList<Book>();
 
                     //Get the results
-                    ArrayList<? extends IEntity> listEntity = sender.listAll(myBook, conditionList, "title ASC");
+                    List<Book> listEntity = sender.listAll(myBook, conditionList, "title ASC");
                     for(IEntity entity : listEntity)
                     {
                         Book aBook = (Book)entity;
@@ -224,7 +222,7 @@ public class MainWindowGUI {
                         bookToDelete = bookDataModel.getBook(indexRow);
 
                         //Delete the list of authors
-                        bookToDelete = (Book)sender.loadArray(bookToDelete, "author", null);
+                        bookToDelete = sender.loadArray(bookToDelete, "author", null);
 
                         if(bookToDelete.author != null)
                         {
@@ -235,7 +233,7 @@ public class MainWindowGUI {
                         }
 
                         //Delete the links to genres
-                        bookToDelete = (Book)sender.loadArray(bookToDelete, "linkedGenre", null);
+                        bookToDelete = sender.loadArray(bookToDelete, "linkedGenre", null);
 
                         if(bookToDelete.linkedGenre != null)
                         {
@@ -246,7 +244,7 @@ public class MainWindowGUI {
                         }
 
                         //Delete the list of characters
-                        bookToDelete = (Book)sender.loadArray(bookToDelete, "character", null);
+                        bookToDelete = sender.loadArray(bookToDelete, "character", null);
 
                         if(bookToDelete.character != null)
                         {

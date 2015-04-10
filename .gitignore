@@ -2,6 +2,7 @@
 /ddbstoolkit-jena/target/**
 /ddbstoolkit-demo/target/**
 /ddbstoolkit-jgroups/target/**
+/ddbstoolkit-mysql/target/**
 /ddbstoolkit-sqlite/target/**
 /ddbstoolkit-sqlspaces/target/**
 **/.DS_Store

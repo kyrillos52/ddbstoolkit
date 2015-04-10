@@ -3,12 +3,9 @@ package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 import java.sql.*;
 
 /**
- * Class representing a connector MySQL
- * User: Cyril GRANDJEAN
- * Date: 18/06/2012
- * Time: 11:13
- *
- * @version Creation of the class
+ * Class representing a connection into MySQL Database
+ * @author Cyril Grandjean
+ * @version 1.0: Creation of the class
  */
 public class MySQLConnector {
 

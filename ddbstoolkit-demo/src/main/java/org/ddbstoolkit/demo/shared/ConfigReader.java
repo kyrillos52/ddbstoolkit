@@ -5,11 +5,8 @@ import java.util.Properties;
 
 /**
  * Class to read a configuration file
- * User: Cyril GRANDJEAN
- * Date: 26/06/2012
- * Time: 09:22
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class ConfigReader {
 

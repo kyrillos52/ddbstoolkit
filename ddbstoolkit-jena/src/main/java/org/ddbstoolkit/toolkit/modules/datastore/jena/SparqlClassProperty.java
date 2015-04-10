@@ -1,6 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
-import org.ddbstoolkit.toolkit.core.reflexion.ClassProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
 
 /**
@@ -11,7 +11,7 @@ import org.ddbstoolkit.toolkit.core.reflexion.ClassProperty;
  *
  * @version Creation of the class
  */
-public class SparqlClassProperty extends ClassProperty {
+public class SparqlClassProperty extends DDBSEntityProperty {
 
     /**
      * Name of the namespace

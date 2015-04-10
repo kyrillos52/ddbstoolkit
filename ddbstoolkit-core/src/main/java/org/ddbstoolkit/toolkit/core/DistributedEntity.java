@@ -16,9 +16,9 @@ public class DistributedEntity implements IEntity {
 	private static final long serialVersionUID = -3845825399013088782L;
 	
 	/**
-     * Node Id of the entity
+     * Peer UID of the entity
      */
-    public String node_id;
+    public String peerUid;
 
 	@Override
 	public String toString() {

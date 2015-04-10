@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import org.ddbstoolkit.toolkit.core.Id;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
-import org.ddbstoolkit.toolkit.core.reflexion.ClassProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.PropertyName;
 
 /**
@@ -26,7 +26,7 @@ public class SparqlClassInspector extends ClassInspector {
      * @param myProperty Property to inspect
      * @return
      */
-    public static boolean isSparqlType(ClassProperty myProperty)
+    public static boolean isSparqlType(DDBSEntityProperty myProperty)
     {
         String property;
         //System.out.println(myProperty.getType());

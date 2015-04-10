@@ -8,15 +8,12 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.modules.datastore.mysql.DistributedMySQLTableManager;
 import org.ddbstoolkit.toolkit.modules.datastore.mysql.MySQLConnector;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupReceiver;
-import org.ddbstoolkit.toolkit.modules.middleware.jgroups.SqlSpacesReceiver;
+import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesReceiver;
 
 /**
  * Server to answer requests
- * User: Cyril GRANDJEAN
- * Date: 27/06/2012
- * Time: 16:53
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class ReceiverPeer {
 
@@ -104,9 +101,6 @@ public class ReceiverPeer {
 
                 System.out.println("Variable mysql-url, mysql-login and mysql-password must be set");
             }
-
-
-
         }
 
     }

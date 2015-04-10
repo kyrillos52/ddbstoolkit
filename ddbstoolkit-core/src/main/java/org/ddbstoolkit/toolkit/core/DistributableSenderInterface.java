@@ -1,6 +1,6 @@
 package org.ddbstoolkit.toolkit.core;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interface to send commands to the peers
@@ -12,9 +12,9 @@ public interface DistributableSenderInterface extends DistributableEntityManager
     /**
      * Get the list of peers
      * @return List of peers
-     * @throws Exception
+     * @throws Exception Error occuring when retrieving the list of peers
      */
-    ArrayList<Peer> getListPeers() throws Exception;
+    List<Peer> getListPeers() throws Exception;
 
     /**
      * Set a timeout

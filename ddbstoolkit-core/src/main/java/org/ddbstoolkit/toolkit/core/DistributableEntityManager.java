@@ -1,6 +1,6 @@
 package org.ddbstoolkit.toolkit.core;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 
@@ -25,7 +25,7 @@ public interface DistributableEntityManager {
 
     /**
      * Check if the connection is open
-     * @return State of the connector
+     * @return State of the connection
      * @throws DDBSToolkitException Error to check the state of the connection
      */
     public boolean isOpen() throws DDBSToolkitException;
@@ -37,7 +37,7 @@ public interface DistributableEntityManager {
     public void open() throws DDBSToolkitException;
 
     /**
-     * Close the connection
+     * Close the data source connection
      * @throws DDBSToolkitException : Error to close the connection
      */
     public void close() throws DDBSToolkitException;
@@ -50,7 +50,7 @@ public interface DistributableEntityManager {
      * @return list of entities that match the request
      * @throws DDBSToolkitException Error during the process
      */
-    public <T extends IEntity> ArrayList<T> listAll(T object, ArrayList<String> conditionList, String orderBy) throws DDBSToolkitException;
+    public <T extends IEntity> List<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException;
 
     /**
      * Read details about an object
