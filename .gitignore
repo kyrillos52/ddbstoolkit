@@ -5,6 +5,7 @@
 /ddbstoolkit-mysql/target/**
 /ddbstoolkit-sqlite/target/**
 /ddbstoolkit-sqlspaces/target/**
+/ddbstoolkit-sqlspaces/*.log*
 **/.DS_Store
 **/.classpath
 **/.settings/**

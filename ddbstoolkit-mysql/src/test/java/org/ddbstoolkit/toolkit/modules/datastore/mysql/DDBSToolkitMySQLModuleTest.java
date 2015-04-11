@@ -1,5 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.jdbc.JDBCModuleTest;
 import org.junit.After;
@@ -45,5 +46,10 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	@Override
 	public void instantiateManager() throws ClassNotFoundException {
 		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
+	}
+
+	@Override
+	protected void addReceiverPeerUID(DistributedEntity distributedEntity) {
+		//Nothing to add
 	}
 }

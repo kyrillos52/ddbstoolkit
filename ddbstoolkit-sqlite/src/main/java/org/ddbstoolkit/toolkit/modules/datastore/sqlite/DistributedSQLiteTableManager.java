@@ -76,7 +76,7 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
         if(myConnector.isOpen() && object != null)
         {
             //Inspect object
-            String tableName = ClassInspector.getClassName(object);
+            String tableName = ClassInspector.getClassInspector().getClassName(object);
 
             StringBuilder sb = new StringBuilder();
 
@@ -134,10 +134,10 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
         if(myConnector.isOpen() && object != null)
         {
             //Inspect the object
-            String tableName = ClassInspector.getClassName(object);
+            String tableName = ClassInspector.getClassInspector().getClassName(object);
 
             //List properties
-            List<DDBSEntityProperty> properties = ClassInspector.exploreProperties(object);
+            List<DDBSEntityProperty> properties = ClassInspector.getClassInspector().exploreProperties(object);
 
             DDBSEntityProperty primaryKey = null;
             for(DDBSEntityProperty property : properties)
@@ -190,10 +190,10 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
         if(myConnector.isOpen() && object != null)
         {
             //Inspect the object
-            String tableName = ClassInspector.getClassName(object);
+            String tableName = ClassInspector.getClassInspector().getClassName(object);
 
             //List properties
-            List<DDBSEntityProperty> properties = ClassInspector.exploreProperties(object);
+            List<DDBSEntityProperty> properties = ClassInspector.getClassInspector().exploreProperties(object);
 
             DDBSEntityProperty primaryKey = null;
             for(DDBSEntityProperty property : properties)
@@ -241,19 +241,17 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
 	        if(myConnector.isOpen() && objectToAdd != null)
 	        {
 	            //Inspect object
-	            String tableName = ClassInspector.getClassName(objectToAdd);
+	            String tableName = ClassInspector.getClassInspector().getClassName(objectToAdd);
 	
 	            //Select properties
-	            List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToAdd);
+	            List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToAdd);
 	
 	            int numberOfFieldsToIgnore = 0;
-	            DDBSEntityProperty primaryKey = null;
 	            for(DDBSEntityProperty property : listOfProperties)
 	            {
 	                if(property.isId())
 	                {
-	                    primaryKey = property;
-	                    numberOfFieldsToIgnore++;
+	                	numberOfFieldsToIgnore++;
 	                }
 	                if(property.isArray())
 	                {
@@ -374,10 +372,10 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
             if(myConnector.isOpen() && objectToUpdate != null)
             {
                 //Inspect object
-                String tableName = ClassInspector.getClassName(objectToUpdate);
+                String tableName = ClassInspector.getClassInspector().getClassName(objectToUpdate);
 
                 //Find properties
-                List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToUpdate);
+                List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToUpdate);
 
                 int numberOfFieldsToIgnore = 0;
                 DDBSEntityProperty primaryKey = null;
@@ -539,9 +537,9 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
         if(myConnector.isOpen() && objectToDelete != null)
         {
             //Inspect object
-            String tableName = ClassInspector.getClassName(objectToDelete);
+            String tableName = ClassInspector.getClassInspector().getClassName(objectToDelete);
 
-            List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToDelete);
+            List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToDelete);
 
             DDBSEntityProperty primaryKey = null;
             for(DDBSEntityProperty property : listOfProperties)
@@ -639,7 +637,7 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
     	{
 	        if(myConnector.isOpen() && objectToLoad != null && field != null && !field.isEmpty())
 	        {
-	            List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToLoad);
+	            List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToLoad);
 	
 	            DDBSEntityProperty linkProperty = null;
 	            DDBSEntityProperty primaryKey = null;
@@ -720,13 +718,14 @@ public class DistributedSQLiteTableManager implements DistributableEntityManager
 	        while(results.next()){
 	
 	            //Get class name
-	            String nameClass = ClassInspector.getFullClassName(myObject);
+	            String nameClass = ClassInspector.getClassInspector().getFullClassName(myObject);
 	
 	            //List properties
-	            List<DDBSEntityProperty> listProperties = ClassInspector.exploreProperties(myObject);
+	            List<DDBSEntityProperty> listProperties = ClassInspector.getClassInspector().exploreProperties(myObject);
 	
 	            //Instantiate the object
-	            T myData = (T) Class.forName(nameClass).newInstance();
+	            @SuppressWarnings("unchecked")
+				T myData = (T) Class.forName(nameClass).newInstance();
 	
 	            //Set object properties
 	            for(DDBSEntityProperty myProperty : listProperties)

@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
+@SuppressWarnings("serial")
 public class BookDataModel extends DefaultTableModel {
 
     /**

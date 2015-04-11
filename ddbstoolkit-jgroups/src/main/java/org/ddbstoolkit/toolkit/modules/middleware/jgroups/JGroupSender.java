@@ -19,11 +19,7 @@ import java.util.List;
 
 /**
  * Class to send commands using JGroups technology
- * User: Cyril GRANDJEAN
- * Date: 21/06/2012
- * Time: 10:56
- *
- * @version Creation of the class
+ * @version 1.0 Creation of the class
  */
 public class JGroupSender extends ReceiverAdapter implements DistributableSenderInterface {
 
@@ -83,18 +79,15 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
         command.setObject(null);
         command.setConditionList(null);
 
-        RspList rsp_list = dispatcher.castMessage(null,
+        RspList<Peer> rsp_list = dispatcher.castMessage(null,
                 new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
 
-        ArrayList<Peer> listPeer = new ArrayList<Peer>();
-
-        //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
+        List<Peer> listPeer = new ArrayList<Peer>();
 
         //Merge all the results on the same ArrayList
         if(rsp_list.getResults().size() > 0)
         {
-            for (Object myObject : rsp_list.getResults()) {
-                Peer peer = (Peer) myObject;
+            for (Peer peer : rsp_list.getResults()) {
                 listPeer.add(peer);
             }
         }
@@ -201,7 +194,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public <T extends IEntity> ArrayList<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> List<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
 
     	try
     	{
@@ -216,7 +209,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setConditionList(conditionList);
                 command.setOrderBy(orderBy);
 
-                RspList rsp_list;
+                RspList<List<T>> rsp_list;
                 if(myEntity.peerUid != null && !myEntity.peerUid.isEmpty())
                 {
                     Address peerToSend = getAddressPeer(myEntity.peerUid);
@@ -233,15 +226,12 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                             new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                 }
 
-                ArrayList<T> listEntity = new ArrayList<T>();
-
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
+                List<T> listEntity = new ArrayList<T>();
 
                 //Merge all the results on the same ArrayList
                 if(rsp_list.getResults().size() > 0)
                 {
-                    for (Object myObject : rsp_list.getResults()) {
-                        ArrayList<T> list = (ArrayList<T>) myObject;
+                    for (List<T> list : rsp_list.getResults()) {
                         listEntity.addAll(list);
                     }
                 }
@@ -256,7 +246,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             }
             else
             {
-                return null;
+            	if(!isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
             }
     	}
     	catch (Exception e) {
@@ -271,7 +268,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public IEntity read(IEntity object) throws DDBSToolkitException {
+    public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
     	try
     	{
@@ -289,23 +286,28 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<T> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
-                IEntity myEntity = null;
-
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
+                T myEntity = null;
 
                 if(rsp_list.getResults().size() > 0)
                 {
-                    myEntity = (IEntity) rsp_list.getResults().get(0);
+                    myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;
             }
             else
             {
-                return null;
+            	if(!isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
             }
     	}
     	catch (Exception e) {
@@ -320,7 +322,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public IEntity readLastElement(IEntity object) throws DDBSToolkitException {
+    public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
     	try
     	{
@@ -339,23 +341,28 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<T> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
-                IEntity myEntity = null;
-
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
+                T myEntity = null;
 
                 if(rsp_list.getResults().size() > 0)
                 {
-                    myEntity = (IEntity) rsp_list.getResults().get(0);
+                    myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;
             }
             else
             {
-                return null;
+            	if(!isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
             }
     	}
     	catch (Exception e) {
@@ -389,16 +396,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<Boolean> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 boolean result = false;
 
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
-
                 if(rsp_list.getResults().size() > 0)
                 {
-                    result = (Boolean) rsp_list.getResults().get(0);
+                    result = rsp_list.getResults().get(0);
                 }
 
                 return result;
@@ -440,16 +445,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<Boolean> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 boolean result = false;
 
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
-
                 if(rsp_list.getResults().size() > 0)
                 {
-                    result = (Boolean) rsp_list.getResults().get(0);
+                    result = rsp_list.getResults().get(0);
                 }
 
                 return result;
@@ -491,16 +494,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<Boolean> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 boolean result = false;
 
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
-
                 if(rsp_list.getResults().size() > 0)
                 {
-                    result = (Boolean) rsp_list.getResults().get(0);
+                    result = rsp_list.getResults().get(0);
                 }
 
                 return result;
@@ -536,16 +537,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<Boolean> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 boolean result = false;
 
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
-
                 if(rsp_list.getResults().size() > 0)
                 {
-                    result = (Boolean) rsp_list.getResults().get(0);
+                    result = rsp_list.getResults().get(0);
                 }
 
                 return result;
@@ -569,8 +568,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public IEntity loadArray(IEntity objectToLoad, String field, String orderBy) throws DDBSToolkitException {
-
+    public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException {
     	try
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
@@ -591,16 +589,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList rsp_list = dispatcher.castMessage(toSend,
+                RspList<T> rsp_list = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
-                IEntity myEntity = null;
-
-                //System.out.println("Nbres of results received : "+rsp_list.getResults().size());
+                T myEntity = null;
 
                 if(rsp_list.getResults().size() > 0)
                 {
-                    myEntity = (IEntity) rsp_list.getResults().get(0);
+                    myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;

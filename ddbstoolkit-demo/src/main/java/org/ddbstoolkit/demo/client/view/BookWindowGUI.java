@@ -11,7 +11,6 @@ import org.ddbstoolkit.demo.model.Book;
 import org.ddbstoolkit.demo.model.Genre;
 import org.ddbstoolkit.demo.model.Link_Book_Genre;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
-import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.DistributedSPARQLManager;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupSender;
@@ -28,6 +27,7 @@ import java.util.List;
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
+@SuppressWarnings("serial")
 public class BookWindowGUI extends JFrame {
     private JFormattedTextField formattedTextFieldTitle;
     private JTextArea textAreaSummary;

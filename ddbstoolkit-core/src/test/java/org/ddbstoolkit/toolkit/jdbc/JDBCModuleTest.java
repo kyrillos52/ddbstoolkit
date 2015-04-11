@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
@@ -27,6 +28,12 @@ public abstract class JDBCModuleTest {
 	
 	@Rule
     public ExpectedException thrown = ExpectedException.none();
+	
+	/**
+	 * Add receiver peer uid
+	 * @param distributedEntity Distributed Entity
+	 */
+	protected abstract void addReceiverPeerUID(DistributedEntity distributedEntity);
 	
 	/**
 	 * Clean data inside the data source
@@ -78,7 +85,7 @@ public abstract class JDBCModuleTest {
     	thrown.expect(DDBSToolkitException.class);
     	
     	//No object : must return null
-        Assert.assertNull(manager.add(null));
+        manager.add(null);
     }
     
     /**
@@ -94,6 +101,7 @@ public abstract class JDBCModuleTest {
 
         //All parameters with no values
         Film filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         Assert.assertTrue(manager.add(filmToAdd));
 
         testReadLastElement(filmToAdd);
@@ -104,6 +112,7 @@ public abstract class JDBCModuleTest {
 
         //Add the string
         filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 1";
         Assert.assertTrue(manager.add(filmToAdd));
 
@@ -115,6 +124,7 @@ public abstract class JDBCModuleTest {
 
         //Add the duration
         filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 2";
         filmToAdd.duration = 10;
 
@@ -128,6 +138,7 @@ public abstract class JDBCModuleTest {
 
         //Add the float
         filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 3";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -142,6 +153,7 @@ public abstract class JDBCModuleTest {
 
         //Add the long
         filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 4";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -157,6 +169,7 @@ public abstract class JDBCModuleTest {
 
         //Add the timestamp
         filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 5";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -178,8 +191,10 @@ public abstract class JDBCModuleTest {
      * @throws Exception
      */
     public void testReadLastElement(Film objectToCheck) throws Exception{
-
-        Film lastFilm = manager.readLastElement(new Film());
+    	
+    	Film lastFilm = new Film();
+    	addReceiverPeerUID(lastFilm);
+        lastFilm = manager.readLastElement(lastFilm);
         
         Assert.assertTrue(objectToCheck.film_name == null || objectToCheck.film_name.equals(lastFilm.film_name));
         Assert.assertEquals(objectToCheck.duration, lastFilm.duration);
@@ -220,18 +235,20 @@ public abstract class JDBCModuleTest {
     	thrown.expect(DDBSToolkitException.class);
     	
     	//No object : must return null
-        Assert.assertNull(manager.read(null));
+        manager.read(null);
     }
 
     @Test
     public void testRead() throws Exception {
 
         Film filmToRead = new Film();
+        addReceiverPeerUID(filmToRead);
         filmToRead.film_ID = -1;
 
         Assert.assertNull(manager.read(filmToRead));
 
         Film filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 5";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -241,7 +258,9 @@ public abstract class JDBCModuleTest {
         manager.add(filmToAdd);
         
         //Get last film
-        filmToRead = manager.read(manager.readLastElement(new Film()));
+        Film lastFilm = new Film();
+        addReceiverPeerUID(lastFilm);
+        filmToRead = manager.read(manager.readLastElement(lastFilm));
 
         //Check the fields
         Assert.assertEquals(filmToAdd.film_name, filmToRead.film_name);
@@ -288,6 +307,7 @@ public abstract class JDBCModuleTest {
 
         //Add a movie
         Film filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -300,7 +320,9 @@ public abstract class JDBCModuleTest {
         testReadLastElement(filmToAdd);
 
         //Modify the last element
-        Film lastFilmAdded = manager.readLastElement(new Film());
+        Film lastFilmAdded = new Film();
+        addReceiverPeerUID(lastFilmAdded);
+        lastFilmAdded = manager.readLastElement(lastFilmAdded);
         lastFilmAdded.film_name = "Test JUnit Updated";
         lastFilmAdded.duration = 20;
         lastFilmAdded.floatField = new Float(30);
@@ -340,6 +362,7 @@ public abstract class JDBCModuleTest {
         
         //Add a movie
         Film filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -350,7 +373,9 @@ public abstract class JDBCModuleTest {
 
         Assert.assertEquals(manager.listAll(new Film(), null, null).size(), 1);
         
-        Film filmToDelete = manager.readLastElement(new Film());
+        Film lastFilm = new Film();
+        addReceiverPeerUID(lastFilm);
+        Film filmToDelete = manager.readLastElement(lastFilm);
         
         manager.delete(filmToDelete);
 
@@ -388,6 +413,7 @@ public abstract class JDBCModuleTest {
     	
         //Add a movie
         Film filmToAdd = new Film();
+        addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit";
         filmToAdd.duration = 10;
         filmToAdd.floatField = new Float(20);
@@ -399,12 +425,15 @@ public abstract class JDBCModuleTest {
         //Check the last element
         testReadLastElement(filmToAdd);
 
-        Film lastFilmAdded = manager.readLastElement(new Film());
+        Film lastFilmAdded = new Film();
+        addReceiverPeerUID(lastFilmAdded);
+        lastFilmAdded = manager.readLastElement(lastFilmAdded);
 
         //Add 3 actors
         for(int i = 0; i < 3; i++)
         {
             Actor actorToAdd = new Actor();
+            addReceiverPeerUID(actorToAdd);
             actorToAdd.actor_name = "actor "+i;
             actorToAdd.film_ID = lastFilmAdded.film_ID;
 

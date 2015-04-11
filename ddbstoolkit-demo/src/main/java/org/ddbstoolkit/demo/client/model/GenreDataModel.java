@@ -1,7 +1,9 @@
 package org.ddbstoolkit.demo.client.model;
 
 import javax.swing.table.DefaultTableModel;
+
 import org.ddbstoolkit.demo.model.Genre;
+
 import java.util.ArrayList;
 
 /**
@@ -9,6 +11,7 @@ import java.util.ArrayList;
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
+@SuppressWarnings("serial")
 public class GenreDataModel extends DefaultTableModel {
 
     /**

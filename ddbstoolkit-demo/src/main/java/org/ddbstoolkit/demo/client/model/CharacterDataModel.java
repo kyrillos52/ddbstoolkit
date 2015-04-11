@@ -3,6 +3,7 @@ package org.ddbstoolkit.demo.client.model;
 import org.ddbstoolkit.demo.model.Character;
 
 import javax.swing.table.DefaultTableModel;
+
 import java.util.ArrayList;
 
 /**
@@ -10,6 +11,7 @@ import java.util.ArrayList;
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
+@SuppressWarnings("serial")
 public class CharacterDataModel extends DefaultTableModel {
 
     /**

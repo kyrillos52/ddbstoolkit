@@ -16,12 +16,26 @@ import org.ddbstoolkit.toolkit.core.Id;
  */
 public class ClassInspector {
 
+	/**
+	 * Class inspector
+	 */
+	protected static ClassInspector classInspector;
+	
+	public static ClassInspector getClassInspector()
+	{
+		if(classInspector == null)
+		{
+			classInspector = new ClassInspector();
+		}
+		return classInspector;
+	}
+	
     /**
      * Get the full class name of an object
      * @param object : object to inspect
      * @return Object full class name
      */
-    public static <T> String getFullClassName(T object)
+    public <T> String getFullClassName(T object)
     {
         return object.getClass().getName();
     }
@@ -31,7 +45,7 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return Object class name
      */
-    public static String getClassName(Object object)
+    public String getClassName(Object object)
     {
         return object.getClass().getSimpleName();
     }
@@ -41,7 +55,7 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return list of properties
      */
-    public static List<DDBSEntityProperty> exploreProperties(Object object)
+    public List<DDBSEntityProperty> exploreProperties(Object object)
     {
         Field[] fields = object.getClass().getFields();
 

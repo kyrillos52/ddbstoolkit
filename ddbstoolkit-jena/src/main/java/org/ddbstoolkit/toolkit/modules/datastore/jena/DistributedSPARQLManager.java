@@ -15,7 +15,10 @@ import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
-import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassInspector;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 
 /**
  * Class representing a distributed RDF triple store
@@ -99,26 +102,32 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 	@Override
 	public void open() throws DDBSToolkitException {
-		myDataset = TDBFactory.createDataset(pathDataset);
-		isOpen = true;
+		
+		if(pathDataset != null)
+		{
+			myDataset = TDBFactory.createDataset(pathDataset);
+			isOpen = true;
+		}
 	}
 
 	@Override
 	public void close() {
-		myDataset.close();
-		isOpen = false;
+		
+		if(pathDataset != null)
+		{
+			myDataset.close();
+			isOpen = false;
+		}
 	}
 
 	/**
 	 * Get the SPARQL variable corresponding to an object
-	 * 
-	 * @param object
-	 *            Object to inspect
+	 * @param object Object to inspect
 	 * @return variable name in SPARQL
 	 */
 	public static String getObjectVariable(IEntity object) {
 		if (object != null) {
-			ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
+			List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
 					.explorePropertiesForSPARQL(object);
 
 			for (SparqlClassProperty sparqlClassProperties : listProperties) {
@@ -127,7 +136,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				}
 			}
 
-			return "?" + ClassInspector.getClassName(object);
+			return "?" + SparqlClassInspector.getClassInspector().getClassName(object);
 		} else {
 			return null;
 		}
@@ -138,301 +147,327 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			List<String> conditionList, String orderBy)
 			throws DDBSToolkitException {
 
-		// Get the class name of the object to inspect
-		String className = ClassInspector.getClassName(object);
+		if(object != null && (isOpen || pathDataset == null))
+		{
+			// Get the class name of the object to inspect
+			String className = SparqlClassInspector.getClassInspector().getClassName(object);
 
-		// Explore the properties of objects
-		ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
-				.explorePropertiesForSPARQL(object);
+			// Explore the properties of objects
+			List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
+					.explorePropertiesForSPARQL(object);
 
-		// Create the request
-		String subject = "?" + className;
+			// Create the request
+			String subject = "?" + className;
 
-		// Properties to remove from the request
-		ArrayList<SparqlClassProperty> propertyToRemove = new ArrayList<SparqlClassProperty>();
+			// Properties to remove from the request
+			List<SparqlClassProperty> propertyToRemove = new ArrayList<SparqlClassProperty>();
 
-		StringBuilder sparqlHeader = new StringBuilder();
-		ArrayList<String> listHeaders = new ArrayList<String>();
+			StringBuilder sparqlHeader = new StringBuilder();
+			ArrayList<String> listHeaders = new ArrayList<String>();
 
-		for (SparqlClassProperty sparqlClassProperty : listProperties) {
+			for (SparqlClassProperty sparqlClassProperty : listProperties) {
 
-			// URI is not inside the request
-			if (sparqlClassProperty.isUri()) {
-				subject = "?" + sparqlClassProperty.getName();
-				propertyToRemove.add(sparqlClassProperty);
-			}
-			// Non SPARQL Types are ignored
-			if (sparqlClassProperty.isArray()
-					&& !SparqlClassInspector.isSparqlType(sparqlClassProperty)
-					|| sparqlClassProperty.getName().equals("node_id")) {
-				propertyToRemove.add(sparqlClassProperty);
-			}
-			String header = "prefix " + sparqlClassProperty.getNamespaceName()
-					+ ": <" + sparqlClassProperty.getNamespaceURL() + ">\n";
+				// URI is not inside the request
+				if (sparqlClassProperty.isUri()) {
+					subject = "?" + sparqlClassProperty.getName();
+					propertyToRemove.add(sparqlClassProperty);
+				}
+				// Non SPARQL Types are ignored
+				if (sparqlClassProperty.isArray()
+						&& !SparqlClassInspector.getClassInspector().isSparqlType(sparqlClassProperty)
+						|| sparqlClassProperty.isPeerUid()) {
+					propertyToRemove.add(sparqlClassProperty);
+				}
+				String header = "prefix " + sparqlClassProperty.getNamespaceName()
+						+ ": <" + sparqlClassProperty.getNamespaceURL() + ">\n";
 
-			// Avoid duplication of headers
-			if (!listHeaders.contains(header)) {
-				sparqlHeader.append(header);
-				listHeaders.add(header);
-			}
-		}
-
-		// Properties are removed
-		for (SparqlClassProperty sparqlClassProperties : propertyToRemove) {
-			listProperties.remove(sparqlClassProperties);
-		}
-
-		StringBuilder sparqlSelect = new StringBuilder();
-		StringBuilder sparqlWhere = new StringBuilder();
-
-		sparqlSelect.append("SELECT " + subject);
-
-		// Create the prefixes
-		for (int i = 0; i < listProperties.size(); i++) {
-
-			SparqlClassProperty sparqlClassProperty = listProperties.get(i);
-
-			sparqlSelect.append(" ?");
-			sparqlSelect.append(sparqlClassProperty.getName());
-
-			// If the field is optional
-			if (sparqlClassProperty.isOptional()
-					|| sparqlClassProperty.isArray()) {
-				sparqlWhere.append("OPTIONAL { ");
-			}
-			sparqlWhere.append(subject);
-			sparqlWhere.append(" ");
-			sparqlWhere.append(sparqlClassProperty.getNamespaceName());
-			sparqlWhere.append(":");
-			sparqlWhere.append(sparqlClassProperty.getPropertyName());
-
-			sparqlWhere.append(" ?");
-			sparqlWhere.append(sparqlClassProperty.getName());
-			// If the field is optional
-			if (sparqlClassProperty.isOptional()
-					|| sparqlClassProperty.isArray()) {
-				sparqlWhere.append("} ");
-			}
-
-			if (i < listProperties.size() - 1) {
-				sparqlWhere.append(".\n");
-			}
-		}
-
-		StringBuilder sparqlRequest = new StringBuilder();
-		if (conditionList == null || conditionList.isEmpty()) {
-			sparqlRequest.append(sparqlHeader);
-			sparqlRequest.append(sparqlSelect);
-			sparqlRequest.append(" WHERE { ");
-			sparqlRequest.append(sparqlWhere);
-			sparqlRequest.append(" }");
-		} else {
-			sparqlRequest.append(sparqlHeader);
-			sparqlRequest.append(sparqlSelect);
-			sparqlRequest.append(" WHERE { ");
-			sparqlRequest.append(sparqlWhere);
-			sparqlRequest.append(".\n");
-
-			for (int i = 0; i < conditionList.size(); i++) {
-				sparqlRequest.append(conditionList.get(i));
-
-				if (i < conditionList.size() - 1) {
-					sparqlRequest.append(".\n");
+				// Avoid duplication of headers
+				if (!listHeaders.contains(header)) {
+					sparqlHeader.append(header);
+					listHeaders.add(header);
 				}
 			}
 
-			sparqlRequest.append("} ");
-		}
-		if (orderBy != null) {
-			String[] list = orderBy.split(" ");
-			if (list.length == 2) {
-				String comparatorField = list[0];
-				String orderByOrder = list[1];
-
-				sparqlRequest.append("ORDER BY " + orderByOrder + "(?"
-						+ comparatorField + ")");
+			// Properties are removed
+			for (SparqlClassProperty sparqlClassProperties : propertyToRemove) {
+				listProperties.remove(sparqlClassProperties);
 			}
 
-		}
+			StringBuilder sparqlSelect = new StringBuilder();
+			StringBuilder sparqlWhere = new StringBuilder();
 
-		// System.out.println(sparqlRequest.toString());
+			sparqlSelect.append("SELECT " + subject);
 
-		Query query = QueryFactory.create(sparqlRequest.toString());
+			// Create the prefixes
+			for (int i = 0; i < listProperties.size(); i++) {
 
-		String serviceUrl = "";
-		Annotation[] annotations = object.getClass().getAnnotations();
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof Service) {
-				Service myService = (Service) annotation;
-				serviceUrl = myService.url();
+				SparqlClassProperty sparqlClassProperty = listProperties.get(i);
+
+				sparqlSelect.append(" ?");
+				sparqlSelect.append(sparqlClassProperty.getName());
+
+				// If the field is optional
+				if (sparqlClassProperty.isOptional()
+						|| sparqlClassProperty.isArray()) {
+					sparqlWhere.append("OPTIONAL { ");
+				}
+				sparqlWhere.append(subject);
+				sparqlWhere.append(" ");
+				sparqlWhere.append(sparqlClassProperty.getNamespaceName());
+				sparqlWhere.append(":");
+				sparqlWhere.append(sparqlClassProperty.getPropertyName());
+
+				sparqlWhere.append(" ?");
+				sparqlWhere.append(sparqlClassProperty.getName());
+				// If the field is optional
+				if (sparqlClassProperty.isOptional()
+						|| sparqlClassProperty.isArray()) {
+					sparqlWhere.append("} ");
+				}
+
+				if (i < listProperties.size() - 1) {
+					sparqlWhere.append(".\n");
+				}
 			}
-		}
 
-		ResultSet results = null;
-		// Use of remote endpoints
-		if (!serviceUrl.isEmpty()) {
-			QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
-					query);
-			results = qe.execSelect();
-			ArrayList<T> resultList = conversionResultSet(results, object);
-			qe.close();
+			StringBuilder sparqlRequest = new StringBuilder();
+			if (conditionList == null || conditionList.isEmpty()) {
+				sparqlRequest.append(sparqlHeader);
+				sparqlRequest.append(sparqlSelect);
+				sparqlRequest.append(" WHERE { ");
+				sparqlRequest.append(sparqlWhere);
+				sparqlRequest.append(" }");
+			} else {
+				sparqlRequest.append(sparqlHeader);
+				sparqlRequest.append(sparqlSelect);
+				sparqlRequest.append(" WHERE { ");
+				sparqlRequest.append(sparqlWhere);
+				sparqlRequest.append(".\n");
 
-			return resultList;
-		}
-		// Use of local datastore
-		else {
-			myDataset.begin(ReadWrite.READ);
+				for (int i = 0; i < conditionList.size(); i++) {
+					sparqlRequest.append(conditionList.get(i));
 
-			try {
-				QueryExecution qe = QueryExecutionFactory.create(query,
-						myDataset.getDefaultModel());
+					if (i < conditionList.size() - 1) {
+						sparqlRequest.append(".\n");
+					}
+				}
+
+				sparqlRequest.append("} ");
+			}
+			if (orderBy != null) {
+				String[] list = orderBy.split(" ");
+				if (list.length == 2) {
+					String comparatorField = list[0];
+					String orderByOrder = list[1];
+
+					sparqlRequest.append("ORDER BY " + orderByOrder + "(?"
+							+ comparatorField + ")");
+				}
+
+			}
+
+			// System.out.println(sparqlRequest.toString());
+
+			Query query = QueryFactory.create(sparqlRequest.toString());
+
+			String serviceUrl = "";
+			Annotation[] annotations = object.getClass().getAnnotations();
+			for (Annotation annotation : annotations) {
+				if (annotation instanceof Service) {
+					Service myService = (Service) annotation;
+					serviceUrl = myService.url();
+				}
+			}
+
+			ResultSet results = null;
+			// Use of remote endpoints
+			if (!serviceUrl.isEmpty()) {
+				QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
+						query);
 				results = qe.execSelect();
-
 				ArrayList<T> resultList = conversionResultSet(results, object);
 				qe.close();
 
 				return resultList;
-			} finally {
-				myDataset.end();
 			}
+			// Use of local datastore
+			else {
+				myDataset.begin(ReadWrite.READ);
 
+				try {
+					QueryExecution qe = QueryExecutionFactory.create(query,
+							myDataset.getDefaultModel());
+					results = qe.execSelect();
+
+					ArrayList<T> resultList = conversionResultSet(results, object);
+					qe.close();
+
+					return resultList;
+				} finally {
+					myDataset.end();
+				}
+
+			}
 		}
+		else
+		{
+			if(!isOpen())
+			{
+				throw new DDBSToolkitException("The database connection is not opened");
+			}
+			else
+			{
+				throw new DDBSToolkitException("The object passed in parameter is null");
+			}
+		}	
 	}
 
 	@Override
 	public <T extends IEntity> T read(T object) throws DDBSToolkitException
 	{
+		if(object != null && (isOpen || pathDataset == null))
+		{
+			// Explore the properties of objects
+			List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
+					.explorePropertiesForSPARQL(object);
 
-		// Explore the properties of objects
-		ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
-				.explorePropertiesForSPARQL(object);
+			ArrayList<SparqlClassProperty> propertyToRemove = new ArrayList<SparqlClassProperty>();
+			String uri = null;
 
-		ArrayList<SparqlClassProperty> propertyToRemove = new ArrayList<SparqlClassProperty>();
-		String uri = null;
+			StringBuilder sparqlHeader = new StringBuilder();
+			ArrayList<String> listHeaders = new ArrayList<String>();
 
-		StringBuilder sparqlHeader = new StringBuilder();
-		ArrayList<String> listHeaders = new ArrayList<String>();
+			for (SparqlClassProperty sparqlClassProperty : listProperties) {
 
-		for (SparqlClassProperty sparqlClassProperty : listProperties) {
+				// URI is not inside the request
+				if (sparqlClassProperty.isUri()) {
+					propertyToRemove.add(sparqlClassProperty);
+					uri = (String) sparqlClassProperty.getValue();
+				}
+				// Non SPARQL Types are ignored
+				if (sparqlClassProperty.isArray()
+						&& !SparqlClassInspector.getClassInspector().isSparqlType(sparqlClassProperty)
+						|| sparqlClassProperty.isPeerUid()) {
+					propertyToRemove.add(sparqlClassProperty);
+				}
+				String header = "prefix " + sparqlClassProperty.getNamespaceName()
+						+ ": <" + sparqlClassProperty.getNamespaceURL() + ">\n";
 
-			// URI is not inside the request
-			if (sparqlClassProperty.isUri()) {
-				propertyToRemove.add(sparqlClassProperty);
-				uri = (String) sparqlClassProperty.getValue();
-			}
-			// Non SPARQL Types are ignored
-			if (sparqlClassProperty.isArray()
-					&& !SparqlClassInspector.isSparqlType(sparqlClassProperty)
-					|| sparqlClassProperty.getName().equals("node_id")) {
-				propertyToRemove.add(sparqlClassProperty);
-			}
-			String header = "prefix " + sparqlClassProperty.getNamespaceName()
-					+ ": <" + sparqlClassProperty.getNamespaceURL() + ">\n";
-
-			// Avoid duplication of headers
-			if (!listHeaders.contains(header)) {
-				sparqlHeader.append(header);
-				listHeaders.add(header);
-			}
-		}
-
-		for (SparqlClassProperty sparqlClassProperties : propertyToRemove) {
-			listProperties.remove(sparqlClassProperties);
-		}
-
-		StringBuilder sparqlSelect = new StringBuilder();
-		StringBuilder sparqlWhere = new StringBuilder();
-
-		sparqlSelect.append("SELECT ");
-
-		// Create the prefixes
-		for (int i = 0; i < listProperties.size(); i++) {
-
-			SparqlClassProperty sparqlClassProperty = listProperties.get(i);
-
-			sparqlSelect.append(" ?");
-			sparqlSelect.append(sparqlClassProperty.getName());
-
-			// If the field is optional
-			if (sparqlClassProperty.isOptional()) {
-				sparqlWhere.append("OPTIONAL { ");
+				// Avoid duplication of headers
+				if (!listHeaders.contains(header)) {
+					sparqlHeader.append(header);
+					listHeaders.add(header);
+				}
 			}
 
-			sparqlWhere.append("<");
-			sparqlWhere.append(uri);
-			sparqlWhere.append("> ");
-			sparqlWhere.append(sparqlClassProperty.getNamespaceName());
-			sparqlWhere.append(":");
-			sparqlWhere.append(sparqlClassProperty.getPropertyName());
-			sparqlWhere.append(" ?");
-			sparqlWhere.append(sparqlClassProperty.getName());
-			// If the field is optional
-			if (sparqlClassProperty.isOptional()) {
-				sparqlWhere.append("} ");
+			for (SparqlClassProperty sparqlClassProperties : propertyToRemove) {
+				listProperties.remove(sparqlClassProperties);
 			}
 
-			if (i < listProperties.size() - 1) {
-				sparqlWhere.append(".\n");
-			}
-		}
+			StringBuilder sparqlSelect = new StringBuilder();
+			StringBuilder sparqlWhere = new StringBuilder();
 
-		StringBuilder sparqlRequest = new StringBuilder();
-		sparqlRequest.append(sparqlHeader);
-		sparqlRequest.append(sparqlSelect);
-		sparqlRequest.append(" WHERE { ");
-		sparqlRequest.append(sparqlWhere);
-		sparqlRequest.append("}");
+			sparqlSelect.append("SELECT ");
 
-		// System.out.println(sparqlRequest.toString());
+			// Create the prefixes
+			for (int i = 0; i < listProperties.size(); i++) {
 
-		Query query = QueryFactory.create(sparqlRequest.toString());
+				SparqlClassProperty sparqlClassProperty = listProperties.get(i);
 
-		String serviceUrl = "";
-		Annotation[] annotations = object.getClass().getAnnotations();
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof Service) {
-				Service myService = (Service) annotation;
-				serviceUrl = myService.url();
-			}
-		}
+				sparqlSelect.append(" ?");
+				sparqlSelect.append(sparqlClassProperty.getName());
 
-		ResultSet results = null;
-		if (!serviceUrl.isEmpty()) {
-			QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
-					query);
-			results = qe.execSelect();
-			qe.close();
-
-			List<T> resultList = conversionResultSet(results, object);
-			if (resultList.size() == 1) {
-				return resultList.get(0);
-			} else {
-				return null;
-			}
-		} else {
-			myDataset.begin(ReadWrite.READ);
-
-			try {
-				QueryExecution qe = QueryExecutionFactory.create(query,
-						myDataset.getDefaultModel());
-				results = qe.execSelect();
-
-				List<T> resultList = conversionResultSet(results,
-						object);
-				if (resultList.size() == 1) {
-					qe.close();
-					return resultList.get(0);
-				} else {
-					qe.close();
-					return null;
+				// If the field is optional
+				if (sparqlClassProperty.isOptional()) {
+					sparqlWhere.append("OPTIONAL { ");
 				}
 
-			} finally {
-				myDataset.end();
+				sparqlWhere.append("<");
+				sparqlWhere.append(uri);
+				sparqlWhere.append("> ");
+				sparqlWhere.append(sparqlClassProperty.getNamespaceName());
+				sparqlWhere.append(":");
+				sparqlWhere.append(sparqlClassProperty.getPropertyName());
+				sparqlWhere.append(" ?");
+				sparqlWhere.append(sparqlClassProperty.getName());
+				// If the field is optional
+				if (sparqlClassProperty.isOptional()) {
+					sparqlWhere.append("} ");
+				}
+
+				if (i < listProperties.size() - 1) {
+					sparqlWhere.append(".\n");
+				}
 			}
 
-		}
+			StringBuilder sparqlRequest = new StringBuilder();
+			sparqlRequest.append(sparqlHeader);
+			sparqlRequest.append(sparqlSelect);
+			sparqlRequest.append(" WHERE { ");
+			sparqlRequest.append(sparqlWhere);
+			sparqlRequest.append("}");
 
+			// System.out.println(sparqlRequest.toString());
+
+			Query query = QueryFactory.create(sparqlRequest.toString());
+
+			String serviceUrl = "";
+			Annotation[] annotations = object.getClass().getAnnotations();
+			for (Annotation annotation : annotations) {
+				if (annotation instanceof Service) {
+					Service myService = (Service) annotation;
+					serviceUrl = myService.url();
+				}
+			}
+
+			ResultSet results = null;
+			if (!serviceUrl.isEmpty()) {
+				QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
+						query);
+				results = qe.execSelect();
+
+				List<T> resultList = conversionResultSet(results, object);
+				qe.close();
+				if (resultList.size() == 1) {
+					return resultList.get(0);
+				} else {
+					return null;
+				}
+			} else {
+				myDataset.begin(ReadWrite.READ);
+
+				try {
+					QueryExecution qe = QueryExecutionFactory.create(query,
+							myDataset.getDefaultModel());
+					results = qe.execSelect();
+
+					List<T> resultList = conversionResultSet(results,
+							object);
+					if (resultList.size() == 1) {
+						qe.close();
+						return resultList.get(0);
+					} else {
+						qe.close();
+						return null;
+					}
+
+				} finally {
+					myDataset.end();
+				}
+
+			}
+		}
+		else
+		{
+			if(!isOpen())
+			{
+				throw new DDBSToolkitException("The database connection is not opened");
+			}
+			else
+			{
+				throw new DDBSToolkitException("The object passed in parameter is null");
+			}
+		}
 	}
 
 	/**
@@ -446,92 +481,73 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
-		try {
-			String className = ClassInspector.getClassName(object);
+		if(object != null && (isOpen || pathDataset == null))
+		{
+			try {
+				
+				// Explore the properties of objects
+				List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
+						.explorePropertiesForSPARQL(object);
 
-			// Create the request
-			String subject = "?" + className;
+				StringBuilder sparqlHeader = new StringBuilder();
+				ArrayList<String> listHeaders = new ArrayList<String>();
 
-			// Explore the properties of objects
-			ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
-					.explorePropertiesForSPARQL(object);
+				listHeaders.add("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
+				sparqlHeader
+						.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
 
-			StringBuilder sparqlHeader = new StringBuilder();
-			ArrayList<String> listHeaders = new ArrayList<String>();
+				SparqlClassProperty idProperty = null;
+				SparqlClassProperty uriProperty = null;
 
-			listHeaders.add("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
-			sparqlHeader
-					.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
+				for (SparqlClassProperty sparqlClassProperty : listProperties) {
 
-			SparqlClassProperty idProperty = null;
-			SparqlClassProperty uriProperty = null;
+					if (sparqlClassProperty.isId()) {
+						idProperty = sparqlClassProperty;
+					}
+					if (sparqlClassProperty.isUri()) {
+						uriProperty = sparqlClassProperty;
+					}
+					String header = "prefix "
+							+ sparqlClassProperty.getNamespaceName() + ": <"
+							+ sparqlClassProperty.getNamespaceURL() + ">\n";
 
-			for (SparqlClassProperty sparqlClassProperty : listProperties) {
-
-				if (sparqlClassProperty.isId()) {
-					idProperty = sparqlClassProperty;
-				}
-				if (sparqlClassProperty.isUri()) {
-					uriProperty = sparqlClassProperty;
-				}
-				String header = "prefix "
-						+ sparqlClassProperty.getNamespaceName() + ": <"
-						+ sparqlClassProperty.getNamespaceURL() + ">\n";
-
-				// Avoid duplication of headers
-				if (!listHeaders.contains(header)) {
-					sparqlHeader.append(header);
-					listHeaders.add(header);
-				}
-			}
-
-			StringBuilder sparqlRequest = new StringBuilder();
-			sparqlRequest.append(sparqlHeader);
-			sparqlRequest
-					.append("SELECT ?element ?entity_id WHERE { ?element ");
-			sparqlRequest.append(idProperty.getNamespaceName());
-			sparqlRequest.append(":");
-			sparqlRequest.append(idProperty.getPropertyName());
-			sparqlRequest
-					.append(" ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1");
-
-			// System.out.println(sparqlRequest.toString());
-
-			Query query = QueryFactory
-					.create("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> prefix business: <http://cyril-grandjean.co.uk/business/> SELECT ?element ?entity_id WHERE { ?element business:company_ID ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1");
-
-			String serviceUrl = "";
-			Annotation[] annotations = object.getClass().getAnnotations();
-			for (Annotation annotation : annotations) {
-				if (annotation instanceof Service) {
-					Service myService = (Service) annotation;
-					serviceUrl = myService.url();
-				}
-			}
-
-			String lastUri = null;
-
-			ResultSet results = null;
-			if (!serviceUrl.isEmpty()) {
-				QueryExecution qe = QueryExecutionFactory.sparqlService(
-						serviceUrl, query);
-				results = qe.execSelect();
-
-				// For each object
-				while (results.hasNext()) {
-
-					QuerySolution myResult = results.next();
-
-					lastUri = myResult.get("element").toString();
+					// Avoid duplication of headers
+					if (!listHeaders.contains(header)) {
+						sparqlHeader.append(header);
+						listHeaders.add(header);
+					}
 				}
 
-				qe.close();
-			} else {
-				myDataset.begin(ReadWrite.READ);
+				StringBuilder sparqlRequest = new StringBuilder();
+				sparqlRequest.append(sparqlHeader);
+				sparqlRequest
+						.append("SELECT ?element ?entity_id WHERE { ?element ");
+				sparqlRequest.append(idProperty.getNamespaceName());
+				sparqlRequest.append(":");
+				sparqlRequest.append(idProperty.getPropertyName());
+				sparqlRequest
+						.append(" ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1");
 
-				try {
-					QueryExecution qe = QueryExecutionFactory.create(query,
-							myDataset.getDefaultModel());
+				// System.out.println(sparqlRequest.toString());
+
+				Query query = QueryFactory
+						.create("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> prefix business: <http://cyril-grandjean.co.uk/business/> SELECT ?element ?entity_id WHERE { ?element business:company_ID ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1");
+
+				String serviceUrl = "";
+				Annotation[] annotations = object.getClass().getAnnotations();
+				for (Annotation annotation : annotations) {
+					if (annotation instanceof Service) {
+						Service myService = (Service) annotation;
+						serviceUrl = myService.url();
+					}
+				}
+
+				String lastUri = null;
+
+				ResultSet results = null;
+				if (!serviceUrl.isEmpty()) {
+					QueryExecution qe = QueryExecutionFactory.sparqlService(
+							serviceUrl, query);
 					results = qe.execSelect();
 
 					// For each object
@@ -543,29 +559,58 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					}
 
 					qe.close();
-				} finally {
-					myDataset.end();
+				} else {
+					myDataset.begin(ReadWrite.READ);
+
+					try {
+						QueryExecution qe = QueryExecutionFactory.create(query,
+								myDataset.getDefaultModel());
+						results = qe.execSelect();
+
+						// For each object
+						while (results.hasNext()) {
+
+							QuerySolution myResult = results.next();
+
+							lastUri = myResult.get("element").toString();
+						}
+
+						qe.close();
+					} finally {
+						myDataset.end();
+					}
+
 				}
 
+				if (lastUri != null) {
+
+					Field f = object.getClass().getField(uriProperty.getName());
+
+					f.set(object, lastUri);
+
+					return read(object);
+				} else {
+					return null;
+				}
+			} catch (IllegalAccessException iae) {
+				throw new DDBSToolkitException(
+						"Illegal access exception using reflection", iae);
+			} catch (NoSuchFieldException nsfe) {
+				throw new DDBSToolkitException(
+						"No such field exception using reflection", nsfe);
 			}
-
-			if (lastUri != null) {
-
-				Field f = object.getClass().getField(uriProperty.getName());
-
-				f.set(object, lastUri);
-
-				return read(object);
-			} else {
-				return null;
-			}
-		} catch (IllegalAccessException iae) {
-			throw new DDBSToolkitException(
-					"Illegal access exception using reflection", iae);
-		} catch (NoSuchFieldException nsfe) {
-			throw new DDBSToolkitException(
-					"No such field exception using reflection", nsfe);
 		}
+		else
+		{
+			if(!isOpen())
+			{
+				throw new DDBSToolkitException("The database connection is not opened");
+			}
+			else
+			{
+				throw new DDBSToolkitException("The object passed in parameter is null");
+			}
+		}	
 	}
 
 	@Override
@@ -573,6 +618,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 		// Connection must be opened and object non null
 		if (isOpen && objectToAdd != null) {
+			
 			// Start a writing transaction
 			myDataset.begin(ReadWrite.WRITE);
 			try {
@@ -581,7 +627,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				Model myModel = myDataset.getDefaultModel();
 
 				// Explore the properties of the object to add
-				ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
+				List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
 						.explorePropertiesForSPARQL(objectToAdd);
 
 				// Get the URI
@@ -595,13 +641,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 				// If there is an URI
 				if (!uri.equals("")) {
-					Field[] f = null;
-					Class c = null;
 
-					c = objectToAdd.getClass();
-					f = c.getFields();
-
-					Annotation[] classAnnotations = c.getAnnotations();
+					Annotation[] classAnnotations = objectToAdd.getClass().getAnnotations();
 
 					// Get the default namespace
 					String defaultNamespaceUrl = "";
@@ -623,14 +664,13 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 					for (SparqlClassProperty sparqlClassProperty : listProperties) {
 
-						if (!sparqlClassProperty.getName().equals("node_id")) {
+						if (!sparqlClassProperty.isPeerUid()) {
 							// System.out.println("Property name "+sparqlClassProperty.getName()+" Property type "+sparqlClassProperty.getType());
 
-							// If it's not the URI or an array or the node_id
+							// If it's not the URI or an array or the isPeerUid
 							if (!sparqlClassProperty.isUri()
 									&& !sparqlClassProperty.isArray()
-									&& !sparqlClassProperty.getName().equals(
-											"node_id")) {
+									&& !sparqlClassProperty.isPeerUid()) {
 								if (sparqlClassProperty.getType().equals("int")) {
 									myModel.add(myModel.createLiteralStatement(
 											resourceToAdd,
@@ -678,7 +718,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							// Array add the node
 							if (sparqlClassProperty.isArray()) {
 								// Primitives types + Strings
-								if (SparqlClassInspector
+								if (SparqlClassInspector.getClassInspector()
 										.isSparqlType(sparqlClassProperty)) {
 									String property = sparqlClassProperty
 											.getType();
@@ -775,7 +815,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 													.get(array, i);
 
 											String uri_field = "";
-											ArrayList<SparqlClassProperty> properties = SparqlClassInspector
+											List<SparqlClassProperty> properties = SparqlClassInspector.getClassInspector()
 													.explorePropertiesForSPARQL(object);
 											for (SparqlClassProperty property : properties) {
 												if (property.isUri()) {
@@ -816,15 +856,25 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					return false;
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
-				return false;
+				
+				myDataset.abort();
+				
+				throw new DDBSToolkitException("An exception has occured", ex);
+			
 			} finally {
 				myDataset.end();
 			}
 		} else {
-			return false;
+			
+			if(!isOpen())
+			{
+				throw new DDBSToolkitException("The database connection is not opened");
+			}
+			else
+			{
+				throw new DDBSToolkitException("The object passed in parameter is null");
+			}
 		}
-
 	}
 
 	@Override
@@ -847,7 +897,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				Model myModel = myDataset.getDefaultModel();
 
 				// Explore the properties of the object to add
-				ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
+				List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
 						.explorePropertiesForSPARQL(objectToDelete);
 
 				// Get the URI
@@ -877,7 +927,14 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 
 		} else {
-			return false;
+			if(!isOpen())
+			{
+				throw new DDBSToolkitException("The database connection is not opened");
+			}
+			else
+			{
+				throw new DDBSToolkitException("The object passed in parameter is null");
+			}
 		}
 	}
 
@@ -892,7 +949,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	public <T extends IEntity> T loadArray(T objectToLoad, String field,
 			String orderBy) throws DDBSToolkitException {
 		try {
-			ArrayList<SparqlClassProperty> listOfProperties = SparqlClassInspector
+			List<SparqlClassProperty> listOfProperties = SparqlClassInspector.getClassInspector()
 					.explorePropertiesForSPARQL(objectToLoad);
 
 			SparqlClassProperty linkProperty = null;
@@ -913,15 +970,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			IEntity objectLinked = (IEntity) Class.forName(objectName)
 					.newInstance();
 
-			SparqlClassProperty uriProperty = null;
-			listOfProperties = SparqlClassInspector
+			listOfProperties = SparqlClassInspector.getClassInspector()
 					.explorePropertiesForSPARQL(objectLinked);
-
-			for (SparqlClassProperty property : listOfProperties) {
-				if (property.isUri()) {
-					uriProperty = property;
-				}
-			}
 
 			Field fieldUri = objectToLoad.getClass().getField(
 					uriPropertyObjectToLoad.getName());
@@ -964,11 +1014,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			boolean hasArray = false;
 			String uri = "";
 
-			ArrayList<SparqlClassProperty> listProperties = SparqlClassInspector
+			List<SparqlClassProperty> listProperties = SparqlClassInspector.getClassInspector()
 					.explorePropertiesForSPARQL(myObject);
 			for (SparqlClassProperty myProperty : listProperties) {
 				if (myProperty.isArray()
-						&& SparqlClassInspector.isSparqlType(myProperty)) {
+						&& SparqlClassInspector.getClassInspector().isSparqlType(myProperty)) {
 					hasArray = true;
 				}
 				if (myProperty.isUri()) {
@@ -984,10 +1034,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					QuerySolution myResult = results.next();
 
 					// Get class name
-					String nameClass = ClassInspector
+					String nameClass = SparqlClassInspector.getClassInspector()
 							.getFullClassName(myObject);
 
 					// Instantiate the object
+					@SuppressWarnings("unchecked")
 					T myData = (T) Class.forName(nameClass).newInstance();
 
 					// Set object properties
@@ -1017,8 +1068,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 													.getFloat());
 								} else if (myProperty.getType().equals(
 										"java.lang.String")) {
-									// If it's the node_id property
-									if (myProperty.getName().equals("node_id")) {
+									// If it's the isPeerUid property
+									if (myProperty.isPeerUid()) {
 										f.set(myData, myPeer.getUid());
 									} else {
 										if (myResult.get(myProperty.getName()) == null) {
@@ -1052,10 +1103,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					QuerySolution myResult = results.next();
 
 					// Get class name
-					String nameClass = ClassInspector
+					String nameClass = SparqlClassInspector.getClassInspector()
 							.getFullClassName(myObject);
 
 					// Instantiate the object
+					@SuppressWarnings("unchecked")
 					T myData = (T) Class.forName(nameClass).newInstance();
 
 					Field fieldUri = myData.getClass().getField(uri);
@@ -1099,8 +1151,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 													.getFloat());
 								} else if (myProperty.getType().equals(
 										"java.lang.String")) {
-									// If it's the node_id property
-									if (myProperty.getName().equals("node_id")) {
+									// If it's the isPeerUid property
+									if (myProperty.isPeerUid()) {
 										f.set(myData, myPeer.getUid());
 									} else {
 										if (myResult.get(myProperty.getName()) == null) {
@@ -1121,7 +1173,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							}
 							// If it's an array and sparql type
 							else if (myProperty.isArray()
-									&& SparqlClassInspector
+									&& SparqlClassInspector.getClassInspector()
 											.isSparqlType(myProperty)) {
 								Field arrayField = myData.getClass().getField(
 										myProperty.getName());
@@ -1262,12 +1314,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					} else {
 						// Set object properties
 						for (SparqlClassProperty myProperty : listProperties) {
-							Field f = myData.getClass().getField(
-									myProperty.getName());
 
 							// If it's an array and sparql type
 							if (myProperty.isArray()
-									&& SparqlClassInspector
+									&& SparqlClassInspector.getClassInspector()
 											.isSparqlType(myProperty)) {
 								Field arrayField = myData.getClass().getField(
 										myProperty.getName());
@@ -1401,8 +1451,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						}
 					}
 				}
-
-				// System.out.println("Return list size = "+resultList.size());
 			}
 
 			return resultList;

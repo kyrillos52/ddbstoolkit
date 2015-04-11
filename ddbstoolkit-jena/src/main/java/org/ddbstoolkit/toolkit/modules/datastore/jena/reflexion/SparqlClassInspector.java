@@ -1,35 +1,45 @@
-package org.ddbstoolkit.toolkit.modules.datastore.jena;
+package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.Id;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.PropertyName;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.URI;
 
 /**
- * SPARQL Class inspector
- * User: Cyril GRANDJEAN
- * Date: 19/06/2012
- * Time: 10:19
- *
+ * SPARQL Class inspectorde
  * @version 1.0: Creation of the class
  * @version 1.1: Move of the PropertyName annotation into the core package
  */
 public class SparqlClassInspector extends ClassInspector {
 
+	public static SparqlClassInspector getClassInspector()
+	{
+		if(classInspector == null)
+		{
+			classInspector = new SparqlClassInspector();
+		}
+		return (SparqlClassInspector) classInspector;
+	}
+	
     /**
      * Method to detect if the property is allowed by SPARQL
      * @param myProperty Property to inspect
      * @return
      */
-    public static boolean isSparqlType(DDBSEntityProperty myProperty)
+    public boolean isSparqlType(DDBSEntityProperty myProperty)
     {
         String property;
-        //System.out.println(myProperty.getType());
+        
         if(myProperty.isArray())
         {
             property = myProperty.getType();
@@ -55,15 +65,12 @@ public class SparqlClassInspector extends ClassInspector {
      * @param o Sparql object
      * @return
      */
-    public static ArrayList<SparqlClassProperty> explorePropertiesForSPARQL(Object o)
+    public List<SparqlClassProperty> explorePropertiesForSPARQL(Object o)
     {
-        Field[] f = null;
-        Class c = null;
 
-        c = o.getClass();
-        f = c.getFields();
+        Field[] fields = o.getClass().getFields();
 
-        Annotation[] classAnnotations = c.getAnnotations();
+        Annotation[] classAnnotations = o.getClass().getAnnotations();
 
         //Get the default namespace
         String defaultNamespaceName = "";
@@ -83,12 +90,12 @@ public class SparqlClassInspector extends ClassInspector {
         ArrayList<SparqlClassProperty> listProperties = new ArrayList<SparqlClassProperty>();
 
         //Foreach property
-        for(int i=0;i<f.length;++i)
+        for(int i=0;i<fields.length;++i)
         {
 
-            String name = f[i].getName();
-            String type = f[i].getType().getName();
-            boolean isArray = f[i].getType().isArray();
+            String name = fields[i].getName();
+            String type = fields[i].getType().getName();
+            boolean isArray = fields[i].getType().isArray();
             Object value = null;
             String namespaceName = "";
             String namespaceUrl = "";
@@ -99,14 +106,14 @@ public class SparqlClassInspector extends ClassInspector {
 
             try
             {
-                value = f[i].get(o);
+                value = fields[i].get(o);
             }
             catch (IllegalAccessException e)
             {
                 System.out.println("Impossible to access to this value");
             }
 
-            AnnotatedElement element = (AnnotatedElement) f[i];
+            AnnotatedElement element = (AnnotatedElement) fields[i];
             Annotation[] propertiesAnnotations = element.getAnnotations();
 
             //Look for a namespace

@@ -11,11 +11,7 @@ import org.jgroups.blocks.RequestHandler;
 
 /**
  * Receiver using JGroups technology
- * User: Cyril GRANDJEAN
- * Date: 21/06/2012
- * Time: 10:03
- *
- * @version Creation of the class
+ * @version 1.0 Creation of the class
  */
 public class JGroupReceiver implements RequestHandler, DistributableReceiverInterface {
 
@@ -106,15 +102,11 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
      */
     @Override
     public Object handle(Message msg) throws Exception {
+    	
         DDBSCommand myCommand = (DDBSCommand) msg.getObject();
-
-        //System.out.println("Request received");
-
-        //System.out.println("Action n°"+ myCommand.getAction());
 
         try {
 
-            //System.out.println("Open connection");
             entityManager.open();
 
             switch (myCommand.getAction()) {
@@ -139,10 +131,9 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
         finally{
-            //System.out.println("Close connection");
             entityManager.close();
         }
 

@@ -6,7 +6,6 @@ import info.collide.sqlspaces.otm.ObjectTupleSpace;
 import info.collide.sqlspaces.commons.Callback;
 import info.collide.sqlspaces.commons.Tuple;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -169,10 +168,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 
         DDBSCommand myCommand = SqlSpacesConverter.getObject(afterTuple);
 
-        //System.out.println("Request received");
-
-        //System.out.println("Action n°"+ myCommand.getAction());
-
         //If the command is for the receiver
         if(myCommand.getDestination().equals(DDBSCommand.DESTINATION_ALL_PEERS) || myCommand.getDestination().equals(myPeer.getUid()))
         {
@@ -183,8 +178,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 //System.out.println("Open connection");
                 entityManager.open();
 
-                //System.out.println("Write in the space = "+clusterName+"-results-"+afterTuple.getTupleID());
-
                 //Write the results into the appropriate space
                 resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+afterTuple.getTupleID());
 
@@ -192,8 +185,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                     case DDBSCommand.LIST_ALL_COMMAND:
                         //Get the list of entities
                         List<? extends IEntity> results = entityManager.listAll(myCommand.getObject(), myCommand.getConditionList(), myCommand.getOrderBy());
-
-                        //System.out.println("Size = "+results.size());
 
                         for (IEntity iEntity : results) {
                             resultSpace.write(new Tuple(SqlSpacesConverter.toString(iEntity)));
@@ -236,8 +227,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 e.printStackTrace();
             }
             finally{
-
-                //System.out.println("Close connection");
 
                 try {
                     entityManager.close();

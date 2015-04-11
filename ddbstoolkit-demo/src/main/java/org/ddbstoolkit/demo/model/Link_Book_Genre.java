@@ -8,6 +8,7 @@ import org.ddbstoolkit.toolkit.core.Id;
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
+@SuppressWarnings("serial")
 public class Link_Book_Genre extends DistributedEntity {
 
     @Id

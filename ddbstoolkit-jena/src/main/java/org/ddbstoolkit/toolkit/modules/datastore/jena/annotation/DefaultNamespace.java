@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.modules.datastore.jena;
+package org.ddbstoolkit.toolkit.modules.datastore.jena.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

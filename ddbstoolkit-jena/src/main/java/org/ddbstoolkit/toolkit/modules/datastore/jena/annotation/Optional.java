@@ -1,21 +1,16 @@
-package org.ddbstoolkit.toolkit.modules.datastore.jena;
+package org.ddbstoolkit.toolkit.modules.datastore.jena.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
-
 /**
- * Annotation indicating the URI of an object
- * User: Cyril GRANDJEAN
- * Date: 19/06/2012
- * Time: 09:41
- *
- * @version Creation of the class
+ * Indicate if the field is optional
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 @Target(value = {ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface URI {
+public @interface Optional {
 }

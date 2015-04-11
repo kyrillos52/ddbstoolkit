@@ -1,15 +1,12 @@
-package org.ddbstoolkit.toolkit.modules.datastore.jena;
+package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
 
 /**
  * Information about a property of an object by using SPARQL queries
- * User: Cyril GRANDJEAN
- * Date: 19/06/2012
- * Time: 09:42
- *
- * @version Creation of the class
+ * @author Cyril GRANDJEAN
+ * @version 1.0 Creation of the class
  */
 public class SparqlClassProperty extends DDBSEntityProperty {
 
@@ -59,7 +56,7 @@ public class SparqlClassProperty extends DDBSEntityProperty {
 
     /**
      * Indicate if the field is an URI
-     * @return
+     * @return Boolean indicating if the field is an URI
      */
     public boolean isUri() {
         return isUri;
@@ -67,7 +64,7 @@ public class SparqlClassProperty extends DDBSEntityProperty {
 
     /**
      * Indicate if the field is optional
-     * @return
+     * @return Boolean indicating if the field is optional
      */
     public boolean isOptional() {
         return isOptional;

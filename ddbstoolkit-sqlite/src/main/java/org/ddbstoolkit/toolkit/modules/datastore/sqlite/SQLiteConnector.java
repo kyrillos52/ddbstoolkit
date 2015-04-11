@@ -3,12 +3,8 @@ package org.ddbstoolkit.toolkit.modules.datastore.sqlite;
 import java.sql.*;
 
 /**
- * Class representing a connector SQLite
- * User: Cyril GRANDJEAN
- * Date: 19/06/2012
- * Time: 11:13
- *
- * @version Creation of the class
+ * Class representing a connection to SQLite
+ * @version 1.0: Creation of the class
  */
 public class SQLiteConnector {
 

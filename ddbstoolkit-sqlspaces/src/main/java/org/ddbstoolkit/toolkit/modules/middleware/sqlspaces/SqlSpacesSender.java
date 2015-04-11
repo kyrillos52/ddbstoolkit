@@ -151,7 +151,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 		} 
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public <T extends IEntity> ArrayList<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
 
     	try
@@ -233,8 +234,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 		} 
     }
 
-    @Override
-    public IEntity read(IEntity object) throws DDBSToolkitException {
+    @SuppressWarnings("unchecked")
+	@Override
+    public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
     	try
     	{
@@ -256,7 +258,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                 resultSpace.disconnect();
 
-                return (IEntity) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
+                return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
             }
             else
             {
@@ -274,8 +276,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 		} 
     }
 
-    @Override
-    public IEntity readLastElement(IEntity object) throws DDBSToolkitException {
+    @SuppressWarnings("unchecked")
+	@Override
+    public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
     	try
     	{
@@ -297,7 +300,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                 resultSpace.disconnect();
 
-                return (IEntity) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
+                return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
             }
             else
             {
@@ -370,7 +373,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             {
 
                 //Check the primary key
-                List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToUpdate);
+                List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToUpdate);
 
                 DDBSEntityProperty primaryKey = null;
                 for(DDBSEntityProperty property : listOfProperties)
@@ -436,7 +439,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             {
 
                 //Check the primary key
-                List<DDBSEntityProperty> listOfProperties = ClassInspector.exploreProperties(objectToDelete);
+                List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToDelete);
 
                 DDBSEntityProperty primaryKey = null;
                 for(DDBSEntityProperty property : listOfProperties)
@@ -532,8 +535,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	}
     }
 
-    @Override
-    public IEntity loadArray(IEntity objectToLoad, String field, String orderBy) throws DDBSToolkitException {
+    @SuppressWarnings("unchecked")
+	@Override
+    public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException {
 
     	try
     	{
@@ -558,7 +562,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                 resultSpace.disconnect();
 
-                return (IEntity) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
+                return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
             }
             else
             {
@@ -578,7 +582,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     }
 
     @Override
-    public ArrayList<Peer> getListPeers() throws Exception {
+    public List<Peer> getListPeers() throws Exception {
 
         Tuple template = new Tuple(String.class);
 
