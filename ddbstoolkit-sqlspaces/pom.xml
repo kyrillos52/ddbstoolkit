@@ -104,6 +104,13 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.ddbstoolkit.toolkit.core</groupId>
+			<artifactId>ddbstoolkit-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>info.collide</groupId>
 			<artifactId>sqlspaces-client</artifactId>
 			<version>3.10.0</version>
