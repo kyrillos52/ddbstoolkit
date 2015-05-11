@@ -64,8 +64,10 @@ public class ClassInspector {
         for(int counterProperties = 0; counterProperties < fields.length; ++counterProperties)
         {
             String nameProperty = fields[counterProperties].getName();
-            String typeProperty = fields[counterProperties].getType().getName();
             boolean isArray = fields[counterProperties].getType().isArray();
+            String type = fields[counterProperties].getType().getName();
+            DDBSToolkitSupportedEntity typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(isArray, type);
+            
             boolean isId = false;
             boolean hasAutoIncrement = true;
             Object value = null;
@@ -102,7 +104,15 @@ public class ClassInspector {
                 propertyName = nameProperty;
             }
 
-            listProperties.add(new DDBSEntityProperty(isId, hasAutoIncrement, isArray, nameProperty, typeProperty, value, propertyName));
+            if(isId)
+            {
+            	listProperties.add(new DDBSEntityIDProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName, hasAutoIncrement));
+            }
+            else
+            {
+            	listProperties.add(new DDBSEntityProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName));
+            }
+            
         }
 
         return listProperties;

@@ -23,53 +23,56 @@ public class DDBSEntityProperty {
 	 * @param value Value of the field
 	 * @param propertyName Property name
 	 */
-    public DDBSEntityProperty(boolean isId, boolean hasAutoIncrement,
-			boolean isArray, String name, String type, Object value,
+    public DDBSEntityProperty(
+			boolean isArray, String name, String type, DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity, Object value,
 			String propertyName) {
 		super();
-		this.isId = isId;
-		this.isAutoIncrement = hasAutoIncrement;
 		this.isArray = isArray;
 		this.name = name;
 		this.type = type;
+		this.ddbsToolkitSupportedEntity = ddbsToolkitSupportedEntity;
 		this.value = value;
 		this.propertyName = propertyName;
 	}
 
-	/**
-     * This property indicates if the property is the id of the entity
-     */
-    private boolean isId = false;
-    
-    /**
-     * Indicates if the key is auto incrementing
-     */
-    private boolean isAutoIncrement = true;
-
     /**
      * Indicates if the property is an array
      */
-    private boolean isArray;
+    protected boolean isArray;
 
     /**
      * Name of the property
      */
-    private String name;
+    protected String name;
+    
+    /**
+     * Property type
+     */
+    protected String type;
 
     /**
      * Type of the property
      */
-    private String type;
+    protected DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity;
 
     /**
      * Value of the property
      */
-    private Object value;
+    protected Object value;
 
     /**
      * Name of the property: if table or predicate are different
      */
-    private String propertyName;
+    protected String propertyName;
+    
+    /**
+     * Get object type name
+     * @return Object type name
+     */
+    public String getObjectTypeName()
+    {
+    	return type.substring(2, type.length()-1);
+    }
 
     /**
      * Get the type of the property
@@ -96,36 +99,28 @@ public class DDBSEntityProperty {
     }
 
     /**
-     * Indicates if the property is the Id property of an object
-     * @return boolean
-     */
-    public boolean isId() {
-        return isId;
-    }
-
-    /**
      * Indicates if the property is an array
      * @return  boolean
      */
     public boolean isArray() {
         return isArray;
     }
-
+    
     /**
+     * Get DDBSToolkitSupported Entity
+     * @return
+     */
+    public DDBSToolkitSupportedEntity getDdbsToolkitSupportedEntity() {
+		return ddbsToolkitSupportedEntity;
+	}
+
+	/**
      * Get the name of the property in a database or data source
      * @return
      */
     public String getPropertyName() {
         return propertyName;
     }
-
-    /**
-     * Indicates if the property is auto incrementing
-     * @return
-     */
-	public boolean isAutoIncrement() {
-		return isAutoIncrement;
-	}
 	
 	/**
 	 * Indicates if its the Peer UID property
@@ -143,7 +138,7 @@ public class DDBSEntityProperty {
 	{
 		for(DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity : DDBSToolkitSupportedEntity.values())
 		{
-			if(ddbsToolkitSupportedEntity.getType().equals(type))
+			if(ddbsToolkitSupportedEntity.equals(this.ddbsToolkitSupportedEntity))
 			{
 				return true;
 			}
@@ -167,5 +162,13 @@ public class DDBSEntityProperty {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "DDBSEntityProperty [isArray=" + isArray + ", name=" + name
+				+ ", type=" + type + ", ddbsToolkitSupportedEntity="
+				+ ddbsToolkitSupportedEntity + ", value=" + value
+				+ ", propertyName=" + propertyName + "]";
 	}
 }

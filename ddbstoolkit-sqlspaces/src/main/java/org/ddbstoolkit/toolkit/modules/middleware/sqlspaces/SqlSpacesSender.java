@@ -17,8 +17,8 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
-import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
 
 /**
  * Class to send commands using SQLSpaces
@@ -366,28 +366,20 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     	try
     	{
+    		DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
+    		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
             //Connection must be established
             if(isOpen == true && objectToUpdate != null && myDistributedEntity.peerUid != null)
             {
 
-                //Check the primary key
-                List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToUpdate);
-
-                DDBSEntityProperty primaryKey = null;
-                for(DDBSEntityProperty property : listOfProperties)
-                {
-                    if(property.isId())
-                    {
-                        primaryKey = property;
-                        break;
-                    }
-                }
+                //List of primary keys
+            	List<DDBSEntityIDProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToUpdate;
 
-                if(primaryKey == null || primaryKey.getValue() == null || (Integer)primaryKey.getValue() == 0 || myEntity.peerUid == null)
+                if(listPrimaryKeys.isEmpty() || myEntity.peerUid == null)
                 {
                     return false;
                 }
@@ -433,27 +425,19 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	try
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
+    		
+    		DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
 
             //Connection must be established
             if(isOpen == true && objectToDelete != null && myDistributedEntity.peerUid != null)
             {
 
                 //Check the primary key
-                List<DDBSEntityProperty> listOfProperties = ClassInspector.getClassInspector().exploreProperties(objectToDelete);
-
-                DDBSEntityProperty primaryKey = null;
-                for(DDBSEntityProperty property : listOfProperties)
-                {
-                    if(property.isId())
-                    {
-                        primaryKey = property;
-                        break;
-                    }
-                }
+                List<DDBSEntityIDProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToDelete;
 
-                if(primaryKey == null || primaryKey.getValue() == null || (Integer)primaryKey.getValue() == 0 || myEntity.peerUid == null)
+                if(listPrimaryKeys.isEmpty() || myEntity.peerUid == null)
                 {
                     return false;
                 }

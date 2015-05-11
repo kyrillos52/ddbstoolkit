@@ -82,7 +82,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testAddNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
         manager.add(null);
@@ -210,7 +210,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testListAllWithNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	manager.listAll(null, null, null);
     }
@@ -232,7 +232,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testReadNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
         manager.read(null);
@@ -241,12 +241,13 @@ public abstract class JDBCModuleTest {
     @Test
     public void testRead() throws Exception {
 
-        Film filmToRead = new Film();
-        addReceiverPeerUID(filmToRead);
+    	Film filmToRead = new Film();
+    	
+    	addReceiverPeerUID(filmToRead);
         filmToRead.film_ID = -1;
 
         Assert.assertNull(manager.read(filmToRead));
-
+    	
         Film filmToAdd = new Film();
         addReceiverPeerUID(filmToAdd);
         filmToAdd.film_name = "Test JUnit 5";
@@ -277,7 +278,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testReadLastElementNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
     	manager.readLastElement(null);
@@ -290,7 +291,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testUpdateNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	manager.update(null);
     }
@@ -342,7 +343,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testDeleteNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
     	manager.delete(null);
@@ -386,7 +387,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testLoadArrayNullValue1stParameter() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
         manager.loadArray(null, null, null);
@@ -395,7 +396,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testLoadArrayNullValue2ndParameter() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
    
         manager.loadArray(new Film(), null, null);
     }
@@ -403,7 +404,7 @@ public abstract class JDBCModuleTest {
     @Test
     public void testLoadArrayEmptyParameter() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
    
         manager.loadArray(new Film(), "", null);
     }

@@ -7,15 +7,18 @@ package org.ddbstoolkit.toolkit.core.reflexion;
  */
 public enum DDBSToolkitSupportedEntity {
 	
-	INTEGER("int"),
-	LONG("long"),
-	FLOAT("float"),
-	STRING("java.lang.String"),
-	TIMESTAMP("java.sql.Timestamp");
+	INTEGER("int","[I"),
+	LONG("long","[J"),
+	FLOAT("float", "[F"),
+	STRING("java.lang.String", "[Ljava.lang.String;"),
+	TIMESTAMP("java.sql.Timestamp", "TODO");
+	
 	
 	String type;
+	
+	String arrayType;
 
-	private DDBSToolkitSupportedEntity(String type) {
+	private DDBSToolkitSupportedEntity(String type, String arrayType) {
 		this.type = type;
 	}
 	
@@ -27,4 +30,27 @@ public enum DDBSToolkitSupportedEntity {
 		return type;
 	}
 
+	/**
+	 * Array Type
+	 * @return
+	 */
+	public String getArrayType() {
+		return arrayType;
+	}
+	
+	public static DDBSToolkitSupportedEntity valueOf(boolean isArray, String type)
+	{
+		for(DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity : DDBSToolkitSupportedEntity.values())
+		{
+			if(isArray && type.equals(ddbsToolkitSupportedEntity.getArrayType()))
+			{
+				return ddbsToolkitSupportedEntity;
+			}
+			else if(!isArray && type.equals(ddbsToolkitSupportedEntity.getType()))
+			{
+				return ddbsToolkitSupportedEntity;
+			}
+		}
+		return null;
+	}
 }

@@ -17,6 +17,7 @@ import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassIdProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassInspector;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 
@@ -501,7 +502,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 				for (SparqlClassProperty sparqlClassProperty : listProperties) {
 
-					if (sparqlClassProperty.isId()) {
+					if (sparqlClassProperty instanceof SparqlClassIdProperty) {
 						idProperty = sparqlClassProperty;
 					}
 					if (sparqlClassProperty.isUri()) {

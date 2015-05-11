@@ -1,6 +1,7 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
 
 /**
@@ -30,8 +31,8 @@ public class SparqlClassProperty extends DDBSEntityProperty {
      */
     private boolean isOptional;
 
-    public SparqlClassProperty(boolean id, boolean array, String name, String type, Object value, String namespaceName, String namespaceURL, boolean uri, boolean optional, String propertyName) {
-        super(id, false, array, name, type, value, propertyName);
+    public SparqlClassProperty(boolean isArray, String name, String type, DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity, Object value, String propertyName, String namespaceName, String namespaceURL, boolean uri, boolean optional) {
+        super(isArray, name, type, ddbsToolkitSupportedEntity, value, propertyName);
         this.namespaceName = namespaceName;
         this.namespaceURL = namespaceURL;
         isUri = uri;

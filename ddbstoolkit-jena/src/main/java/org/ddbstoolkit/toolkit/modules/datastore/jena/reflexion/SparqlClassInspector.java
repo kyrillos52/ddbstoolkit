@@ -9,6 +9,7 @@ import java.util.List;
 import org.ddbstoolkit.toolkit.core.Id;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.PropertyName;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
@@ -96,10 +97,11 @@ public class SparqlClassInspector extends ClassInspector {
             String name = fields[i].getName();
             String type = fields[i].getType().getName();
             boolean isArray = fields[i].getType().isArray();
+            boolean isId = false;
+            DDBSToolkitSupportedEntity typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(isArray, type);
             Object value = null;
             String namespaceName = "";
             String namespaceUrl = "";
-            boolean isId = false;
             boolean isUri = false;
             boolean optional = false;
             String propertyName = null;
@@ -120,7 +122,11 @@ public class SparqlClassInspector extends ClassInspector {
             boolean isAnotherNamespace = false;
             for(Annotation annotation : propertiesAnnotations)
             {
-                if(annotation instanceof Namespace)
+            	if(annotation instanceof Id)
+                {
+                    isId = true;
+                }
+            	else if(annotation instanceof Namespace)
                 {
                     isAnotherNamespace = true;
 
@@ -128,10 +134,6 @@ public class SparqlClassInspector extends ClassInspector {
 
                     namespaceName = myNamespace.name();
                     namespaceUrl = myNamespace.url();
-                }
-                else if(annotation instanceof Id)
-                {
-                    isId = true;
                 }
                 else if(annotation instanceof URI)
                 {
@@ -161,7 +163,18 @@ public class SparqlClassInspector extends ClassInspector {
                 namespaceUrl = defaultNamespaceUrl;
             }
 
-            SparqlClassProperty myProperty = new SparqlClassProperty(isId, isArray, name, type, value, namespaceName, namespaceUrl, isUri, optional, propertyName);
+            SparqlClassProperty myProperty = null;
+            
+            if(isId)
+            {
+            	myProperty = new SparqlClassIdProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
+            }
+            else
+            {
+            	myProperty = new SparqlClassProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
+
+            }
+            
 
             //Add the property in the arrayList
             listProperties.add(myProperty);
