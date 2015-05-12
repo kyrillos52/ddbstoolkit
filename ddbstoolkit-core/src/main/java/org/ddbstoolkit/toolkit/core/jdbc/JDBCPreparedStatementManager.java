@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
 /**
  * JDBC Prepared Statement Manager
@@ -29,7 +30,7 @@ public class JDBCPreparedStatementManager {
 	 * @param iEntity Entity
 	 * @return JDBCPreparedStatements object
 	 */
-	private JDBCPreparedStatements getJDBCPreparedStatements(DDBSEntity ddbsEntity)
+	private JDBCPreparedStatements getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		
 		if(mapStatements == null)
@@ -59,7 +60,7 @@ public class JDBCPreparedStatementManager {
 	 * @param readQuery Read Query
 	 * @return
 	 */
-	public PreparedStatement getReadPreparedStatement(DDBSEntity ddbsEntity)
+	public PreparedStatement getReadPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		return getJDBCPreparedStatements(ddbsEntity).getReadPreparedStatement();
 	}
@@ -70,7 +71,7 @@ public class JDBCPreparedStatementManager {
 	 * @param readQuery Read Last Element Query
 	 * @return
 	 */
-	public PreparedStatement getReadLastElementPreparedStatement(DDBSEntity ddbsEntity)
+	public PreparedStatement getReadLastElementPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		return getJDBCPreparedStatements(ddbsEntity).getReadLastElementPreparedStatement();
 	}
@@ -81,7 +82,7 @@ public class JDBCPreparedStatementManager {
 	 * @param readQuery Read Query
 	 * @return
 	 */
-	public PreparedStatement getAddPreparedStatement(DDBSEntity ddbsEntity)
+	public PreparedStatement getAddPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		return getJDBCPreparedStatements(ddbsEntity).getAddPreparedStatement();
 	}
@@ -92,7 +93,7 @@ public class JDBCPreparedStatementManager {
 	 * @param readQuery Read Query
 	 * @return
 	 */
-	public PreparedStatement getUpdatePreparedStatement(DDBSEntity ddbsEntity)
+	public PreparedStatement getUpdatePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		return getJDBCPreparedStatements(ddbsEntity).getUpdatePreparedStatement();
 	}
@@ -103,7 +104,7 @@ public class JDBCPreparedStatementManager {
 	 * @param readQuery Delete Query
 	 * @return
 	 */
-	public PreparedStatement getDeletePreparedStatement(DDBSEntity ddbsEntity)
+	public PreparedStatement getDeletePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
 	{
 		return getJDBCPreparedStatements(ddbsEntity).getDeletePreparedStatement();
 	}
@@ -115,7 +116,7 @@ public class JDBCPreparedStatementManager {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public PreparedStatement setReadPreparedStatement(DDBSEntity ddbsEntity, String readQuery) throws SQLException
+	public PreparedStatement setReadPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String readQuery) throws SQLException
 	{
 		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
 		
@@ -133,7 +134,7 @@ public class JDBCPreparedStatementManager {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public PreparedStatement setReadLastElementPreparedStatement(DDBSEntity ddbsEntity, String readLastElementQuery) throws SQLException
+	public PreparedStatement setReadLastElementPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String readLastElementQuery) throws SQLException
 	{
 		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
 		
@@ -151,7 +152,7 @@ public class JDBCPreparedStatementManager {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public PreparedStatement setAddPreparedStatement(DDBSEntity ddbsEntity, String addQuery) throws SQLException
+	public PreparedStatement setAddPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String addQuery) throws SQLException
 	{
 		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
 		
@@ -169,7 +170,7 @@ public class JDBCPreparedStatementManager {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public PreparedStatement setUpdatePreparedStatement(DDBSEntity ddbsEntity, String updateQuery) throws SQLException
+	public PreparedStatement setUpdatePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String updateQuery) throws SQLException
 	{
 		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
 		
@@ -187,7 +188,7 @@ public class JDBCPreparedStatementManager {
 	 * @return
 	 * @throws SQLException 
 	 */
-	public PreparedStatement setDeletePreparedStatement(DDBSEntity ddbsEntity, String deleteQuery) throws SQLException
+	public PreparedStatement setDeletePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String deleteQuery) throws SQLException
 	{
 		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
 		

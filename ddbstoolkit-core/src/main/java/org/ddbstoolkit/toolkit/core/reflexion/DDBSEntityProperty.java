@@ -7,11 +7,6 @@ package org.ddbstoolkit.toolkit.core.reflexion;
  * @version 1.1: Add of propertyName property
  */
 public class DDBSEntityProperty {
-
-	/**
-	 * Peer UID property name
-	 */
-	private static final String PEER_UID_PROPERTY_NAME = "peerUid";
 	
 	/**
 	 * Class property constructor
@@ -34,7 +29,7 @@ public class DDBSEntityProperty {
 		this.value = value;
 		this.propertyName = propertyName;
 	}
-
+    
     /**
      * Indicates if the property is an array
      */
@@ -121,31 +116,6 @@ public class DDBSEntityProperty {
     public String getPropertyName() {
         return propertyName;
     }
-	
-	/**
-	 * Indicates if its the Peer UID property
-	 * @return boolean indicating if the property is the Peer UID property
-	 */
-	public boolean isPeerUid() {
-		return name.equals(PEER_UID_PROPERTY_NAME);
-	}
-	
-	/**
-	 * Indicates if it is a DDBSToolkit supported entity
-	 * @return boolean indicating if the property is a DDBSToolkit supported entity
-	 */
-	public boolean isDDBSToolkitSupportedEntity()
-	{
-		for(DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity : DDBSToolkitSupportedEntity.values())
-		{
-			if(ddbsToolkitSupportedEntity.equals(this.ddbsToolkitSupportedEntity))
-			{
-				return true;
-			}
-		}
-		
-		return false;
-	}
 
 	@Override
 	public boolean equals(Object obj) {

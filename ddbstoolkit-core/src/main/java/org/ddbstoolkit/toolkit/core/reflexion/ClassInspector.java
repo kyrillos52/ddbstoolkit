@@ -17,6 +17,11 @@ import org.ddbstoolkit.toolkit.core.Id;
 public class ClassInspector {
 
 	/**
+	 * Peer UID property name
+	 */
+	protected static final String PEER_UID_PROPERTY_NAME = "peerUid";
+	
+	/**
 	 * Class inspector
 	 */
 	protected static ClassInspector classInspector;
@@ -55,19 +60,18 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return list of properties
      */
-    public List<DDBSEntityProperty> exploreProperties(Object object)
+    public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
     {
         Field[] fields = object.getClass().getFields();
 
-        List<DDBSEntityProperty> listProperties = new ArrayList<DDBSEntityProperty>();
+        List<T> listProperties = new ArrayList<>();
 
         for(int counterProperties = 0; counterProperties < fields.length; ++counterProperties)
         {
             String nameProperty = fields[counterProperties].getName();
             boolean isArray = fields[counterProperties].getType().isArray();
             String type = fields[counterProperties].getType().getName();
-            DDBSToolkitSupportedEntity typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(isArray, type);
-            
+
             boolean isId = false;
             boolean hasAutoIncrement = true;
             Object value = null;
@@ -98,21 +102,35 @@ public class ClassInspector {
             {
                 //TODO Log
             }
+            
+            DDBSToolkitSupportedEntity typeDDBSProperty = null;
+			try {
+				typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(fields[counterProperties]);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
 
             if(propertyName == null)
             {
                 propertyName = nameProperty;
             }
 
-            if(isId)
+            if(!nameProperty.equals(PEER_UID_PROPERTY_NAME) && typeDDBSProperty != null)
             {
-            	listProperties.add(new DDBSEntityIDProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName, hasAutoIncrement));
+            	if(isId)
+                {
+                	listProperties.add((T)new DDBSEntityIDProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName, hasAutoIncrement));
+                }
+                else
+                {
+                	listProperties.add((T)new DDBSEntityProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName));
+                }
             }
-            else
-            {
-            	listProperties.add(new DDBSEntityProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName));
-            }
-            
         }
 
         return listProperties;

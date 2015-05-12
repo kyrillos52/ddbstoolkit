@@ -150,7 +150,7 @@ public class BookWindowGUI extends JFrame {
                     sender.open();
 
                     Book bookToAdd = new Book();
-                    bookToAdd.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                    bookToAdd.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                     bookToAdd.title = formattedTextFieldTitle.getText();
                     bookToAdd.summary = textAreaSummary.getText();
 
@@ -161,14 +161,14 @@ public class BookWindowGUI extends JFrame {
 
                     //Add the authors linked to the book
                     for (Author author : authorDataModel.getListAuthors()) {
-                        author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        author.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                         author.book_id = bookToAdd.book_id;
                         sender.add(author);
                     }
 
                     //Add the genres
                     for (Genre genre : genreDataModel.getListGenres()) {
-                        genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
                         List<String> conditionList = new ArrayList<String>();
                         conditionList.add("name = '" + genre.name + "'");
@@ -185,7 +185,7 @@ public class BookWindowGUI extends JFrame {
 
                         //Add the link to the genre
                         Link_Book_Genre newLink = new Link_Book_Genre();
-                        newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        newLink.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                         newLink.book_id = bookToAdd.book_id;
                         newLink.genre_id = genre.genre_id;
                         sender.add(newLink);
@@ -194,7 +194,7 @@ public class BookWindowGUI extends JFrame {
 
                     //Add the characters
                     for (Character character : characterDataModel.getListCharacters()) {
-                        character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        character.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                         character.book_id = bookToAdd.book_id;
                         sender.add(character);
                     }
@@ -251,7 +251,7 @@ public class BookWindowGUI extends JFrame {
 
             for(Peer myPeer : listPeers)
             {
-                if(myPeer.getUid().equals(bookToUpdate.peerUid))
+                if(myPeer.getUid().equals(bookToUpdate.getPeerUid()))
                 {
                     comboBoxLibrary.setSelectedItem(myPeer.getName());
                     break;
@@ -270,7 +270,7 @@ public class BookWindowGUI extends JFrame {
                 for(int i = 0; i < bookToUpdate.linkedGenre.length; i++)
                 {
                     Genre myGenre = new Genre();
-                    myGenre.peerUid = bookToUpdate.peerUid;
+                    myGenre.setPeerUid(bookToUpdate.getPeerUid());
                     myGenre.genre_id = bookToUpdate.linkedGenre[i].genre_id;
                     listGenre[i] = (Genre) sender.read(myGenre);
                 }
@@ -314,7 +314,7 @@ public class BookWindowGUI extends JFrame {
                     Book bookToModify = myBook;
 
                     //Book is updated on the same library
-                    if(bookToModify.peerUid.equals(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid()))
+                    if(bookToModify.getPeerUid().equals(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid()))
                     {
                         bookToModify.title = formattedTextFieldTitle.getText();
                         bookToModify.summary = textAreaSummary.getText();
@@ -336,7 +336,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the authors linked to the book
                         for(Author author : authorDataModel.getListAuthors())
                         {
-                            author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            author.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             author.book_id = bookToModify.book_id;
                             sender.add(author);
                         }
@@ -355,7 +355,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the links to the genres
                         for(Genre genre : genreDataModel.getListGenres())
                         {
-                            genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
                             List<String> conditionList = new ArrayList<String>();
                             conditionList.add("name = '"+genre.name+"'");
@@ -375,7 +375,7 @@ public class BookWindowGUI extends JFrame {
 
                             //Add the link to the entity
                             Link_Book_Genre newLink = new Link_Book_Genre();
-                            newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            newLink.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             newLink.book_id = bookToModify.book_id;
                             newLink.genre_id = genre.genre_id;
                             sender.add(newLink);
@@ -396,7 +396,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the new characters
                         for(Character character : characterDataModel.getListCharacters())
                         {
-                            character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            character.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             character.book_id = bookToModify.book_id;
                             sender.add(character);
                         }
@@ -408,7 +408,7 @@ public class BookWindowGUI extends JFrame {
                         Book oldBook = bookToModify;
 
                         Book newBook = new Book();
-                        newBook.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                        newBook.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                         newBook.title = formattedTextFieldTitle.getText();
                         newBook.summary = textAreaSummary.getText();
 
@@ -431,7 +431,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the authors linked to the book
                         for(Author author : authorDataModel.getListAuthors())
                         {
-                            author.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            author.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             author.book_id = newBook.book_id;
                             sender.add(author);
                         }
@@ -450,7 +450,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the genres
                         for(Genre genre : genreDataModel.getListGenres())
                         {
-                            genre.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
                             List<String> conditionList = new ArrayList<String>();
                             conditionList.add("name = '"+genre.name+"'");
@@ -470,7 +470,7 @@ public class BookWindowGUI extends JFrame {
 
                             //Add the link to the entity
                             Link_Book_Genre newLink = new Link_Book_Genre();
-                            newLink.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            newLink.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             newLink.book_id = newBook.book_id;
                             newLink.genre_id = genre.genre_id;
                             sender.add(newLink);
@@ -491,7 +491,7 @@ public class BookWindowGUI extends JFrame {
                         //Add the characters
                         for(Character character : characterDataModel.getListCharacters())
                         {
-                            character.peerUid = listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid();
+                            character.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
                             character.book_id = newBook.book_id;
                             sender.add(character);
                         }

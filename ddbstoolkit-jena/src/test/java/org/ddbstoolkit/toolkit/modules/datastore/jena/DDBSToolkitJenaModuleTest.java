@@ -107,7 +107,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testListAllWithNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	manager.listAll(null, null, null);
     }
@@ -121,6 +121,7 @@ public class DDBSToolkitJenaModuleTest {
 
         //Test with existing remote SPARQL endpoint
         manager = new DistributedSPARQLManager();
+        manager.open();
 
         List<String> listCondition = new ArrayList<String>();
         listCondition.add(DistributedSPARQLManager.getObjectVariable(new Film())+" dc:title 'The Return of the King'");
@@ -161,7 +162,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testReadNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
         manager.read(null);
@@ -287,7 +288,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testUpdateNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	manager.update(null);
     }
@@ -397,7 +398,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testDeleteNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
     	
     	//No object : must return null
     	manager.delete(null);

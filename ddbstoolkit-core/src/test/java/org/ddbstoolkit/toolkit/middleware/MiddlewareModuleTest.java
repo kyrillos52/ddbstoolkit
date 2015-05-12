@@ -58,7 +58,7 @@ public abstract class MiddlewareModuleTest extends JDBCModuleTest {
 	@Override
 	protected void addReceiverPeerUID(DistributedEntity distributedEntity)
 	{
-		distributedEntity.peerUid = receiverPeer.getUid();
+		distributedEntity.setPeerUid(receiverPeer.getUid());
 	}
 	
 	/**

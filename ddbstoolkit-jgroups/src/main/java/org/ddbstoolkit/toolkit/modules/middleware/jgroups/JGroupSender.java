@@ -210,15 +210,15 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setOrderBy(orderBy);
 
                 RspList<List<T>> rsp_list;
-                if(myEntity.peerUid != null && !myEntity.peerUid.isEmpty())
+                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty())
                 {
-                    Address peerToSend = getAddressPeer(myEntity.peerUid);
+                    Address peerToSend = getAddressPeer(myEntity.getPeerUid() );
                     ArrayList<Address> toSend = new ArrayList<Address>();
                     toSend.add(peerToSend);
 
                     rsp_list = dispatcher.castMessage(toSend,
                             new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-                    command.setDestination(myEntity.peerUid);
+                    command.setDestination(myEntity.getPeerUid() );
                 }
                 else
                 {
@@ -236,7 +236,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                     }
                 }
 
-                if((myEntity.peerUid == null || myEntity.peerUid.isEmpty()) && orderBy != null && !orderBy.equals(""))
+                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null && !orderBy.equals(""))
                 {
                     Collections.sort(listEntity, new ObjectComparator(orderBy));
                 }
@@ -274,14 +274,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && object != null && myDistributedEntity.getPeerUid()  != null)
             {
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.READ_COMMAND);
                 command.setObject(object);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid() );
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -328,7 +328,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && object != null && myDistributedEntity.getPeerUid()  != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -336,7 +336,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setObject(object);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -383,7 +383,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToAdd;
 
-            if(isOpen == true && objectToAdd != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToAdd != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -391,7 +391,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setObject(objectToAdd);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -432,7 +432,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
             //Connection must be established
-            if(isOpen == true && objectToUpdate != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToUpdate != null && myDistributedEntity.getPeerUid()  != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -440,7 +440,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setObject(objectToUpdate);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid() );
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -481,7 +481,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
 
             //Connection must be established
-            if(isOpen == true && objectToDelete != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToDelete != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -489,7 +489,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setObject(objectToDelete);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -524,7 +524,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToCreate;
 
             //Connection must be established
-            if(isOpen == true && objectToCreate != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToCreate != null && myDistributedEntity.getPeerUid()  != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -532,7 +532,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setObject(objectToCreate);
                 command.setConditionList(null);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
@@ -574,7 +574,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
 
             //Connection must be established
-            if(isOpen == true && objectToLoad != null && myDistributedEntity.peerUid != null && field != null && !field.isEmpty())
+            if(isOpen == true && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty())
             {
 
                 DDBSCommand command = new DDBSCommand();
@@ -584,7 +584,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setFieldToLoad(field);
                 command.setOrderBy(orderBy);
 
-                Address peerToSend = getAddressPeer(myDistributedEntity.peerUid);
+                Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);

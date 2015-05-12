@@ -11,18 +11,37 @@ import org.ddbstoolkit.toolkit.core.IEntity;
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public class DDBSEntity {
+public class DDBSEntity<T extends DDBSEntityProperty> {
+
+	/**
+	 * Entity element
+	 */
+	protected IEntity entityObject;
 
 	/**
 	 * Entity name
 	 */
-	private String entityName;
+	protected String entityName;
 
 	/**
 	 * Entity properties
 	 */
-	private List<DDBSEntityProperty> entityProperties;
+	protected List<T> entityProperties;
 
+	/**
+	 * Get Entity object
+	 * 
+	 * @return
+	 */
+	public IEntity getEntityObject() {
+		return entityObject;
+	}
+
+	/**
+	 * Entity name
+	 * 
+	 * @return
+	 */
 	public String getEntityName() {
 		return entityName;
 	}
@@ -32,7 +51,7 @@ public class DDBSEntity {
 	 * 
 	 * @return Entity properties
 	 */
-	public List<DDBSEntityProperty> getEntityProperties() {
+	public List<T> getEntityProperties() {
 		return entityProperties;
 	}
 
@@ -41,12 +60,12 @@ public class DDBSEntity {
 	 * 
 	 * @return Entity properties
 	 */
-	public List<DDBSEntityProperty> getEntityPropertiesWithoutPeerUid() {
+	public List<T> getSupportedPrimaryTypeEntityProperties() {
 
-		List<DDBSEntityProperty> listWithoutPeerUID = new ArrayList<>();
-		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
-			if (!ddbsEntityProperty.isPeerUid()
-					&& ddbsEntityProperty.isDDBSToolkitSupportedEntity()) {
+		List<T> listWithoutPeerUID = new ArrayList<>();
+		for (T ddbsEntityProperty : entityProperties) {
+			if (!ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listWithoutPeerUID.add(ddbsEntityProperty);
 			}
 		}
@@ -60,7 +79,7 @@ public class DDBSEntity {
 	 */
 	public List<DDBSEntityIDProperty> getEntityIDProperties() {
 		List<DDBSEntityIDProperty> listIDProperties = new ArrayList<>();
-		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+		for (T ddbsEntityProperty : entityProperties) {
 			if (ddbsEntityProperty instanceof DDBSEntityIDProperty) {
 				listIDProperties.add((DDBSEntityIDProperty) ddbsEntityProperty);
 			}
@@ -74,13 +93,13 @@ public class DDBSEntity {
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<DDBSEntityProperty> getNotIncrementingEntityProperties() {
-		List<DDBSEntityProperty> listProperties = new ArrayList<>();
-		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
-			if (!ddbsEntityProperty.isPeerUid()
-					&& ddbsEntityProperty.isDDBSToolkitSupportedEntity()
-					&& ((ddbsEntityProperty instanceof DDBSEntityIDProperty && !((DDBSEntityIDProperty) ddbsEntityProperty)
-							.isAutoIncrement()) || !(ddbsEntityProperty instanceof DDBSEntityIDProperty))) {
+	public List<T> getNotIncrementingEntityProperties() {
+		List<T> listProperties = new ArrayList<>();
+		for (T ddbsEntityProperty : entityProperties) {
+			if (((ddbsEntityProperty instanceof DDBSEntityIDProperty && !((DDBSEntityIDProperty) ddbsEntityProperty)
+					.isAutoIncrement()) || !(ddbsEntityProperty instanceof DDBSEntityIDProperty))
+					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
+							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listProperties.add(ddbsEntityProperty);
 			}
 		}
@@ -93,11 +112,12 @@ public class DDBSEntity {
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<DDBSEntityProperty> getEntityNonIDProperties() {
-		List<DDBSEntityProperty> listNonIdProperties = new ArrayList<>();
-		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+	public List<T> getEntityNonIDProperties() {
+		List<T> listNonIdProperties = new ArrayList<>();
+		for (T ddbsEntityProperty : entityProperties) {
 			if (!(ddbsEntityProperty instanceof DDBSEntityIDProperty)
-					&& !ddbsEntityProperty.isPeerUid() && ddbsEntityProperty.isDDBSToolkitSupportedEntity()) {
+					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
+							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listNonIdProperties.add(ddbsEntityProperty);
 			}
 		}
@@ -112,8 +132,8 @@ public class DDBSEntity {
 	 *            Property name
 	 * @return DDBSEntity property
 	 */
-	public DDBSEntityProperty getDDBSEntityProperty(String propertyName) {
-		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+	public T getDDBSEntityProperty(String propertyName) {
+		for (T ddbsEntityProperty : entityProperties) {
 			if (ddbsEntityProperty.getPropertyName().equals(propertyName)) {
 				return ddbsEntityProperty;
 			}
@@ -126,11 +146,20 @@ public class DDBSEntity {
 	 * 
 	 * @param iEntity
 	 */
-	private DDBSEntity(IEntity iEntity) {
-		this.entityName = ClassInspector.getClassInspector().getClassName(
-				iEntity);
-		this.entityProperties = ClassInspector.getClassInspector()
-				.exploreProperties(iEntity);
+	protected DDBSEntity(IEntity iEntity) {
+		this(iEntity, ClassInspector.getClassInspector());
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param iEntity
+	 * @param classInspector
+	 */
+	protected DDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+		this.entityObject = iEntity;
+		this.entityName = classInspector.getClassName(iEntity);
+		this.entityProperties = classInspector.exploreProperties(iEntity);
 	}
 
 	/**
@@ -139,7 +168,7 @@ public class DDBSEntity {
 	 * @param iEntity
 	 *            IEntity
 	 */
-	public static DDBSEntity getDDBSEntity(IEntity iEntity) {
-		return new DDBSEntity(iEntity);
+	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(IEntity iEntity) {
+		return new DDBSEntity<DDBSEntityProperty>(iEntity);
 	}
 }

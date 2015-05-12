@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
@@ -53,8 +54,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	public JDBCEntityManager(JDBCConnector myConnector) {
 		super();
 		this.myConnector = myConnector;
-		this.jdbcPreparedStatementManager = new JDBCPreparedStatementManager(
-				myConnector);
 	}
 
 	/**
@@ -93,6 +92,8 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	public void open() throws DDBSToolkitException {
 		try {
 			myConnector.open();
+			jdbcPreparedStatementManager = new JDBCPreparedStatementManager(
+					myConnector);
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
 					"Error during opening SQL connection", sqle);
@@ -103,6 +104,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	public void close() throws DDBSToolkitException {
 		try {
 			myConnector.close();
+			jdbcPreparedStatementManager = null;
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error during SQL connection", sqle);
 		}
@@ -140,14 +142,14 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
 
 			StringBuilder listAllQuery = new StringBuilder();
 
 			listAllQuery.append("SELECT ");
 
 			Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-					.getEntityPropertiesWithoutPeerUid().iterator();
+					.getSupportedPrimaryTypeEntityProperties().iterator();
 			while (iteratorProperties.hasNext()) {
 				listAllQuery
 						.append(iteratorProperties.next().getPropertyName());
@@ -201,7 +203,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
 					.getReadPreparedStatement(ddbsEntity);
@@ -213,7 +215,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				sqlReadString.append("SELECT ");
 
 				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-						.getEntityPropertiesWithoutPeerUid().iterator();
+						.getSupportedPrimaryTypeEntityProperties().iterator();
 
 				while (iteratorProperties.hasNext()) {
 					sqlReadString.append(iteratorProperties.next()
@@ -275,7 +277,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
 					.getReadLastElementPreparedStatement(ddbsEntity);
@@ -294,7 +296,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					sqlReadLastElementString.append("SELECT ");
 
 					Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-							.getEntityPropertiesWithoutPeerUid().iterator();
+							.getSupportedPrimaryTypeEntityProperties().iterator();
 
 					while (iteratorProperties.hasNext()) {
 						sqlReadLastElementString.append(iteratorProperties
@@ -345,7 +347,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToAdd);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToAdd);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToAdd);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
 					.getAddPreparedStatement(ddbsEntity);
@@ -400,7 +402,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToUpdate);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
 					.getUpdatePreparedStatement(ddbsEntity);
@@ -469,7 +471,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToDelete);
 
 		try {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
 					.getDeletePreparedStatement(ddbsEntity);
@@ -519,7 +521,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToLoad);
 
 		if (objectToLoad != null && field != null && !field.isEmpty()) {
-			DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToLoad);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToLoad);
 
 			List<DDBSEntityIDProperty> idProperties = ddbsEntity
 					.getEntityIDProperties();
@@ -629,25 +631,24 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 							f.set(myData, results.getFloat(myProperty
 									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
+								DDBSToolkitSupportedEntity.DOUBLE)) {
+							f.set(myData, results.getDouble(myProperty
+									.getPropertyName()));
+						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.STRING)) {
-
-							// If it's the peerUid property
-							if (myProperty.isPeerUid()) {
-								if (myPeer != null) {
-									f.set(myData, myPeer.getUid());
-								} else {
-									f.set(myData, "0");
-								}
-							} else {
-								f.set(myData, results.getString(myProperty
+							f.set(myData, results.getString(myProperty
 										.getPropertyName()));
-							}
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.TIMESTAMP)) {
 							f.set(myData, results.getTimestamp(myProperty
 									.getPropertyName()));
 						}
 					}
+				}
+				
+				if(myData instanceof DistributedEntity && myPeer != null)
+				{
+					((DistributedEntity)myData).setPeerUid(myPeer.getUid());
 				}
 
 				resultList.add(myData);
@@ -705,6 +706,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					DDBSToolkitSupportedEntity.FLOAT)) {
 				preparedStatement.setFloat(counterParameter,
 						(Float) ddbsEntityProperty.getValue());
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.DOUBLE)) {
+				preparedStatement.setDouble(counterParameter,
+						(Double) ddbsEntityProperty.getValue());
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.STRING)) {
 				if (ddbsEntityProperty.getValue() != null) {

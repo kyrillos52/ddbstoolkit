@@ -31,42 +31,14 @@ public class SparqlClassInspector extends ClassInspector {
 		}
 		return (SparqlClassInspector) classInspector;
 	}
-	
-    /**
-     * Method to detect if the property is allowed by SPARQL
-     * @param myProperty Property to inspect
-     * @return
-     */
-    public boolean isSparqlType(DDBSEntityProperty myProperty)
-    {
-        String property;
-        
-        if(myProperty.isArray())
-        {
-            property = myProperty.getType();
-            if(property.length() > 4)
-            {
-                property = myProperty.getType().substring(2, myProperty.getType().length()-1);
-            }
-            //If it's one of these types
-            return property.equals("[J") || property.equals("[F") || property.equals("[I") || property.equals("int") || property.equals("long") || property.equals("float") || property.equals("java.lang.String;") || property.equals("java.lang.String");
-        }
-        else
-        {
-            property = myProperty.getType();
-            //If it's one of these types
-            return property.equals("int") || property.equals("long") || property.equals("float") || property.equals("java.lang.String");
-        }
-
-
-    }
 
     /**
      * Explore properties of a Sparql object
      * @param o Sparql object
      * @return
      */
-    public List<SparqlClassProperty> explorePropertiesForSPARQL(Object o)
+	@Override
+    public List<DDBSEntityProperty> exploreProperties(Object o)
     {
 
         Field[] fields = o.getClass().getFields();
@@ -88,7 +60,7 @@ public class SparqlClassInspector extends ClassInspector {
         }
 
         //Get the properties
-        ArrayList<SparqlClassProperty> listProperties = new ArrayList<SparqlClassProperty>();
+        List<DDBSEntityProperty> listProperties = new ArrayList<DDBSEntityProperty>();
 
         //Foreach property
         for(int i=0;i<fields.length;++i)
@@ -98,7 +70,13 @@ public class SparqlClassInspector extends ClassInspector {
             String type = fields[i].getType().getName();
             boolean isArray = fields[i].getType().isArray();
             boolean isId = false;
-            DDBSToolkitSupportedEntity typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(isArray, type);
+            DDBSToolkitSupportedEntity typeDDBSProperty = null;
+			try {
+				typeDDBSProperty = SparqlDDBSToolkitSupportedEntity.valueOf(fields[i]);
+			} catch (IllegalArgumentException | IllegalAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             Object value = null;
             String namespaceName = "";
             String namespaceUrl = "";
@@ -165,21 +143,26 @@ public class SparqlClassInspector extends ClassInspector {
 
             SparqlClassProperty myProperty = null;
             
-            if(isId)
+            if(!propertyName.equals(PEER_UID_PROPERTY_NAME) && typeDDBSProperty != null)
             {
-            	myProperty = new SparqlClassIdProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
+	            if(isId)
+	            {
+	            	myProperty = new SparqlClassIdProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
+	            }
+	            else
+	            {
+	            	myProperty = new SparqlClassProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
+	            }
+	            //Add the property in the arrayList
+	            listProperties.add(myProperty);
             }
-            else
-            {
-            	myProperty = new SparqlClassProperty(isArray, name, type, typeDDBSProperty, value, propertyName, namespaceName, namespaceUrl, isUri, optional);
-
-            }
-            
-
-            //Add the property in the arrayList
-            listProperties.add(myProperty);
         }
 
         return listProperties;
     }
+
+	public boolean isSparqlType(SparqlClassProperty sparqlClassProperty) {
+		// TODO Remove
+		return false;
+	}
 }

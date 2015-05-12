@@ -19,6 +19,7 @@ import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
 /**
  * Class to send commands using SQLSpaces
@@ -166,9 +167,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	            command.setAction(DDBSCommand.LIST_ALL_COMMAND);
 	            command.setConditionList(conditionList);
 	
-	            if(myEntity.peerUid != null && !myEntity.peerUid.isEmpty())
+	            if(myEntity.getPeerUid() != null && !myEntity.getPeerUid().isEmpty())
 	            {
-	                command.setDestination(myEntity.peerUid);
+	                command.setDestination(myEntity.getPeerUid());
 	            }
 	            else
 	            {
@@ -212,7 +213,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	                returnList.add((T) SqlSpacesConverter.fromString(encodedValue));
 	            }
 	
-	            if((myEntity.peerUid == null || myEntity.peerUid.isEmpty()) && orderBy != null && !orderBy.equals(""))
+	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null && !orderBy.equals(""))
 	            {
 	                Collections.sort(returnList, new ObjectComparator(orderBy));
 	            }
@@ -242,12 +243,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && object != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.READ_COMMAND);
-                command.setDestination(myDistributedEntity.peerUid);
+                command.setDestination(myDistributedEntity.getPeerUid());
                 command.setObject(object);
 
                 TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -284,12 +285,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && object != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.READ_LAST_ELEMENT_COMMAND);
-                command.setDestination(myDistributedEntity.peerUid);
+                command.setDestination(myDistributedEntity.getPeerUid());
                 command.setObject(object);
 
                 TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -326,12 +327,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToAdd;
 
-            if(isOpen == true && objectToAdd != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToAdd != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.ADD_COMMAND);
-                command.setDestination(myDistributedEntity.peerUid);
+                command.setDestination(myDistributedEntity.getPeerUid());
                 command.setObject(myDistributedEntity);
 
                 TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -366,12 +367,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     	try
     	{
-    		DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
+    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
     		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
             //Connection must be established
-            if(isOpen == true && objectToUpdate != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToUpdate != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 //List of primary keys
@@ -379,7 +380,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                 DistributedEntity myEntity = (DistributedEntity) objectToUpdate;
 
-                if(listPrimaryKeys.isEmpty() || myEntity.peerUid == null)
+                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null)
                 {
                     return false;
                 }
@@ -388,7 +389,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                     DDBSCommand command = new DDBSCommand();
                     command.setAction(DDBSCommand.UPDATE_COMMAND);
-                    command.setDestination(myDistributedEntity.peerUid);
+                    command.setDestination(myDistributedEntity.getPeerUid());
                     command.setObject(myDistributedEntity);
 
                     TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -426,10 +427,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
     		
-    		DDBSEntity ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
+    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
 
             //Connection must be established
-            if(isOpen == true && objectToDelete != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToDelete != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 //Check the primary key
@@ -437,7 +438,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                 DistributedEntity myEntity = (DistributedEntity) objectToDelete;
 
-                if(listPrimaryKeys.isEmpty() || myEntity.peerUid == null)
+                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null)
                 {
                     return false;
                 }
@@ -446,7 +447,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                     DDBSCommand command = new DDBSCommand();
                     command.setAction(DDBSCommand.DELETE_COMMAND);
-                    command.setDestination(myDistributedEntity.peerUid);
+                    command.setDestination(myDistributedEntity.getPeerUid());
                     command.setObject(myDistributedEntity);
 
                     TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -484,12 +485,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToCreate;
 
-            if(isOpen == true && objectToCreate != null && myDistributedEntity.peerUid != null)
+            if(isOpen == true && objectToCreate != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.CREATE_ENTITY);
-                command.setDestination(myDistributedEntity.peerUid);
+                command.setDestination(myDistributedEntity.getPeerUid());
                 command.setObject(objectToCreate);
 
                 TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
@@ -528,12 +529,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
 
             //Connection must be established
-            if(isOpen == true && objectToLoad != null && myDistributedEntity.peerUid != null && field != null && !field.isEmpty())
+            if(isOpen == true && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty())
             {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.LOAD_ARRAY_COMMAND);
-                command.setDestination(myDistributedEntity.peerUid);
+                command.setDestination(myDistributedEntity.getPeerUid());
                 command.setObject(objectToLoad);
                 command.setFieldToLoad(field);
                 command.setOrderBy(orderBy);

@@ -18,7 +18,23 @@ public class DistributedEntity implements IEntity {
 	/**
      * Peer UID of the entity
      */
-    public String peerUid;
+    private String peerUid;
+
+    /**
+     * Get Peer UID
+     * @return Peer UID
+     */
+	public String getPeerUid() {
+		return peerUid;
+	}
+
+	/**
+	 * Set Peer UID
+	 * @param peerUid Peer UID
+	 */
+	public void setPeerUid(String peerUid) {
+		this.peerUid = peerUid;
+	}
 
 	@Override
 	public String toString() {

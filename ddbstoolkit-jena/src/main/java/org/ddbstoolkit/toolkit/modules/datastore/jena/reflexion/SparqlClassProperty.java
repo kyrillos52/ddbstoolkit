@@ -3,7 +3,6 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
-
 /**
  * Information about a property of an object by using SPARQL queries
  * @author Cyril GRANDJEAN

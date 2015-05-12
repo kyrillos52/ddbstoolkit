@@ -80,7 +80,7 @@ public class MainWindowGUI {
                     //If a library has been selected
                     if(comboBoxLocation.getSelectedIndex() > 0)
                     {
-                        myBook.peerUid = listPeers.get(comboBoxLocation.getSelectedIndex() - 1).getUid();
+                        myBook.setPeerUid(listPeers.get(comboBoxLocation.getSelectedIndex() - 1).getUid());
                     }
 
                     String conditionString = "";
