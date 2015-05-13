@@ -1,14 +1,7 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.tdb.TDBFactory;
-import com.hp.hpl.jena.vocabulary.RDF;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,16 +17,23 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassIdProperty;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassInspector;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSEntity;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSToolkitSupportedEntity;
+
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ReadWrite;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * Class representing a distributed RDF triple store
@@ -152,25 +152,34 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 */
 	public static String getObjectVariable(IEntity object) {
 
+		@SuppressWarnings("unchecked")
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
 				.getDDBSEntity(object);
 
 		return sparqlEntity.getObjectVariable(object);
 	}
 
-	@Override
-	public <T extends IEntity> List<T> listAll(T object,
-			List<String> conditionList, String orderBy)
-			throws DDBSToolkitException {
-
-		testConnection(object);
-
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
-				.getDDBSEntity(object);
+	/**
+	 * Get a SPARQL String request
+	 * 
+	 * @param object
+	 *            Object
+	 * @param conditionList
+	 *            List of conditions
+	 * @param orderBy
+	 *            Order by element
+	 * @param sparqlEntity
+	 *            SPARQL Entity
+	 * @return
+	 */
+	private <T extends IEntity> String getSparqlRequest(T object,
+			List<String> conditionList, String orderBy,
+			@SuppressWarnings("rawtypes") SparqlDDBSEntity sparqlEntity, Set<String> additionalHeaders) {
 
 		StringBuilder sparqlHeader = new StringBuilder();
 		Set<String> listHeaders = new HashSet<String>();
 
+		@SuppressWarnings("unchecked")
 		List<SparqlClassProperty> sparqlClassProperties = sparqlEntity
 				.getSupportedPrimaryTypeEntityPropertiesWithoutURI();
 
@@ -184,7 +193,17 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 			listHeaders.add(header);
 		}
-
+		if(additionalHeaders != null)
+		{
+			for(String additionalHeader : additionalHeaders)
+			{
+				if (!listHeaders.contains(additionalHeader)) {
+					sparqlHeader.append(additionalHeader);
+				}
+				listHeaders.add(additionalHeader);
+			}
+		}
+		
 		StringBuilder sparqlSelect = new StringBuilder();
 		StringBuilder sparqlWhere = new StringBuilder();
 
@@ -257,147 +276,116 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 
 		}
+		return sparqlRequest.toString();
+	}
 
-		Query query = QueryFactory.create(sparqlRequest.toString());
+	/**
+	 * Add element in datastore
+	 * 
+	 * @param myModel
+	 *            Datastore model
+	 * @param resourceToAdd
+	 *            Datastore resource
+	 * @param sparqlClassProperty
+	 *            Sparql property
+	 * @param elementToAdd
+	 *            Element to add
+	 */
+	private void addElement(Model myModel, Resource resourceToAdd,
+			SparqlClassProperty sparqlClassProperty, Object elementToAdd) {
 
-		String serviceUrl = "";
-		Annotation[] annotations = object.getClass().getAnnotations();
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof Service) {
-				Service myService = (Service) annotation;
-				serviceUrl = myService.url();
-			}
+		if (elementToAdd != null) {
+			myModel.add(myModel.createLiteralStatement(resourceToAdd, myModel
+					.createProperty(sparqlClassProperty.getNamespaceURL()
+							+ sparqlClassProperty.getPropertyName()),
+					elementToAdd));
 		}
+	}
+	
+	private <T extends IEntity> List<T> listAll(T object,
+			List<String> conditionList, String orderBy, Set<String> additionalHeaders)
+			throws DDBSToolkitException {
+		
+		testConnection(object);
+
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(object);
+
+		Query query = QueryFactory.create(getSparqlRequest(object,
+				conditionList, orderBy, sparqlEntity, additionalHeaders));
+
+		String serviceUrl = sparqlEntity.getServiceUrl();
 
 		ResultSet results = null;
-		// Use of remote endpoints
-		if (!serviceUrl.isEmpty()) {
-			QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
-					query);
-			results = qe.execSelect();
-			List<T> resultList = conversionResultSet(results, object);
-			qe.close();
 
-			return resultList;
+		// Use of remote endpoints
+		if (serviceUrl != null && !serviceUrl.isEmpty() && myDataset == null) {
+
+			try (QueryExecution qe = QueryExecutionFactory.sparqlService(
+					serviceUrl, query)) {
+				results = qe.execSelect();
+				return conversionResultSet(results, object);
+			}
 		}
 		// Use of local datastore
 		else {
 			myDataset.begin(ReadWrite.READ);
 
-			try {
-				QueryExecution qe = QueryExecutionFactory.create(query,
-						myDataset.getDefaultModel());
+			try (QueryExecution qe = QueryExecutionFactory.create(query,
+					myDataset.getDefaultModel())) {
 				results = qe.execSelect();
 
-				List<T> resultList = conversionResultSet(results, object);
-				qe.close();
+				return conversionResultSet(results, object);
 
-				return resultList;
 			} finally {
 				myDataset.end();
 			}
 
 		}
+		
+	}
+
+	@Override
+	public <T extends IEntity> List<T> listAll(T object,
+			List<String> conditionList, String orderBy)
+			throws DDBSToolkitException {
+
+		return listAll(object, conditionList, orderBy, null);
 	}
 
 	@Override
 	public <T extends IEntity> T read(T object) throws DDBSToolkitException {
-		return object;
 
-		/*
-		 * if (object != null && (isOpen || pathDataset == null)) { // Explore
-		 * the properties of objects List<SparqlClassProperty> listProperties =
-		 * SparqlClassInspector
-		 * .getClassInspector().explorePropertiesForSPARQL(object);
-		 * 
-		 * ArrayList<SparqlClassProperty> propertyToRemove = new
-		 * ArrayList<SparqlClassProperty>(); String uri = null;
-		 * 
-		 * StringBuilder sparqlHeader = new StringBuilder(); ArrayList<String>
-		 * listHeaders = new ArrayList<String>();
-		 * 
-		 * for (SparqlClassProperty sparqlClassProperty : listProperties) {
-		 * 
-		 * // URI is not inside the request if (sparqlClassProperty.isUri()) {
-		 * propertyToRemove.add(sparqlClassProperty); uri = (String)
-		 * sparqlClassProperty.getValue(); } // Non SPARQL Types are ignored if
-		 * (sparqlClassProperty.isArray() &&
-		 * !SparqlClassInspector.getClassInspector()
-		 * .isSparqlType(sparqlClassProperty)) {
-		 * propertyToRemove.add(sparqlClassProperty); } String header =
-		 * "prefix " + sparqlClassProperty.getNamespaceName() + ": <" +
-		 * sparqlClassProperty.getNamespaceURL() + ">\n";
-		 * 
-		 * // Avoid duplication of headers if (!listHeaders.contains(header)) {
-		 * sparqlHeader.append(header); listHeaders.add(header); } }
-		 * 
-		 * for (SparqlClassProperty sparqlClassProperties : propertyToRemove) {
-		 * listProperties.remove(sparqlClassProperties); }
-		 * 
-		 * StringBuilder sparqlSelect = new StringBuilder(); StringBuilder
-		 * sparqlWhere = new StringBuilder();
-		 * 
-		 * sparqlSelect.append("SELECT ");
-		 * 
-		 * // Create the prefixes for (int i = 0; i < listProperties.size();
-		 * i++) {
-		 * 
-		 * SparqlClassProperty sparqlClassProperty = listProperties.get(i);
-		 * 
-		 * sparqlSelect.append(" ?");
-		 * sparqlSelect.append(sparqlClassProperty.getName());
-		 * 
-		 * // If the field is optional if (sparqlClassProperty.isOptional()) {
-		 * sparqlWhere.append("OPTIONAL { "); }
-		 * 
-		 * sparqlWhere.append("<"); sparqlWhere.append(uri);
-		 * sparqlWhere.append("> ");
-		 * sparqlWhere.append(sparqlClassProperty.getNamespaceName());
-		 * sparqlWhere.append(":");
-		 * sparqlWhere.append(sparqlClassProperty.getPropertyName());
-		 * sparqlWhere.append(" ?");
-		 * sparqlWhere.append(sparqlClassProperty.getName()); // If the field is
-		 * optional if (sparqlClassProperty.isOptional()) {
-		 * sparqlWhere.append("} "); }
-		 * 
-		 * if (i < listProperties.size() - 1) { sparqlWhere.append(".\n"); } }
-		 * 
-		 * StringBuilder sparqlRequest = new StringBuilder();
-		 * sparqlRequest.append(sparqlHeader);
-		 * sparqlRequest.append(sparqlSelect);
-		 * sparqlRequest.append(" WHERE { "); sparqlRequest.append(sparqlWhere);
-		 * sparqlRequest.append("}");
-		 * 
-		 * // System.out.println(sparqlRequest.toString());
-		 * 
-		 * Query query = QueryFactory.create(sparqlRequest.toString());
-		 * 
-		 * String serviceUrl = ""; Annotation[] annotations =
-		 * object.getClass().getAnnotations(); for (Annotation annotation :
-		 * annotations) { if (annotation instanceof Service) { Service myService
-		 * = (Service) annotation; serviceUrl = myService.url(); } }
-		 * 
-		 * ResultSet results = null; if (!serviceUrl.isEmpty()) { QueryExecution
-		 * qe = QueryExecutionFactory.sparqlService( serviceUrl, query); results
-		 * = qe.execSelect();
-		 * 
-		 * List<T> resultList = conversionResultSet(results, object);
-		 * qe.close(); if (resultList.size() == 1) { return resultList.get(0); }
-		 * else { return null; } } else { myDataset.begin(ReadWrite.READ);
-		 * 
-		 * try { QueryExecution qe = QueryExecutionFactory.create(query,
-		 * myDataset.getDefaultModel()); results = qe.execSelect();
-		 * 
-		 * List<T> resultList = conversionResultSet(results, object); if
-		 * (resultList.size() == 1) { qe.close(); return resultList.get(0); }
-		 * else { qe.close(); return null; }
-		 * 
-		 * } finally { myDataset.end(); }
-		 * 
-		 * } } else { if (!isOpen()) { throw new DDBSToolkitException(
-		 * "The database connection is not opened"); } else { throw new
-		 * DDBSToolkitException( "The object passed in parameter is null"); } }
-		 */
+		testConnection(object);
+
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(object);
+		
+		List<SparqlClassProperty> otherEntities = sparqlEntity.getSupportedPrimaryTypeEntityPropertiesWithoutURI();
+
+		if(otherEntities.size() > 0)
+		{
+			List<String> conditionList = new ArrayList<>();
+			SparqlClassProperty uriProperty = sparqlEntity.getUri();
+			conditionList.add("<" + uriProperty.getValue()+"> "
+					+ otherEntities.get(0).getNamespaceName() + ":"
+					+ otherEntities.get(0).getPropertyName() + " ?" + otherEntities.get(0).getName());
+
+			List<T> results = listAll(object, conditionList, null);
+			if (results.size() == 1) {
+				return results.get(0);
+			} else {
+				throw new DDBSToolkitException("Read function has returned "
+						+ results.size() + " results");
+			}
+		}
+		else
+		{
+			//TODO
+			return null;
+		}
 	}
 
 	/**
@@ -411,245 +399,164 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public <T extends IEntity> T readLastElement(T object)
 			throws DDBSToolkitException {
-		return object;
 
-		/*
-		 * if (object != null && (isOpen || pathDataset == null)) { try {
-		 * 
-		 * // Explore the properties of objects List<SparqlClassProperty>
-		 * listProperties = SparqlClassInspector
-		 * .getClassInspector().explorePropertiesForSPARQL(object);
-		 * 
-		 * StringBuilder sparqlHeader = new StringBuilder(); ArrayList<String>
-		 * listHeaders = new ArrayList<String>();
-		 * 
-		 * listHeaders .add("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
-		 * sparqlHeader
-		 * .append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
-		 * 
-		 * SparqlClassProperty idProperty = null; SparqlClassProperty
-		 * uriProperty = null;
-		 * 
-		 * for (SparqlClassProperty sparqlClassProperty : listProperties) {
-		 * 
-		 * if (sparqlClassProperty instanceof SparqlClassIdProperty) {
-		 * idProperty = sparqlClassProperty; } if (sparqlClassProperty.isUri())
-		 * { uriProperty = sparqlClassProperty; } String header = "prefix " +
-		 * sparqlClassProperty.getNamespaceName() + ": <" +
-		 * sparqlClassProperty.getNamespaceURL() + ">\n";
-		 * 
-		 * // Avoid duplication of headers if (!listHeaders.contains(header)) {
-		 * sparqlHeader.append(header); listHeaders.add(header); } }
-		 * 
-		 * StringBuilder sparqlRequest = new StringBuilder();
-		 * sparqlRequest.append(sparqlHeader); sparqlRequest
-		 * .append("SELECT ?element ?entity_id WHERE { ?element ");
-		 * sparqlRequest.append(idProperty.getNamespaceName());
-		 * sparqlRequest.append(":");
-		 * sparqlRequest.append(idProperty.getPropertyName()); sparqlRequest
-		 * .append(" ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1");
-		 * 
-		 * // System.out.println(sparqlRequest.toString());
-		 * 
-		 * Query query = QueryFactory .create(
-		 * "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> prefix business: <http://cyril-grandjean.co.uk/business/> SELECT ?element ?entity_id WHERE { ?element business:company_ID ?entity_id } ORDER BY DESC(?entity_id) LIMIT 1"
-		 * );
-		 * 
-		 * String serviceUrl = ""; Annotation[] annotations =
-		 * object.getClass().getAnnotations(); for (Annotation annotation :
-		 * annotations) { if (annotation instanceof Service) { Service myService
-		 * = (Service) annotation; serviceUrl = myService.url(); } }
-		 * 
-		 * String lastUri = null;
-		 * 
-		 * ResultSet results = null; if (!serviceUrl.isEmpty()) { QueryExecution
-		 * qe = QueryExecutionFactory.sparqlService( serviceUrl, query); results
-		 * = qe.execSelect();
-		 * 
-		 * // For each object while (results.hasNext()) {
-		 * 
-		 * QuerySolution myResult = results.next();
-		 * 
-		 * lastUri = myResult.get("element").toString(); }
-		 * 
-		 * qe.close(); } else { myDataset.begin(ReadWrite.READ);
-		 * 
-		 * try { QueryExecution qe = QueryExecutionFactory.create(query,
-		 * myDataset.getDefaultModel()); results = qe.execSelect();
-		 * 
-		 * // For each object while (results.hasNext()) {
-		 * 
-		 * QuerySolution myResult = results.next();
-		 * 
-		 * lastUri = myResult.get("element").toString(); }
-		 * 
-		 * qe.close(); } finally { myDataset.end(); }
-		 * 
-		 * }
-		 * 
-		 * if (lastUri != null) {
-		 * 
-		 * Field f = object.getClass().getField(uriProperty.getName());
-		 * 
-		 * f.set(object, lastUri);
-		 * 
-		 * return read(object); } else { return null; } } catch
-		 * (IllegalAccessException iae) { throw new DDBSToolkitException(
-		 * "Illegal access exception using reflection", iae); } catch
-		 * (NoSuchFieldException nsfe) { throw new DDBSToolkitException(
-		 * "No such field exception using reflection", nsfe); } } else { if
-		 * (!isOpen()) { throw new DDBSToolkitException(
-		 * "The database connection is not opened"); } else { throw new
-		 * DDBSToolkitException( "The object passed in parameter is null"); } }
-		 */
+		testConnection(object);
+
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(object);
+
+		List<SparqlClassIdProperty> sparqlIdProperties = sparqlEntity
+				.getSparqlEntityIDProperties();
+
+		if (sparqlIdProperties.size() == 1) {
+			SparqlClassIdProperty sparqlIdProperty = sparqlIdProperties.get(0);
+
+			List<String> conditionList = new ArrayList<>();
+			conditionList.add("?element " + sparqlIdProperty.getNamespaceName()
+					+ ":" + sparqlIdProperty.getPropertyName() + " ?entity_id");
+
+			List<T> results = listAll(object, conditionList,
+					"ORDER BY DESC(?entity_id)");
+			if (results.size() == 1) {
+				return results.get(0);
+			} else {
+				throw new DDBSToolkitException("Read function has returned "
+						+ results.size() + " results");
+			}
+		} else {
+			throw new DDBSToolkitException("Read last function has returned "
+					+ sparqlIdProperties.size() + " Id elements");
+		}
 	}
 
 	@Override
 	public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
-		return isOpen;
 
-		/*
-		 * // Connection must be opened and object non null if (isOpen &&
-		 * objectToAdd != null) {
-		 * 
-		 * // Start a writing transaction myDataset.begin(ReadWrite.WRITE); try
-		 * {
-		 * 
-		 * // Get the model Model myModel = myDataset.getDefaultModel();
-		 * 
-		 * // Explore the properties of the object to add
-		 * List<SparqlClassProperty> listProperties = SparqlClassInspector
-		 * .getClassInspector().explorePropertiesForSPARQL( objectToAdd);
-		 * 
-		 * // Get the URI String uri = ""; for (SparqlClassProperty
-		 * sparqlClassProperty : listProperties) { if
-		 * (sparqlClassProperty.isUri()) { uri = (String)
-		 * sparqlClassProperty.getValue(); break; } }
-		 * 
-		 * // If there is an URI if (!uri.equals("")) {
-		 * 
-		 * Annotation[] classAnnotations = objectToAdd.getClass()
-		 * .getAnnotations();
-		 * 
-		 * // Get the default namespace String defaultNamespaceUrl = ""; for
-		 * (Annotation annotation : classAnnotations) { if (annotation
-		 * instanceof DefaultNamespace) { DefaultNamespace ns =
-		 * (DefaultNamespace) annotation;
-		 * 
-		 * defaultNamespaceUrl = ns.url(); } }
-		 * 
-		 * Resource resourceToAdd = myModel.createResource(uri);
-		 * 
-		 * myModel.add( resourceToAdd, RDF.type,
-		 * myModel.createResource(defaultNamespaceUrl +
-		 * objectToAdd.getClass().getSimpleName()));
-		 * 
-		 * for (SparqlClassProperty sparqlClassProperty : listProperties) {
-		 * 
-		 * // System.out.println("Property name "+sparqlClassProperty.getName()+
-		 * " Property type "+sparqlClassProperty.getType());
-		 * 
-		 * // If it's not the URI or an array or the isPeerUid if
-		 * (!sparqlClassProperty.isUri() && !sparqlClassProperty.isArray()) { if
-		 * (sparqlClassProperty.getType().equals("int")) {
-		 * myModel.add(myModel.createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()),
-		 * sparqlClassProperty.getValue())); } else if
-		 * (sparqlClassProperty.getType().equals( "long")) {
-		 * myModel.add(myModel.createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()),
-		 * sparqlClassProperty.getValue())); } else if
-		 * (sparqlClassProperty.getType().equals( "float")) {
-		 * myModel.add(myModel.createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()),
-		 * sparqlClassProperty.getValue())); } else if
-		 * (sparqlClassProperty.getType().equals( "java.lang.String")) { String
-		 * value; if (sparqlClassProperty.getValue() == null) { value = ""; }
-		 * else { value = (String) sparqlClassProperty .getValue(); }
-		 * myModel.add(myModel.createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()), value)); } } // Array add
-		 * the node if (sparqlClassProperty.isArray()) { // Primitives types +
-		 * Strings if (SparqlClassInspector.getClassInspector()
-		 * .isSparqlType(sparqlClassProperty)) { String property =
-		 * sparqlClassProperty.getType();
-		 * 
-		 * Field arrayField = objectToAdd .getClass()
-		 * .getField(sparqlClassProperty.getName());
-		 * 
-		 * if (arrayField.get(objectToAdd) != null) { // Integer array if
-		 * (property.equals("[I")) { int[] array = (int[]) arrayField
-		 * .get(objectToAdd);
-		 * 
-		 * for (int i = 0; i < array.length; i++) { myModel.add(myModel
-		 * .createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()), array[i])); }
-		 * 
-		 * } // Long array else if (property.equals("[J")) { long[] array =
-		 * (long[]) arrayField .get(objectToAdd);
-		 * 
-		 * for (int i = 0; i < array.length; i++) { myModel.add(myModel
-		 * .createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()), array[i])); } } // Float
-		 * array else if (property.equals("[F")) { float[] array = (float[])
-		 * arrayField .get(objectToAdd);
-		 * 
-		 * for (int i = 0; i < array.length; i++) { myModel.add(myModel
-		 * .createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()), array[i])); } } // String
-		 * array else if (property .equals("[Ljava.lang.String;")) { String[]
-		 * array = (String[]) arrayField .get(objectToAdd);
-		 * 
-		 * for (int i = 0; i < array.length; i++) { myModel.add(myModel
-		 * .createLiteralStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()), array[i])); } } }
-		 * 
-		 * } // IEntity types else { Field arrayField = objectToAdd .getClass()
-		 * .getField(sparqlClassProperty.getName());
-		 * 
-		 * IEntity[] array = (IEntity[]) arrayField .get(objectToAdd); if (array
-		 * != null) { int size = Array.getLength(array);
-		 * 
-		 * for (int i = 0; i < size; i++) { IEntity object = (IEntity)
-		 * Array.get( array, i);
-		 * 
-		 * String uri_field = ""; List<SparqlClassProperty> properties =
-		 * SparqlClassInspector .getClassInspector()
-		 * .explorePropertiesForSPARQL( object); for (SparqlClassProperty
-		 * property : properties) { if (property.isUri()) { uri_field =
-		 * property.getName(); break; } }
-		 * 
-		 * Field fieldLinked = object.getClass() .getField(uri_field); String
-		 * uriToLink = (String) fieldLinked .get(object);
-		 * 
-		 * // System.out.println("URI to link : "+uriToLink);
-		 * 
-		 * myModel.add(myModel.createStatement( resourceToAdd,
-		 * myModel.createProperty(sparqlClassProperty .getNamespaceURL() +
-		 * sparqlClassProperty .getPropertyName()),
-		 * myModel.createResource(uriToLink))); } } } } }
-		 * 
-		 * // Commit the transaction myDataset.commit();
-		 * 
-		 * return true; } else { return false; } } catch (Exception ex) {
-		 * 
-		 * myDataset.abort();
-		 * 
-		 * throw new DDBSToolkitException("An exception has occured", ex);
-		 * 
-		 * } finally { myDataset.end(); } } else {
-		 * 
-		 * if (!isOpen()) { throw new DDBSToolkitException(
-		 * "The database connection is not opened"); } else { throw new
-		 * DDBSToolkitException( "The object passed in parameter is null"); } }
-		 */
+		testConnection(objectToAdd);
+
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(objectToAdd);
+
+		// Start a writing transaction
+		myDataset.begin(ReadWrite.WRITE);
+
+		// Get the model
+		Model myModel = myDataset.getDefaultModel();
+
+		SparqlClassProperty uriProperty = sparqlEntity.getUri();
+		String defaultNamespaceUri = sparqlEntity.getDefaultNamespace();
+
+		try {
+			if (uriProperty != null && defaultNamespaceUri != null
+					&& !((String) uriProperty.getValue()).isEmpty()) {
+				Resource resourceToAdd = myModel
+						.createResource((String) uriProperty.getValue());
+
+				myModel.add(
+						resourceToAdd,
+						RDF.type,
+						myModel.createResource(defaultNamespaceUri
+								+ objectToAdd.getClass().getSimpleName()));
+
+				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
+						.getSupportedPrimaryTypeEntityPropertiesWithoutURI()) {
+					if (sparqlClassProperty.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER)
+							|| sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.LONG)
+							|| sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.FLOAT)
+							|| sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.LONG)
+							|| sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
+						addElement(myModel, resourceToAdd, sparqlClassProperty,
+								sparqlClassProperty.getValue());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+
+						int[] array = (int[]) sparqlClassProperty.getValue();
+						if (array != null) {
+							for (int elementToAdd : array) {
+								addElement(myModel, resourceToAdd,
+										sparqlClassProperty, elementToAdd);
+							}
+						}
+
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+
+						long[] array = (long[]) sparqlClassProperty.getValue();
+						if (array != null) {
+							for (long elementToAdd : array) {
+								addElement(myModel, resourceToAdd,
+										sparqlClassProperty, elementToAdd);
+							}
+						}
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+
+						float[] array = (float[]) sparqlClassProperty
+								.getValue();
+
+						if (array != null) {
+							for (float elementToAdd : array) {
+								addElement(myModel, resourceToAdd,
+										sparqlClassProperty, elementToAdd);
+							}
+						}
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+
+						double[] array = (double[]) sparqlClassProperty
+								.getValue();
+						if (array != null) {
+							for (double elementToAdd : array) {
+								addElement(myModel, resourceToAdd,
+										sparqlClassProperty, elementToAdd);
+							}
+						}
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+
+						String[] array = (String[]) sparqlClassProperty
+								.getValue();
+						if (array != null) {
+							for (String elementToAdd : array) {
+								addElement(myModel, resourceToAdd,
+										sparqlClassProperty, elementToAdd);
+							}
+						}
+					}
+				}
+
+				// Commit the transaction
+				myDataset.commit();
+
+				return true;
+			} else {
+				throw new DDBSToolkitException("URI has not been defined");
+			}
+		} catch (Exception ex) {
+			
+			myDataset.abort();
+			
+			throw new DDBSToolkitException("An exception has occured", ex);
+		
+		} finally {
+			myDataset.end();
+		}
 	}
 
 	@Override
@@ -662,36 +569,39 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 	@Override
 	public boolean delete(IEntity objectToDelete) throws DDBSToolkitException {
-		return isOpen;
 
-		/*
-		 * if (objectToDelete != null) { // Start a writing transaction
-		 * myDataset.begin(ReadWrite.WRITE); try {
-		 * 
-		 * // Get the model Model myModel = myDataset.getDefaultModel();
-		 * 
-		 * // Explore the properties of the object to add
-		 * List<SparqlClassProperty> listProperties = SparqlClassInspector
-		 * .getClassInspector().explorePropertiesForSPARQL( objectToDelete);
-		 * 
-		 * // Get the URI String uriValue = null; for (SparqlClassProperty
-		 * sparqlClassProperty : listProperties) { if
-		 * (sparqlClassProperty.isUri()) { uriValue = (String)
-		 * sparqlClassProperty.getValue(); break; } }
-		 * 
-		 * if (uriValue != null) { // Remove all the triples associated with the
-		 * URI myModel.createResource(uriValue).removeAll(null);
-		 * 
-		 * // Commit the transaction myDataset.commit(); } else { return false;
-		 * }
-		 * 
-		 * return true; } catch (Exception ex) { return false; } finally {
-		 * myDataset.end(); }
-		 * 
-		 * } else { if (!isOpen()) { throw new DDBSToolkitException(
-		 * "The database connection is not opened"); } else { throw new
-		 * DDBSToolkitException( "The object passed in parameter is null"); } }
-		 */
+		testConnection(objectToDelete);
+
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(objectToDelete);
+
+		// Start a writing transaction
+		myDataset.begin(ReadWrite.WRITE);
+
+		try {
+
+			// Get the model
+			Model myModel = myDataset.getDefaultModel();
+
+			SparqlClassProperty uriProperty = sparqlEntity.getUri();
+
+			if (uriProperty != null && uriProperty.getValue() != null) {
+				// Remove all the triples associated with the URI
+				myModel.createResource((String) uriProperty.getValue())
+						.removeAll(null);
+
+				// Commit the transaction
+				myDataset.commit();
+
+				return true;
+			} else {
+				throw new DDBSToolkitException("URI has not been defined");
+			}
+
+		} finally {
+			myDataset.end();
+		}
 	}
 
 	@Override
@@ -704,55 +614,62 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public <T extends IEntity> T loadArray(T objectToLoad, String field,
 			String orderBy) throws DDBSToolkitException {
-		return objectToLoad;
 
-		/*
-		 * try { List<SparqlClassProperty> listOfProperties =
-		 * SparqlClassInspector .getClassInspector().explorePropertiesForSPARQL(
-		 * objectToLoad);
-		 * 
-		 * SparqlClassProperty linkProperty = null; SparqlClassProperty
-		 * uriPropertyObjectToLoad = null;
-		 * 
-		 * for (SparqlClassProperty property : listOfProperties) { if
-		 * (property.getName().equals(field)) { linkProperty = property; } if
-		 * (property.isUri()) { uriPropertyObjectToLoad = property; } }
-		 * 
-		 * String objectName = linkProperty.getType().substring(2,
-		 * linkProperty.getType().length() - 1);
-		 * 
-		 * IEntity objectLinked = (IEntity) Class.forName(objectName)
-		 * .newInstance();
-		 * 
-		 * listOfProperties = SparqlClassInspector.getClassInspector()
-		 * .explorePropertiesForSPARQL(objectLinked);
-		 * 
-		 * Field fieldUri = objectToLoad.getClass().getField(
-		 * uriPropertyObjectToLoad.getName());
-		 * 
-		 * List<String> listCondition = new ArrayList<String>();
-		 * listCondition.add("<" + fieldUri.get(objectToLoad) + "> " +
-		 * linkProperty.getNamespaceName() + ":" +
-		 * linkProperty.getPropertyName() + " " +
-		 * getObjectVariable(objectLinked));
-		 * 
-		 * List<IEntity> listObject = listAll(objectLinked, listCondition,
-		 * orderBy);
-		 * 
-		 * Field f = objectToLoad.getClass().getField(field);
-		 * 
-		 * Object array = Array.newInstance(Class.forName(objectName),
-		 * listObject.size());
-		 * 
-		 * int i = 0; for (IEntity entity : listObject) { Array.set(array, i,
-		 * entity); i++; }
-		 * 
-		 * f.set(objectToLoad, array);
-		 * 
-		 * return objectToLoad; } catch (Exception e) { throw new
-		 * DDBSToolkitException( "Error during use of the reflection mechanism",
-		 * e); }
-		 */
+		@SuppressWarnings("unchecked")
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+				.getDDBSEntity(objectToLoad);
+
+		testConnection(objectToLoad);
+
+		SparqlClassProperty linkProperty = sparqlEntity
+				.getDDBSEntityProperty(field);
+
+		SparqlClassProperty uri = sparqlEntity.getUri();
+
+		IEntity objectLinked;
+		try {
+			objectLinked = (IEntity) Class.forName(
+					linkProperty.getObjectTypeName()).newInstance();
+
+			if (linkProperty != null && uri != null) {
+				List<String> listCondition = new ArrayList<String>();
+				listCondition.add("<" + uri.getValue() + "> "
+						+ linkProperty.getNamespaceName() + ":"
+						+ linkProperty.getPropertyName() + " "
+						+ getObjectVariable(objectLinked));
+				
+				Set<String> additionalHeader = new HashSet<>();
+				additionalHeader.add("prefix " + linkProperty.getNamespaceName()
+					+ ": <" + linkProperty.getNamespaceURL() + ">\n");
+
+				List<IEntity> listObject = listAll(objectLinked, listCondition,
+						orderBy, additionalHeader);
+
+				Field f = objectToLoad.getClass().getField(
+						linkProperty.getName());
+				
+				Object arrayObject = Array.newInstance(Class.forName(linkProperty.getObjectTypeName()), listObject.size());
+				
+				int counterArray = 0;
+				for(IEntity iEntity : listObject)
+				{
+					Array.set(arrayObject, counterArray, iEntity);
+					counterArray++;
+				}
+				
+				f.set(objectToLoad, arrayObject);
+			} else {
+				throw new DDBSToolkitException(
+						"Linked field or URI has not been defined");
+			}
+
+			return objectToLoad;
+
+		} catch (InstantiationException | IllegalAccessException
+				| ClassNotFoundException | NoSuchFieldException
+				| SecurityException e) {
+			throw new DDBSToolkitException("Error while creating object", e);
+		}
 	}
 
 	/**
@@ -875,6 +792,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		try {
 			List<T> resultList = new ArrayList<T>();
 
+			@SuppressWarnings("unchecked")
 			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
 					.getDDBSEntity(myObject);
 
@@ -1000,49 +918,120 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 			for (T myData : resultList) {
 				String uri = (String) myData.getClass()
-						.getField(sparqlEntity.getUri().getName())
-						.get(myObject);
+						.getField(sparqlEntity.getUri().getName()).get(myData);
 
 				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
 						.getEntityProperties()) {
-					Field f = myData.getClass().getField(
-							sparqlClassProperty.getName());
+					
+					if(sparqlClassProperty.isArray() && !sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY))
+					{
+						Field f = myData.getClass().getField(
+								sparqlClassProperty.getName());
 
-					if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-						f.set(myData,
-								sparqlResults.getIntegerArray(
+						if (sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								f.set(myData,sparqlResults.getIntegerArray(
 										sparqlClassProperty.getName(), uri)
 										.toArray());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
-						f.set(myData,
-								sparqlResults.getLongArray(
+							}
+							else
+							{
+								Set<Integer> integerSet = sparqlResults.getIntegerArray(
+										sparqlClassProperty.getName(), uri);
+								int[]resultInt = new int[integerSet.size()];
+								int counterResult = 0;
+								for(Integer integer : integerSet)
+								{
+									resultInt[counterResult] = integer;
+									counterResult++;
+								}
+								f.set(myData,resultInt);
+							}
+							
+						} else if (sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								f.set(myData,sparqlResults.getLongArray(
 										sparqlClassProperty.getName(), uri)
-										.toArray());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
-						f.set(myData,
-								sparqlResults.getFloatArray(
+										.toArray(new Long[] {}));
+							}
+							else
+							{
+								Set<Long> longSet = sparqlResults.getLongArray(
+										sparqlClassProperty.getName(), uri);
+								long[]resultLong = new long[longSet.size()];
+								int counterResult = 0;
+								for(Long longObject : longSet)
+								{
+									resultLong[counterResult] = longObject;
+									counterResult++;
+								}
+								f.set(myData,resultLong);
+							}
+						} else if (sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								f.set(myData,sparqlResults.getFloatArray(
 										sparqlClassProperty.getName(), uri)
-										.toArray());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
-						f.set(myData,
-								sparqlResults.getDoubleArray(
+										.toArray(new Float[] {}));
+							}
+							else
+							{
+								Set<Float> floatSet = sparqlResults.getFloatArray(
+										sparqlClassProperty.getName(), uri);
+								float[]resultFloat = new float[floatSet.size()];
+								int counterResult = 0;
+								for(Float floatObject : floatSet)
+								{
+									resultFloat[counterResult] = floatObject;
+									counterResult++;
+								}
+								f.set(myData,resultFloat);
+							}
+						} else if (sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								f.set(myData,sparqlResults.getDoubleArray(
 										sparqlClassProperty.getName(), uri)
-										.toArray());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
-						f.set(myData,
-								sparqlResults.getStringArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray());
+										.toArray(new Double[] {}));
+							}
+							else
+							{
+								Set<Double> doubleSet = sparqlResults.getDoubleArray(
+										sparqlClassProperty.getName(), uri);
+								double[]resultDouble = new double[doubleSet.size()];
+								int counterResult = 0;
+								for(Double doubleObject : resultDouble)
+								{
+									resultDouble[counterResult] = doubleObject;
+									counterResult++;
+								}
+								f.set(myData,resultDouble);
+							}
+						} else if (sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+							
+							f.set(myData,sparqlResults.getStringArray(
+									sparqlClassProperty.getName(), uri)
+									.toArray(new String[0]));
+						}
+						
+						
 					}
 				}
 

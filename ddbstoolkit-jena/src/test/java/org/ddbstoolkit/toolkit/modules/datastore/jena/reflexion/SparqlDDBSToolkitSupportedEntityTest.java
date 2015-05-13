@@ -5,11 +5,7 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SparqlDDBSToolkitSupportedEntityTest {
-
-	private class EntityTest implements IEntity {
-		
-	}
+public class SparqlDDBSToolkitSupportedEntityTest implements IEntity {
 	
 	private class TestClass
 	{
@@ -31,17 +27,25 @@ public class SparqlDDBSToolkitSupportedEntityTest {
 		
 		public String stringObjectValue;
 		
-		public EntityTest[] entities;
+		public SparqlDDBSToolkitSupportedEntityTest[] entities;
 		
-		public Integer[] integerArray;
+		public Integer[] integerArrayObject;
 		
-		public Long[] longArray;
+		public Long[] longArrayObject;
 		
-		public Float[] floatArray;
+		public Float[] floatArrayObject;
 		
-		public Double[] doubleArray;
+		public Double[] doubleArrayObject;
 		
-		public String[] stringArray;
+		public String[] stringArrayObject;
+		
+		public int[] integerArray;
+		
+		public long[] longArray;
+		
+		public float[] floatArray;
+		
+		public double[] doubleArray;
 	}
 	
 	@Test
@@ -57,10 +61,14 @@ public class SparqlDDBSToolkitSupportedEntityTest {
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("doubleObjectValue")).equals(SparqlDDBSToolkitSupportedEntity.DOUBLE));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("stringObjectValue")).equals(SparqlDDBSToolkitSupportedEntity.STRING));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("entities")).equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY));
+		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("integerArrayObject")).equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY));
+		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("longArrayObject")).equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY));
+		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("floatArrayObject")).equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY));
+		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("doubleArrayObject")).equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("integerArray")).equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("longArray")).equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("floatArray")).equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("doubleArray")).equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY));
-		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("stringArray")).equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY));
+		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("stringArrayObject")).equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY));
 	}
 }

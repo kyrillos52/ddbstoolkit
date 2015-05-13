@@ -69,4 +69,9 @@ public class SparqlClassProperty extends DDBSEntityProperty {
     public boolean isOptional() {
         return isOptional;
     }
+    
+	public boolean isPrimitiveArray()
+	{
+		return isArray && (type.equals("[I") || type.equals("[J") || type.equals("[F") || type.equals("[D"));
+	}
 }

@@ -1,11 +1,15 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
 
 /**
  * SPARQL DDBS Entity
@@ -14,6 +18,58 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  */
 public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<T> {
 
+	/**
+	 * Get Sparql service URL
+	 * @return service url or null
+	 */
+	public String getServiceUrl()
+	{
+		Annotation[] annotations = entityObject.getClass().getAnnotations();
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof Service) {
+				Service myService = (Service) annotation;
+				return myService.url();
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get default namespace
+	 * @return Default namespace
+	 */
+	public String getDefaultNamespace()
+	{
+		Annotation[] classAnnotations = entityObject.getClass().getAnnotations();
+
+		for (Annotation annotation : classAnnotations) {
+			if (annotation instanceof DefaultNamespace) {
+				DefaultNamespace ns = (DefaultNamespace) annotation;
+
+				return ns.url();
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	/**
+	 * Get ID Entity properties
+	 * 
+	 * @return ID Entity properties
+	 */
+	public List<SparqlClassIdProperty> getSparqlEntityIDProperties() {
+		List<SparqlClassIdProperty> listIDProperties = new ArrayList<>();
+		for (T ddbsEntityProperty : entityProperties) {
+			if (ddbsEntityProperty instanceof SparqlClassIdProperty) {
+				listIDProperties.add((SparqlClassIdProperty) ddbsEntityProperty);
+			}
+		}
+
+		return listIDProperties;
+	}
+	
 	public SparqlDDBSEntity(IEntity iEntity) {
 		super(iEntity, SparqlClassInspector.getClassInspector());
 	}
@@ -24,6 +80,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * @param iEntity
 	 *            IEntity
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static SparqlDDBSEntity getDDBSEntity(IEntity iEntity) {
 		return new SparqlDDBSEntity<SparqlClassProperty>(iEntity);
 	}

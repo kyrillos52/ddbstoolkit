@@ -32,7 +32,10 @@ public class DDBSToolkitJenaModuleTest {
 	/**
 	 * Jena Directory path
 	 */
-	private final static String DATASTORE_DIRECTORY = "/Users/Cyril/Desktop/datastore";
+	//private final static String DATASTORE_DIRECTORY = "/Users/Cyril/Desktop/datastore";
+	
+	private final static String DATASTORE_DIRECTORY = "C:\\Users\\t294994\\Desktop\\Test Java\\Test";
+
 	
 	@Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -177,6 +180,7 @@ public class DDBSToolkitJenaModuleTest {
 
         //Test with a remote SPARQL Endpoint
         DistributedSPARQLManager manager = new DistributedSPARQLManager();
+        manager.open();
 
         Film filmToRead = new Film();
         filmToRead.film_uri = "http://data.linkedmdb.org/resource/film/1025";
@@ -196,7 +200,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testAddNullValue() throws DDBSToolkitException
     {
-    	thrown.expect(DDBSToolkitException.class);
+    	thrown.expect(IllegalArgumentException.class);
  
         manager.add(null);
     }

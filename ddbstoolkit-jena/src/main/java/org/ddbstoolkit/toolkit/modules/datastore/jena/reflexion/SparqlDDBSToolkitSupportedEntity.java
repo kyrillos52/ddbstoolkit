@@ -12,10 +12,10 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  */
 public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity {
 
-	public static final DDBSToolkitSupportedEntity INTEGER_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Integer;"});
-	public static final DDBSToolkitSupportedEntity LONG_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Long;"});
-	public static final DDBSToolkitSupportedEntity FLOAT_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Float;"});
-	public static final DDBSToolkitSupportedEntity DOUBLE_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Double;"});
+	public static final DDBSToolkitSupportedEntity INTEGER_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Integer;","[I"});
+	public static final DDBSToolkitSupportedEntity LONG_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Long;","[J"});
+	public static final DDBSToolkitSupportedEntity FLOAT_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Float;","[F"});
+	public static final DDBSToolkitSupportedEntity DOUBLE_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Double;","[D"});
 	public static final DDBSToolkitSupportedEntity STRING_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.String;"});
 	
 	public static final DDBSToolkitSupportedEntity[] SUPPORTED_ENTITIES = {INTEGER, LONG, FLOAT, DOUBLE, STRING, TIMESTAMP, IENTITY_ARRAY, INTEGER_ARRAY, LONG_ARRAY, FLOAT_ARRAY, DOUBLE_ARRAY, STRING_ARRAY};
@@ -39,15 +39,7 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 			}
 		}
 		else
-		{
-			for(Class<?> objectInterface : field.getType().getComponentType().getInterfaces())
-			{
-				if(objectInterface.getName().equals(IEntity.class.getName()))
-				{
-					return IENTITY_ARRAY;
-				}
-			}
-			
+		{	
 			for(DDBSToolkitSupportedEntity sparqlddbsToolkitSupportedEntity : SUPPORTED_ENTITIES)
 			{
 				for(String type : sparqlddbsToolkitSupportedEntity.getTypes())
@@ -56,6 +48,26 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 						return sparqlddbsToolkitSupportedEntity;
 					}
 				}
+			}
+			
+			try {
+				
+				if(field.getType().getName().length() > 3)
+				{
+					String className = field.getType().getName().substring(2, field.getType().getName().length()-1);
+					
+					Object object = Class.forName(className).newInstance();
+					
+					if(object instanceof IEntity)
+					{
+						return IENTITY_ARRAY;
+					}
+				}
+				
+				
+			} catch (InstantiationException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return null;

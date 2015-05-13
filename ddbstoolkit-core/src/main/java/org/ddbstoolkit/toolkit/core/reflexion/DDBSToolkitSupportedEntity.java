@@ -1,5 +1,6 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
@@ -58,14 +59,17 @@ public class DDBSToolkitSupportedEntity {
 		} else {
 			
 			try {
-				Object objectLinked = (IEntity) Class.forName(
-						field.getType().getName().substring(2, field.getType().getName().length()-1)).newInstance();
 				
-				if(objectLinked instanceof IEntity)
+				String className = field.getType().getName().substring(2, field.getType().getName().length()-1);
+				
+				Object object = Class.forName(className).newInstance();
+				
+				if(object instanceof IEntity)
 				{
 					return IENTITY_ARRAY;
 				}
-			} catch (InstantiationException | ClassNotFoundException e) {
+				
+			} catch (ClassNotFoundException | InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

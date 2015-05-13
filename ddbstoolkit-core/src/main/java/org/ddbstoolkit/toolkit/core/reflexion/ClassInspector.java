@@ -60,7 +60,8 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return list of properties
      */
-    public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
+    @SuppressWarnings("unchecked")
+	public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
     {
         Field[] fields = object.getClass().getFields();
 

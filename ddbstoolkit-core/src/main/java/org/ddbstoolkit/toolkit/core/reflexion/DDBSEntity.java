@@ -132,9 +132,9 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 *            Property name
 	 * @return DDBSEntity property
 	 */
-	public T getDDBSEntityProperty(String propertyName) {
+	public T getDDBSEntityProperty(String name) {
 		for (T ddbsEntityProperty : entityProperties) {
-			if (ddbsEntityProperty.getPropertyName().equals(propertyName)) {
+			if (ddbsEntityProperty.getName().equals(name)) {
 				return ddbsEntityProperty;
 			}
 		}

@@ -6,13 +6,9 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DDBSToolkitSupportedEntityTest {
+public class DDBSToolkitSupportedEntityTest implements IEntity {
 
-	private class EntityTest implements IEntity {
-		
-	}
-	
-	private class TestClass
+	public class TestClass
 	{
 		public int intValue;
 		
@@ -34,7 +30,7 @@ public class DDBSToolkitSupportedEntityTest {
 		
 		public Timestamp timestampObjectValue;
 		
-		public EntityTest[] entities;
+		public DDBSToolkitSupportedEntityTest[] entities;
 	}
 	
 	@Test
