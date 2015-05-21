@@ -1,6 +1,5 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import org.ddbstoolkit.toolkit.core.IEntity;

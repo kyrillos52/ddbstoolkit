@@ -796,7 +796,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			
 			T myData = null;
 
-			@SuppressWarnings("unchecked")
 			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
 					.getDDBSEntity(myObject);
 

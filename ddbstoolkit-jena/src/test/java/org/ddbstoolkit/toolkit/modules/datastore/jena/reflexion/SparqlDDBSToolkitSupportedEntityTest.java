@@ -7,44 +7,68 @@ import org.junit.Test;
 
 public class SparqlDDBSToolkitSupportedEntityTest implements IEntity {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private class TestClass
 	{
+		@SuppressWarnings("unused")
 		public int intValue;
 		
+		@SuppressWarnings("unused")
 		public Integer integerValue;
 		
+		@SuppressWarnings("unused")
 		public long longValue;
 		
+		@SuppressWarnings("unused")
 		public Long longObjectValue;
 		
+		@SuppressWarnings("unused")
 		public float floatValue;
 		
+		@SuppressWarnings("unused")
 		public Float floatObjectValue;
 		
+		@SuppressWarnings("unused")
 		public double doubleValue;
 		
+		@SuppressWarnings("unused")
 		public Double doubleObjectValue;
 		
+		@SuppressWarnings("unused")
 		public String stringObjectValue;
 		
+		@SuppressWarnings("unused")
 		public SparqlDDBSToolkitSupportedEntityTest[] entities;
 		
+		@SuppressWarnings("unused")
 		public Integer[] integerArrayObject;
 		
+		@SuppressWarnings("unused")
 		public Long[] longArrayObject;
 		
+		@SuppressWarnings("unused")
 		public Float[] floatArrayObject;
 		
+		@SuppressWarnings("unused")
 		public Double[] doubleArrayObject;
 		
+		@SuppressWarnings("unused")
 		public String[] stringArrayObject;
 		
+		@SuppressWarnings("unused")
 		public int[] integerArray;
 		
+		@SuppressWarnings("unused")
 		public long[] longArray;
 		
+		@SuppressWarnings("unused")
 		public float[] floatArray;
 		
+		@SuppressWarnings("unused")
 		public double[] doubleArray;
 	}
 	
