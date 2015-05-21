@@ -596,21 +596,26 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 		List<T> resultList = new ArrayList<T>();
 
+		// List properties
+		List<DDBSEntityProperty> listProperties = ClassInspector
+				.getClassInspector().exploreProperties(myObject);
+		
+		Class<?> objectClass ;
+		try {
+			objectClass = Class.forName(ClassInspector.getClassInspector()
+					.getFullClassName(myObject));
+		} catch (ClassNotFoundException cnfe) {
+			throw new DDBSToolkitException("Class not found using reflection",
+					cnfe);
+		}
+
 		// For each object
 		try {
 			while (results.next()) {
 
-				// Get class name
-				String nameClass = ClassInspector.getClassInspector()
-						.getFullClassName(myObject);
-
-				// List properties
-				List<DDBSEntityProperty> listProperties = ClassInspector
-						.getClassInspector().exploreProperties(myObject);
-
 				// Instantiate the object
 				@SuppressWarnings("unchecked")
-				T myData = (T) Class.forName(nameClass).newInstance();
+				T myData = (T) objectClass.newInstance();
 
 				// Set object properties
 				for (DDBSEntityProperty myProperty : listProperties) {
@@ -669,9 +674,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		} catch (IllegalAccessException iae) {
 			throw new DDBSToolkitException(
 					"Illegal access exception using reflection", iae);
-		} catch (ClassNotFoundException cnfe) {
-			throw new DDBSToolkitException("Class not found using reflection",
-					cnfe);
 		} catch (NoSuchFieldException nsfe) {
 			throw new DDBSToolkitException(
 					"No such field exception using reflection", nsfe);
