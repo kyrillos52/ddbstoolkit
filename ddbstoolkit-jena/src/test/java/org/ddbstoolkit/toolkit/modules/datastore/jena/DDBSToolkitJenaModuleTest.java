@@ -32,9 +32,7 @@ public class DDBSToolkitJenaModuleTest {
 	/**
 	 * Jena Directory path
 	 */
-	//private final static String DATASTORE_DIRECTORY = "/Users/Cyril/Desktop/datastore";
-	
-	private final static String DATASTORE_DIRECTORY = "C:\\Users\\t294994\\Desktop\\Test Java\\Test";
+	private final static String DATASTORE_DIRECTORY = "/Users/Cyril/Desktop/datastore";
 
 	
 	@Rule
@@ -218,9 +216,9 @@ public class DDBSToolkitJenaModuleTest {
         Company companyToTest = new Company();
 
         companyToTest.company_uri = "http://cyril-grandjean.co.uk/business/CompanyTest";
-        manager.add(companyToTest);
+        Assert.assertTrue(manager.add(companyToTest));
         
-        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 1);
+        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 0);
 
         manager.delete(companyToTest);
         

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;

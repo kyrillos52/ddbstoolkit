@@ -786,17 +786,25 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected <T extends IEntity> List<T> conversionResultSet(
 			ResultSet results, T myObject) throws DDBSToolkitException {
 
 		try {
-			List<T> resultList = new ArrayList<T>();
+			
+			Map<String, T> uris = new HashMap<>();
+			
+			T myData = null;
 
 			@SuppressWarnings("unchecked")
 			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
 					.getDDBSEntity(myObject);
 
 			SparqlResults sparqlResults = new SparqlResults();
+			
+			Class<?> classElement = Class.forName(
+					ClassInspector.getClassInspector().getFullClassName(
+							myObject));
 
 			while (results.hasNext()) {
 
@@ -805,10 +813,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				String uri = myResult.getResource(
 						sparqlEntity.getUri().getName()).toString();
 
-				@SuppressWarnings("unchecked")
-				T myData = (T) Class.forName(
-						ClassInspector.getClassInspector().getFullClassName(
-								myObject)).newInstance();
+				if(!uris.containsKey(uri)) {
+					uris.put(uri, (T)classElement.newInstance());
+				}
+				myData = uris.get(uri);
 
 				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
 						.getEntityProperties()) {
@@ -912,131 +920,134 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 								.getUid());
 					}
 				}
-
-				resultList.add(myData);
 			}
+			
+			List<T> resultList = new ArrayList<T>();
+			resultList.addAll(uris.values());
+			
+			if(myData != null)
+			{
+				for (T aData : resultList) {
+					String uri = (String) aData.getClass()
+							.getField(sparqlEntity.getUri().getName()).get(aData);
 
-			for (T myData : resultList) {
-				String uri = (String) myData.getClass()
-						.getField(sparqlEntity.getUri().getName()).get(myData);
+					for (SparqlClassProperty sparqlClassProperty : sparqlEntity
+							.getEntityProperties()) {
+						
+						if(sparqlClassProperty.isArray() && !sparqlClassProperty
+								.getDdbsToolkitSupportedEntity()
+								.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY))
+						{
+							Field f = aData.getClass().getField(
+									sparqlClassProperty.getName());
 
-				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
-						.getEntityProperties()) {
-					
-					if(sparqlClassProperty.isArray() && !sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY))
-					{
-						Field f = myData.getClass().getField(
-								sparqlClassProperty.getName());
-
-						if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-							if(!sparqlClassProperty.isPrimitiveArray())
-							{
-								f.set(myData,sparqlResults.getIntegerArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray());
-							}
-							else
-							{
-								Set<Integer> integerSet = sparqlResults.getIntegerArray(
-										sparqlClassProperty.getName(), uri);
-								int[]resultInt = new int[integerSet.size()];
-								int counterResult = 0;
-								for(Integer integer : integerSet)
+							if (sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+								if(!sparqlClassProperty.isPrimitiveArray())
 								{
-									resultInt[counterResult] = integer;
-									counterResult++;
+									f.set(aData,sparqlResults.getIntegerArray(
+											sparqlClassProperty.getName(), uri)
+											.toArray());
 								}
-								f.set(myData,resultInt);
-							}
-							
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
-							
-							if(!sparqlClassProperty.isPrimitiveArray())
-							{
-								f.set(myData,sparqlResults.getLongArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Long[] {}));
-							}
-							else
-							{
-								Set<Long> longSet = sparqlResults.getLongArray(
-										sparqlClassProperty.getName(), uri);
-								long[]resultLong = new long[longSet.size()];
-								int counterResult = 0;
-								for(Long longObject : longSet)
+								else
 								{
-									resultLong[counterResult] = longObject;
-									counterResult++;
+									Set<Integer> integerSet = sparqlResults.getIntegerArray(
+											sparqlClassProperty.getName(), uri);
+									int[]resultInt = new int[integerSet.size()];
+									int counterResult = 0;
+									for(Integer integer : integerSet)
+									{
+										resultInt[counterResult] = integer;
+										counterResult++;
+									}
+									f.set(aData,resultInt);
 								}
-								f.set(myData,resultLong);
-							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
-							
-							if(!sparqlClassProperty.isPrimitiveArray())
-							{
-								f.set(myData,sparqlResults.getFloatArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Float[] {}));
-							}
-							else
-							{
-								Set<Float> floatSet = sparqlResults.getFloatArray(
-										sparqlClassProperty.getName(), uri);
-								float[]resultFloat = new float[floatSet.size()];
-								int counterResult = 0;
-								for(Float floatObject : floatSet)
+								
+							} else if (sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+								
+								if(!sparqlClassProperty.isPrimitiveArray())
 								{
-									resultFloat[counterResult] = floatObject;
-									counterResult++;
+									f.set(aData,sparqlResults.getLongArray(
+											sparqlClassProperty.getName(), uri)
+											.toArray(new Long[] {}));
 								}
-								f.set(myData,resultFloat);
-							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
-							
-							if(!sparqlClassProperty.isPrimitiveArray())
-							{
-								f.set(myData,sparqlResults.getDoubleArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Double[] {}));
-							}
-							else
-							{
-								Set<Double> doubleSet = sparqlResults.getDoubleArray(
-										sparqlClassProperty.getName(), uri);
-								double[]resultDouble = new double[doubleSet.size()];
-								int counterResult = 0;
-								for(Double doubleObject : resultDouble)
+								else
 								{
-									resultDouble[counterResult] = doubleObject;
-									counterResult++;
+									Set<Long> longSet = sparqlResults.getLongArray(
+											sparqlClassProperty.getName(), uri);
+									long[]resultLong = new long[longSet.size()];
+									int counterResult = 0;
+									for(Long longObject : longSet)
+									{
+										resultLong[counterResult] = longObject;
+										counterResult++;
+									}
+									f.set(aData,resultLong);
 								}
-								f.set(myData,resultDouble);
+							} else if (sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+								
+								if(!sparqlClassProperty.isPrimitiveArray())
+								{
+									f.set(aData,sparqlResults.getFloatArray(
+											sparqlClassProperty.getName(), uri)
+											.toArray(new Float[] {}));
+								}
+								else
+								{
+									Set<Float> floatSet = sparqlResults.getFloatArray(
+											sparqlClassProperty.getName(), uri);
+									float[]resultFloat = new float[floatSet.size()];
+									int counterResult = 0;
+									for(Float floatObject : floatSet)
+									{
+										resultFloat[counterResult] = floatObject;
+										counterResult++;
+									}
+									f.set(aData,resultFloat);
+								}
+							} else if (sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+								
+								if(!sparqlClassProperty.isPrimitiveArray())
+								{
+									f.set(aData,sparqlResults.getDoubleArray(
+											sparqlClassProperty.getName(), uri)
+											.toArray(new Double[] {}));
+								}
+								else
+								{
+									Set<Double> doubleSet = sparqlResults.getDoubleArray(
+											sparqlClassProperty.getName(), uri);
+									double[]resultDouble = new double[doubleSet.size()];
+									int counterResult = 0;
+									for(Double doubleObject : resultDouble)
+									{
+										resultDouble[counterResult] = doubleObject;
+										counterResult++;
+									}
+									f.set(aData,resultDouble);
+								}
+							} else if (sparqlClassProperty
+									.getDdbsToolkitSupportedEntity()
+									.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+								
+								f.set(aData,sparqlResults.getStringArray(
+										sparqlClassProperty.getName(), uri)
+										.toArray(new String[0]));
 							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
 							
-							f.set(myData,sparqlResults.getStringArray(
-									sparqlClassProperty.getName(), uri)
-									.toArray(new String[0]));
+							
 						}
-						
-						
 					}
+
 				}
-
 			}
-
 			return resultList;
 		} catch (InstantiationException ie) {
 			throw new DDBSToolkitException(
