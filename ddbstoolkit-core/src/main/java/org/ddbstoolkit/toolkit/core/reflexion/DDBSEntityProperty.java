@@ -1,34 +1,17 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
+import org.ddbstoolkit.toolkit.core.IEntity;
+
+import com.esotericsoftware.reflectasm.FieldAccess;
+
 /**
  * Class representing a DDBS Entity property
  * @author Cyril Grandjean
  * @version 1.0: Creation of the class
  * @version 1.1: Add of propertyName property
+ * @version 1.2: Add of fieldIndex
  */
 public class DDBSEntityProperty {
-	
-	/**
-	 * Class property constructor
-	 * @param isId Indicates if the field is a data source id
-	 * @param hasAutoIncrement Indicates if the field is auto incrementing
-	 * @param isArray Indicate if the field is an array
-	 * @param name Name of the field
-	 * @param type Type of the field
-	 * @param value Value of the field
-	 * @param propertyName Property name
-	 */
-    public DDBSEntityProperty(
-			boolean isArray, String name, String type, DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity, Object value,
-			String propertyName) {
-		super();
-		this.isArray = isArray;
-		this.name = name;
-		this.type = type;
-		this.ddbsToolkitSupportedEntity = ddbsToolkitSupportedEntity;
-		this.value = value;
-		this.propertyName = propertyName;
-	}
     
     /**
      * Indicates if the property is an array
@@ -41,6 +24,11 @@ public class DDBSEntityProperty {
     protected String name;
     
     /**
+     * Name of the property: if table or predicate are different
+     */
+    protected String propertyName;
+    
+    /**
      * Property type
      */
     protected String type;
@@ -49,16 +37,16 @@ public class DDBSEntityProperty {
      * Type of the property
      */
     protected DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity;
-
+    
     /**
-     * Value of the property
+     * Reflection field index
      */
-    protected Object value;
-
+    protected int fieldIndex;
+    
     /**
-     * Name of the property: if table or predicate are different
-     */
-    protected String propertyName;
+	 * ID Property : null if the field is not an id
+	 */
+	protected DDBSEntityIDProperty ddbsEntityIDProperty;
     
     /**
      * Get object type name
@@ -67,6 +55,29 @@ public class DDBSEntityProperty {
     public String getObjectTypeName()
     {
     	return type.substring(2, type.length()-1);
+    }
+    
+    /**
+     * Get value of the object
+     * @param iEntity Entity
+     * @return
+     */
+    public Object getValue(IEntity iEntity)
+    {
+    	FieldAccess access = FieldAccess.get(iEntity.getClass());
+    	return access.get(iEntity, fieldIndex);
+    }
+    
+    /**
+     * Set value of the object
+     * @param iEntity Entity
+     * @param object Object
+     * @return
+     */
+    public void setValue(IEntity iEntity, Object object)
+    {
+    	FieldAccess access = FieldAccess.get(iEntity.getClass());
+    	access.set(iEntity, fieldIndex, object);
     }
 
     /**
@@ -83,14 +94,6 @@ public class DDBSEntityProperty {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Get the value of the property
-     * @return value of the property
-     */
-    public Object getValue() {
-        return value;
     }
 
     /**
@@ -117,12 +120,54 @@ public class DDBSEntityProperty {
         return propertyName;
     }
 
+	public void setArray(boolean isArray) {
+		this.isArray = isArray;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setDdbsToolkitSupportedEntity(
+			DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity) {
+		this.ddbsToolkitSupportedEntity = ddbsToolkitSupportedEntity;
+	}
+
+	public DDBSEntityIDProperty getDdbsEntityIDProperty() {
+		return ddbsEntityIDProperty;
+	}
+
+	public void setDdbsEntityIDProperty(DDBSEntityIDProperty ddbsEntityIDProperty) {
+		this.ddbsEntityIDProperty = ddbsEntityIDProperty;
+	}
+	
+	public boolean isIDEntity()
+	{
+		return ddbsEntityIDProperty != null;
+	}
+
+	public int getFieldIndex() {
+		return fieldIndex;
+	}
+
+	public void setFieldIndex(int fieldIndex) {
+		this.fieldIndex = fieldIndex;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof DDBSEntityProperty)
 		{
 			DDBSEntityProperty classProperty = (DDBSEntityProperty)obj;
-			if(classProperty.getPropertyName().equals(this.propertyName))
+			if(classProperty.getPropertyName().equals(this.name))
 			{
 				return true;
 			}
@@ -137,8 +182,9 @@ public class DDBSEntityProperty {
 	@Override
 	public String toString() {
 		return "DDBSEntityProperty [isArray=" + isArray + ", name=" + name
-				+ ", type=" + type + ", ddbsToolkitSupportedEntity="
-				+ ddbsToolkitSupportedEntity + ", value=" + value
-				+ ", propertyName=" + propertyName + "]";
+				+ ", propertyName=" + propertyName + ", type=" + type
+				+ ", ddbsToolkitSupportedEntity=" + ddbsToolkitSupportedEntity
+				+ ", fieldIndex=" + fieldIndex + ", ddbsEntityIDProperty="
+				+ ddbsEntityIDProperty + "]";
 	}
 }

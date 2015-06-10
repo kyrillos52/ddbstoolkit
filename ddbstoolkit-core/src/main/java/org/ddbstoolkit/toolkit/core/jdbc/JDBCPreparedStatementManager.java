@@ -24,25 +24,36 @@ public class JDBCPreparedStatementManager {
 	 * Map of Prepared Statements
 	 */
 	private Map<String, JDBCPreparedStatements> mapStatements;
-	
+
 	/**
 	 * Get JDBCPreparedStatements of the object
 	 * @param iEntity Entity
 	 * @return JDBCPreparedStatements object
 	 */
-	private JDBCPreparedStatements getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity)
+	public PreparedStatement getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type)
 	{
-		
-		if(mapStatements == null)
+		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null)
 		{
-			mapStatements = new HashMap<String, JDBCPreparedStatements>();
+			mapStatements.put(ddbsEntity.getDatastoreEntityName(), new JDBCPreparedStatements());
 		}
-		
-		if(mapStatements.get(ddbsEntity.getEntityName()) == null)
+		return mapStatements.get(ddbsEntity.getDatastoreEntityName()).getPreparedStatement(type);
+	}
+	
+	/**
+	 * Get JDBCPreparedStatements of the object
+	 * @param iEntity Entity
+	 * @return JDBCPreparedStatements object
+	 * @throws SQLException SQLException
+	 */
+	public PreparedStatement setJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type, String query) throws SQLException
+	{
+		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null)
 		{
-			mapStatements.put(ddbsEntity.getEntityName(), new JDBCPreparedStatements());
+			mapStatements.put(ddbsEntity.getDatastoreEntityName(), new JDBCPreparedStatements());
 		}
-		return mapStatements.get(ddbsEntity.getEntityName());
+		PreparedStatement preparedStatement = myConnector.prepareStatement(query);
+		mapStatements.get(ddbsEntity.getDatastoreEntityName()).setPreparedStatement(type, preparedStatement);
+		return preparedStatement;
 	}
 	
 	/**
@@ -52,150 +63,6 @@ public class JDBCPreparedStatementManager {
 	public JDBCPreparedStatementManager(JDBCConnector myConnector) {
 		super();
 		this.myConnector = myConnector;
-	}
-	
-	/**
-	 * Get the read prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 */
-	public PreparedStatement getReadPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
-	{
-		return getJDBCPreparedStatements(ddbsEntity).getReadPreparedStatement();
-	}
-	
-	/**
-	 * Get the read last element prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Last Element Query
-	 * @return
-	 */
-	public PreparedStatement getReadLastElementPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
-	{
-		return getJDBCPreparedStatements(ddbsEntity).getReadLastElementPreparedStatement();
-	}
-	
-	/**
-	 * Get the add prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 */
-	public PreparedStatement getAddPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
-	{
-		return getJDBCPreparedStatements(ddbsEntity).getAddPreparedStatement();
-	}
-	
-	/**
-	 * Get the update prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 */
-	public PreparedStatement getUpdatePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
-	{
-		return getJDBCPreparedStatements(ddbsEntity).getUpdatePreparedStatement();
-	}
-	
-	/**
-	 * Get the delete prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Delete Query
-	 * @return
-	 */
-	public PreparedStatement getDeletePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity)
-	{
-		return getJDBCPreparedStatements(ddbsEntity).getDeletePreparedStatement();
-	}
-	
-	/**
-	 * Set the read prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 * @throws SQLException 
-	 */
-	public PreparedStatement setReadPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String readQuery) throws SQLException
-	{
-		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
-		
-		if(preparedStatements.getReadPreparedStatement() == null)
-		{
-			preparedStatements.setReadPreparedStatement(myConnector.prepareStatement(readQuery));
-		}
-		return preparedStatements.getReadPreparedStatement();
-	}
-	
-	/**
-	 * Set the read last element prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Last Element Query
-	 * @return
-	 * @throws SQLException 
-	 */
-	public PreparedStatement setReadLastElementPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String readLastElementQuery) throws SQLException
-	{
-		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
-		
-		if(preparedStatements.getReadLastElementPreparedStatement() == null)
-		{
-			preparedStatements.setReadLastElementPreparedStatement(myConnector.prepareStatement(readLastElementQuery));
-		}
-		return preparedStatements.getReadLastElementPreparedStatement();
-	}
-	
-	/**
-	 * Set the add prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 * @throws SQLException 
-	 */
-	public PreparedStatement setAddPreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String addQuery) throws SQLException
-	{
-		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
-		
-		if(preparedStatements.getAddPreparedStatement() == null)
-		{
-			preparedStatements.setAddPreparedStatement(myConnector.prepareStatement(addQuery));
-		}
-		return preparedStatements.getAddPreparedStatement();
-	}
-	
-	/**
-	 * Set the update prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Read Query
-	 * @return
-	 * @throws SQLException 
-	 */
-	public PreparedStatement setUpdatePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String updateQuery) throws SQLException
-	{
-		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
-		
-		if(preparedStatements.getUpdatePreparedStatement() == null)
-		{
-			preparedStatements.setUpdatePreparedStatement(myConnector.prepareStatement(updateQuery));
-		}
-		return preparedStatements.getUpdatePreparedStatement();
-	}
-	
-	/**
-	 * Set the delete prepared statement
-	 * @param iEntity Entity
-	 * @param readQuery Delete Query
-	 * @return
-	 * @throws SQLException 
-	 */
-	public PreparedStatement setDeletePreparedStatement(DDBSEntity<DDBSEntityProperty> ddbsEntity, String deleteQuery) throws SQLException
-	{
-		JDBCPreparedStatements preparedStatements = getJDBCPreparedStatements(ddbsEntity);
-		
-		if(preparedStatements.getDeletePreparedStatement() == null)
-		{
-			preparedStatements.setDeletePreparedStatement(myConnector.prepareStatement(deleteQuery));
-		}
-		return preparedStatements.getDeletePreparedStatement();
+		this.mapStatements = new HashMap<String, JDBCPreparedStatements>();
 	}
 }

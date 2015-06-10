@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
@@ -16,12 +17,12 @@ import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
  * @version 1.0 Class creation
  */
 public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<T> {
-
+	
 	/**
 	 * Get Sparql service URL
 	 * @return service url or null
 	 */
-	public String getServiceUrl()
+	public String getServiceUrl(IEntity entityObject)
 	{
 		Annotation[] annotations = entityObject.getClass().getAnnotations();
 		for (Annotation annotation : annotations) {
@@ -37,7 +38,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * Get default namespace
 	 * @return Default namespace
 	 */
-	public String getDefaultNamespace()
+	public String getDefaultNamespace(IEntity entityObject)
 	{
 		Annotation[] classAnnotations = entityObject.getClass().getAnnotations();
 
@@ -58,19 +59,19 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<SparqlClassIdProperty> getSparqlEntityIDProperties() {
-		List<SparqlClassIdProperty> listIDProperties = new ArrayList<>();
+	public List<SparqlClassProperty> getSparqlEntityIDProperties() {
+		List<SparqlClassProperty> listIDProperties = new ArrayList<>();
 		for (T ddbsEntityProperty : entityProperties) {
-			if (ddbsEntityProperty instanceof SparqlClassIdProperty) {
-				listIDProperties.add((SparqlClassIdProperty) ddbsEntityProperty);
+			if (ddbsEntityProperty.isIDEntity()) {
+				listIDProperties.add(ddbsEntityProperty);
 			}
 		}
 
 		return listIDProperties;
 	}
 	
-	public SparqlDDBSEntity(IEntity iEntity) {
-		super(iEntity, SparqlClassInspector.getClassInspector());
+	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+		super(iEntity, classInspector);
 	}
 	
 	/**
@@ -79,9 +80,9 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * @param iEntity
 	 *            IEntity
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static SparqlDDBSEntity getDDBSEntity(IEntity iEntity) {
-		return new SparqlDDBSEntity<SparqlClassProperty>(iEntity);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static SparqlDDBSEntity getDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+		return new SparqlDDBSEntity<SparqlClassProperty>(iEntity, classInspector);
 	}
 	
 	public SparqlClassProperty getUri()
@@ -110,7 +111,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 			}
 
 			return "?"
-					+ getEntityName();
+					+ getDatastoreEntityName();
 		} else {
 			return null;
 		}

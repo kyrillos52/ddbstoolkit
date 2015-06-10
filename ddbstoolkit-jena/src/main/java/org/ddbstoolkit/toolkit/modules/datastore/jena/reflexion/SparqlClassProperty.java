@@ -1,7 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
 /**
  * Information about a property of an object by using SPARQL queries
@@ -30,15 +29,7 @@ public class SparqlClassProperty extends DDBSEntityProperty {
      */
     private boolean isOptional;
 
-    public SparqlClassProperty(boolean isArray, String name, String type, DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity, Object value, String propertyName, String namespaceName, String namespaceURL, boolean uri, boolean optional) {
-        super(isArray, name, type, ddbsToolkitSupportedEntity, value, propertyName);
-        this.namespaceName = namespaceName;
-        this.namespaceURL = namespaceURL;
-        isUri = uri;
-        isOptional = optional;
-    }
-
-    /**
+	/**
      * Get the name of the namespace
      * @return Name of the namespace
      */
@@ -70,8 +61,24 @@ public class SparqlClassProperty extends DDBSEntityProperty {
         return isOptional;
     }
     
+	public void setNamespaceName(String namespaceName) {
+		this.namespaceName = namespaceName;
+	}
+
+	public void setNamespaceURL(String namespaceURL) {
+		this.namespaceURL = namespaceURL;
+	}
+
+	public void setUri(boolean isUri) {
+		this.isUri = isUri;
+	}
+
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
+	}
+
 	public boolean isPrimitiveArray()
 	{
-		return isArray && (type.equals("[I") || type.equals("[J") || type.equals("[F") || type.equals("[D"));
+		return isArray && (ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY));
 	}
 }

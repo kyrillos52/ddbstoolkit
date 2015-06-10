@@ -3,6 +3,7 @@ package org.ddbstoolkit.toolkit.core.reflexion;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 
 /**
@@ -12,16 +13,16 @@ import org.ddbstoolkit.toolkit.core.IEntity;
  * @version 1.0 Class creation
  */
 public class DDBSEntity<T extends DDBSEntityProperty> {
-
+	
 	/**
-	 * Entity element
+	 * Full class Name
 	 */
-	protected IEntity entityObject;
-
+	protected String fullClassName;
+	
 	/**
-	 * Entity name
+	 * Datastore entity name
 	 */
-	protected String entityName;
+	protected String datastoreEntityName;
 
 	/**
 	 * Entity properties
@@ -29,21 +30,12 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	protected List<T> entityProperties;
 
 	/**
-	 * Get Entity object
+	 * Datastore entity name
 	 * 
 	 * @return
 	 */
-	public IEntity getEntityObject() {
-		return entityObject;
-	}
-
-	/**
-	 * Entity name
-	 * 
-	 * @return
-	 */
-	public String getEntityName() {
-		return entityName;
+	public String getDatastoreEntityName() {
+		return datastoreEntityName;
 	}
 
 	/**
@@ -54,16 +46,69 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	public List<T> getEntityProperties() {
 		return entityProperties;
 	}
+	
+	/**
+	 * Get full class name
+	 * @return Full class name
+	 */
+	public String getFullClassName() {
+		return fullClassName;
+	}
+	
+	/**
+     * Get Peer UID
+     * @param entity Entity
+     * @return Peer UID
+     */
+	public String getPeerUid(IEntity entity) {
+		if(entity instanceof DistributedEntity) {
+			return ((DistributedEntity)entity).getPeerUid();
+		}
+		return null;
+	}
+	
+	/**
+     * Set Peer UID
+     * @param entity Entity
+     * @param Peer UID
+     */
+	public void setPeerUid(IEntity entity, String peerUid) {
+		if(entity instanceof DistributedEntity) {
+			((DistributedEntity)entity).setPeerUid(peerUid);
+		}
+	}
+	
+	/**
+	 * Get DDBSEntity entity
+	 * 
+	 * @param iEntity
+	 *            IEntity
+	 */
+	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+		return new DDBSEntity<DDBSEntityProperty>(iEntity, classInspector);
+	}
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param iEntity
+	 * @param classInspector
+	 */
+	protected DDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+		this.datastoreEntityName = classInspector.getClassName(iEntity);
+		this.fullClassName = classInspector.getFullClassName(iEntity);
+		this.entityProperties = classInspector.exploreProperties(iEntity);
+	}
 
 	/**
 	 * Get Entity properties
 	 * 
 	 * @return Entity properties
 	 */
-	public List<T> getSupportedPrimaryTypeEntityProperties() {
+	public List<DDBSEntityProperty> getSupportedPrimaryTypeEntityProperties() {
 
-		List<T> listWithoutPeerUID = new ArrayList<>();
-		for (T ddbsEntityProperty : entityProperties) {
+		List<DDBSEntityProperty> listWithoutPeerUID = new ArrayList<>();
+		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
 			if (!ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listWithoutPeerUID.add(ddbsEntityProperty);
@@ -77,11 +122,11 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<DDBSEntityIDProperty> getEntityIDProperties() {
-		List<DDBSEntityIDProperty> listIDProperties = new ArrayList<>();
-		for (T ddbsEntityProperty : entityProperties) {
-			if (ddbsEntityProperty instanceof DDBSEntityIDProperty) {
-				listIDProperties.add((DDBSEntityIDProperty) ddbsEntityProperty);
+	public List<DDBSEntityProperty> getEntityIDProperties() {
+		List<DDBSEntityProperty> listIDProperties = new ArrayList<>();
+		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+			if (ddbsEntityProperty.getDdbsEntityIDProperty() != null) {
+				listIDProperties.add(ddbsEntityProperty);
 			}
 		}
 
@@ -93,13 +138,13 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<T> getNotIncrementingEntityProperties() {
-		List<T> listProperties = new ArrayList<>();
-		for (T ddbsEntityProperty : entityProperties) {
-			if (((ddbsEntityProperty instanceof DDBSEntityIDProperty && !((DDBSEntityIDProperty) ddbsEntityProperty)
-					.isAutoIncrement()) || !(ddbsEntityProperty instanceof DDBSEntityIDProperty))
+	public List<DDBSEntityProperty> getNotIncrementingEntityProperties() {
+		List<DDBSEntityProperty> listProperties = new ArrayList<>();
+		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+			if ((ddbsEntityProperty.isIDEntity() && !ddbsEntityProperty.getDdbsEntityIDProperty()
+					.isAutoIncrement()) || (!ddbsEntityProperty.isIDEntity()
 					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
-							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
+							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY))) {
 				listProperties.add(ddbsEntityProperty);
 			}
 		}
@@ -112,10 +157,10 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * 
 	 * @return ID Entity properties
 	 */
-	public List<T> getEntityNonIDProperties() {
-		List<T> listNonIdProperties = new ArrayList<>();
-		for (T ddbsEntityProperty : entityProperties) {
-			if (!(ddbsEntityProperty instanceof DDBSEntityIDProperty)
+	public List<DDBSEntityProperty> getEntityNonIDProperties() {
+		List<DDBSEntityProperty> listNonIdProperties = new ArrayList<>();
+		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
+			if (!ddbsEntityProperty.isIDEntity()
 					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
 							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listNonIdProperties.add(ddbsEntityProperty);
@@ -132,43 +177,13 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 *            Property name
 	 * @return DDBSEntity property
 	 */
+	@SuppressWarnings("unchecked")
 	public T getDDBSEntityProperty(String name) {
-		for (T ddbsEntityProperty : entityProperties) {
+		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
 			if (ddbsEntityProperty.getName().equals(name)) {
-				return ddbsEntityProperty;
+				return (T)ddbsEntityProperty;
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param iEntity
-	 */
-	protected DDBSEntity(IEntity iEntity) {
-		this(iEntity, ClassInspector.getClassInspector());
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param iEntity
-	 * @param classInspector
-	 */
-	protected DDBSEntity(IEntity iEntity, ClassInspector classInspector) {
-		this.entityObject = iEntity;
-		this.entityName = classInspector.getClassName(iEntity);
-		this.entityProperties = classInspector.exploreProperties(iEntity);
-	}
-
-	/**
-	 * Get DDBSEntity entity
-	 * 
-	 * @param iEntity
-	 *            IEntity
-	 */
-	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(IEntity iEntity) {
-		return new DDBSEntity<DDBSEntityProperty>(iEntity);
 	}
 }

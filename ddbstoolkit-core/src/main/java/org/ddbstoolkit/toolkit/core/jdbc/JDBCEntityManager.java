@@ -18,7 +18,7 @@ import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
@@ -44,6 +44,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	 * JDBC Prepared Statement Manager
 	 */
 	protected JDBCPreparedStatementManager jdbcPreparedStatementManager;
+	
+	/**
+	 * DDBS Entity manager
+	 */
+	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
 
 	/**
 	 * JDBC Entity manager constructor
@@ -54,6 +59,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	public JDBCEntityManager(JDBCConnector myConnector) {
 		super();
 		this.myConnector = myConnector;
+		this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
 	}
 
 	/**
@@ -66,6 +72,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	 */
 	public JDBCEntityManager(JDBCConnector myConnector, Peer myPeer) {
 		this(myConnector);
+		this.myPeer = myPeer;
 	}
 
 	@Override
@@ -142,7 +149,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
 
 			StringBuilder listAllQuery = new StringBuilder();
 
@@ -160,7 +167,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			}
 
 			listAllQuery.append(" FROM ");
-			listAllQuery.append(ddbsEntity.getEntityName());
+			listAllQuery.append(ddbsEntity.getDatastoreEntityName());
 
 			// If there is conditions
 			if (conditionList != null && !conditionList.isEmpty()) {
@@ -203,10 +210,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getReadPreparedStatement(ddbsEntity);
+					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ);
 
 			if (preparedRequest == null) {
 
@@ -227,10 +234,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 				
 				sqlReadString.append(" FROM ");
-				sqlReadString.append(ddbsEntity.getEntityName());
+				sqlReadString.append(ddbsEntity.getDatastoreEntityName());
 				sqlReadString.append(" WHERE ");
 
-				Iterator<DDBSEntityIDProperty> iteratorIDProperties = ddbsEntity
+				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
 						.getEntityIDProperties().iterator();
 
 				while (iteratorIDProperties.hasNext()) {
@@ -247,12 +254,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				sqlReadString.append(";");
 
 				preparedRequest = jdbcPreparedStatementManager
-						.setReadPreparedStatement(ddbsEntity,
-								sqlReadString.toString());
+						.setJDBCPreparedStatements(ddbsEntity,
+								PreparedStatementType.READ, sqlReadString.toString());
 			}
 
 			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getEntityIDProperties());
+					ddbsEntity.getEntityIDProperties(), object);
 
 			ResultSet results = myConnector
 					.queryPreparedStatement(preparedRequest);
@@ -277,14 +284,14 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(object);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getReadLastElementPreparedStatement(ddbsEntity);
+					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ_LAST_ELEMENT);
 
 			if (preparedRequest == null) {
 
-				List<DDBSEntityIDProperty> ddbsIdProperties = ddbsEntity
+				List<DDBSEntityProperty> ddbsIdProperties = ddbsEntity
 						.getEntityIDProperties();
 
 				if (ddbsIdProperties.isEmpty() || ddbsIdProperties.size() > 1) {
@@ -308,7 +315,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					}
 
 					sqlReadLastElementString.append(" FROM ");
-					sqlReadLastElementString.append(ddbsEntity.getEntityName());
+					sqlReadLastElementString.append(ddbsEntity.getDatastoreEntityName());
 					sqlReadLastElementString.append(" WHERE ");
 					sqlReadLastElementString.append(ddbsIdProperties.get(0)
 							.getPropertyName());
@@ -316,11 +323,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					sqlReadLastElementString.append(ddbsIdProperties.get(0)
 							.getPropertyName());
 					sqlReadLastElementString.append(") FROM ");
-					sqlReadLastElementString.append(ddbsEntity.getEntityName());
+					sqlReadLastElementString.append(ddbsEntity.getDatastoreEntityName());
 					sqlReadLastElementString.append(");");
 
 					preparedRequest = jdbcPreparedStatementManager
-							.setReadLastElementPreparedStatement(ddbsEntity,
+							.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ_LAST_ELEMENT,
 									sqlReadLastElementString.toString());
 				}
 			}
@@ -347,10 +354,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToAdd);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToAdd);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToAdd);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getAddPreparedStatement(ddbsEntity);
+					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD);
 
 			if (preparedRequest == null) {
 
@@ -358,7 +365,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				StringBuilder sqlAddPart2String = new StringBuilder();
 
 				sqlAddString.append("INSERT INTO ");
-				sqlAddString.append(ddbsEntity.getEntityName());
+				sqlAddString.append(ddbsEntity.getDatastoreEntityName());
 				sqlAddString.append(" (");
 
 				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
@@ -381,12 +388,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				sqlAddString.append(");");
 
 				preparedRequest = jdbcPreparedStatementManager
-						.setAddPreparedStatement(ddbsEntity,
+						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD,
 								sqlAddString.toString());
 			}
 
 			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getNotIncrementingEntityProperties());
+					ddbsEntity.getNotIncrementingEntityProperties(), objectToAdd);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -402,17 +409,17 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToUpdate);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToUpdate);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getUpdatePreparedStatement(ddbsEntity);
+					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE);
 
 			if (preparedRequest == null) {
 
 				StringBuilder sqlUpdateString = new StringBuilder();
 
 				sqlUpdateString.append("UPDATE ");
-				sqlUpdateString.append(ddbsEntity.getEntityName());
+				sqlUpdateString.append(ddbsEntity.getDatastoreEntityName());
 				sqlUpdateString.append(" SET ");
 
 				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
@@ -431,7 +438,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 				sqlUpdateString.append(" WHERE ");
 
-				Iterator<DDBSEntityIDProperty> iteratorIDProperties = ddbsEntity
+				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
 						.getEntityIDProperties().iterator();
 
 				while (iteratorIDProperties.hasNext()) {
@@ -446,7 +453,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 
 				preparedRequest = jdbcPreparedStatementManager
-						.setUpdatePreparedStatement(ddbsEntity,
+						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE,
 								sqlUpdateString.toString());
 			}
 
@@ -455,7 +462,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			listPreparedEntities.addAll(ddbsEntity.getEntityIDProperties());
 
 			prepareParametersPreparedStatement(preparedRequest,
-					listPreparedEntities);
+					listPreparedEntities, objectToUpdate);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -471,20 +478,20 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToDelete);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToDelete);
 
 			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getDeletePreparedStatement(ddbsEntity);
+					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE);
 
 			if (preparedRequest == null) {
 
 				StringBuilder sqlDeleteString = new StringBuilder();
 
 				sqlDeleteString.append("DELETE FROM ");
-				sqlDeleteString.append(ddbsEntity.getEntityName());
+				sqlDeleteString.append(ddbsEntity.getDatastoreEntityName());
 				sqlDeleteString.append(" WHERE ");
 
-				Iterator<DDBSEntityIDProperty> iteratorIDProperties = ddbsEntity
+				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
 						.getEntityIDProperties().iterator();
 
 				while (iteratorIDProperties.hasNext()) {
@@ -499,12 +506,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 
 				preparedRequest = jdbcPreparedStatementManager
-						.setDeletePreparedStatement(ddbsEntity,
+						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,
 								sqlDeleteString.toString());
 			}
 
 			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getEntityIDProperties());
+					ddbsEntity.getEntityIDProperties(), objectToDelete);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -521,16 +528,17 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(objectToLoad);
 
 		if (objectToLoad != null && field != null && !field.isEmpty()) {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToLoad);
+			
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToLoad);
 
-			List<DDBSEntityIDProperty> idProperties = ddbsEntity
+			List<DDBSEntityProperty> idProperties = ddbsEntity
 					.getEntityIDProperties();
 
 			if (idProperties.size() > 0) {
 				List<String> listCondition = new ArrayList<String>();
-				for (DDBSEntityIDProperty idProperty : idProperties) {
+				for (DDBSEntityProperty idProperty : idProperties) {
 					listCondition.add(idProperty.getPropertyName() + " = "
-							+ idProperty.getValue());
+							+ idProperty.getValue(objectToLoad));
 				}
 
 				DDBSEntityProperty propertyName = ddbsEntity
@@ -572,13 +580,13 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 				} else {
 					throw new DDBSToolkitException("No property " + field
-							+ " found for object " + ddbsEntity.getEntityName());
+							+ " found for object " + ddbsEntity.getDatastoreEntityName());
 				}
 
 			} else {
 				throw new DDBSToolkitException(
 						"There is no primary key defined for object "
-								+ ddbsEntity.getEntityName());
+								+ ddbsEntity.getDatastoreEntityName());
 			}
 		} else {
 			throw new IllegalArgumentException();
@@ -596,14 +604,14 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 		List<T> resultList = new ArrayList<T>();
 
+		DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(myObject);
+		
 		// List properties
-		List<DDBSEntityProperty> listProperties = ClassInspector
-				.getClassInspector().exploreProperties(myObject);
+		List<DDBSEntityProperty> listProperties = ddbsEntity.getEntityProperties();
 		
 		Class<?> objectClass ;
 		try {
-			objectClass = Class.forName(ClassInspector.getClassInspector()
-					.getFullClassName(myObject));
+			objectClass = Class.forName(ddbsEntity.getFullClassName());
 		} catch (ClassNotFoundException cnfe) {
 			throw new DDBSToolkitException("Class not found using reflection",
 					cnfe);
@@ -692,31 +700,31 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	 *             Error when preparing query
 	 */
 	protected <T extends DDBSEntityProperty> PreparedStatement prepareParametersPreparedStatement(
-			PreparedStatement preparedStatement, List<T> ddbsEntityProperties)
+			PreparedStatement preparedStatement, List<T> ddbsEntityProperties, IEntity entity)
 			throws SQLException {
 		int counterParameter = 1;
 		for (DDBSEntityProperty ddbsEntityProperty : ddbsEntityProperties) {
 			if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.INTEGER)) {
 				preparedStatement.setInt(counterParameter,
-						(Integer) ddbsEntityProperty.getValue());
+						(Integer) ddbsEntityProperty.getValue(entity));
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.LONG)) {
 				preparedStatement.setLong(counterParameter,
-						(Long) ddbsEntityProperty.getValue());
+						(Long) ddbsEntityProperty.getValue(entity));
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.FLOAT)) {
 				preparedStatement.setFloat(counterParameter,
-						(Float) ddbsEntityProperty.getValue());
+						(Float) ddbsEntityProperty.getValue(entity));
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.DOUBLE)) {
 				preparedStatement.setDouble(counterParameter,
-						(Double) ddbsEntityProperty.getValue());
+						(Double) ddbsEntityProperty.getValue(entity));
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.STRING)) {
-				if (ddbsEntityProperty.getValue() != null) {
+				if (ddbsEntityProperty.getValue(entity) != null) {
 					preparedStatement.setString(counterParameter,
-							(String) ddbsEntityProperty.getValue());
+							(String) ddbsEntityProperty.getValue(entity));
 				} else {
 					preparedStatement.setString(counterParameter, "");
 				}
@@ -724,7 +732,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.TIMESTAMP)) {
 				preparedStatement.setTimestamp(counterParameter,
-						(Timestamp) ddbsEntityProperty.getValue());
+						(Timestamp) ddbsEntityProperty.getValue(entity));
 			}
 			counterParameter++;
 		}

@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.core.reflexion;
+package org.ddbstoolkit.toolkit.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

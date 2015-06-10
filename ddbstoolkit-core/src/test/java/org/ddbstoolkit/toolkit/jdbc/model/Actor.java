@@ -1,7 +1,7 @@
 package org.ddbstoolkit.toolkit.jdbc.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
-import org.ddbstoolkit.toolkit.core.Id;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 
 /**
  * Entity representing an actor

@@ -17,10 +17,10 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassIdProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSEntity;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSToolkitSupportedEntity;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlEntityManager;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.Query;
@@ -63,6 +63,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 * Indicate if the model is open
 	 */
 	private boolean isOpen = false;
+	
+	/**
+	 * DDBS Entity manager
+	 */
+	protected SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> ddbsEntityManager;
 
 	/**
 	 * Default constructor used when using SPARQL to query remote endpoints
@@ -78,6 +83,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 */
 	public DistributedSPARQLManager(String datasetPath) {
 		this.pathDataset = datasetPath;
+		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new ClassInspector());
 	}
 
 	/**
@@ -89,8 +95,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 *            Path of the Jena data source folder
 	 */
 	public DistributedSPARQLManager(Peer myPeer, String datasetPath) {
+		this(datasetPath);
 		this.myPeer = myPeer;
-		this.pathDataset = datasetPath;
 	}
 
 	@Override
@@ -150,10 +156,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 *            Object to inspect
 	 * @return variable name in SPARQL
 	 */
-	public static String getObjectVariable(IEntity object) {
+	public String getObjectVariable(IEntity object) {
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(object);
 
 		return sparqlEntity.getObjectVariable(object);
@@ -309,13 +315,13 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(object);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(object);
 
 		Query query = QueryFactory.create(getSparqlRequest(object,
 				conditionList, orderBy, sparqlEntity, additionalHeaders));
 
-		String serviceUrl = sparqlEntity.getServiceUrl();
+		String serviceUrl = sparqlEntity.getServiceUrl(object);
 
 		ResultSet results = null;
 
@@ -360,7 +366,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(object);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(object);
 		
 		List<SparqlClassProperty> otherEntities = sparqlEntity.getSupportedPrimaryTypeEntityPropertiesWithoutURI();
@@ -369,7 +375,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		{
 			List<String> conditionList = new ArrayList<>();
 			SparqlClassProperty uriProperty = sparqlEntity.getUri();
-			conditionList.add("<" + uriProperty.getValue()+"> "
+			conditionList.add("<" + uriProperty.getValue(object)+"> "
 					+ otherEntities.get(0).getNamespaceName() + ":"
 					+ otherEntities.get(0).getPropertyName() + " ?" + otherEntities.get(0).getName());
 
@@ -403,14 +409,14 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(object);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(object);
 
-		List<SparqlClassIdProperty> sparqlIdProperties = sparqlEntity
+		List<SparqlClassProperty> sparqlIdProperties = sparqlEntity
 				.getSparqlEntityIDProperties();
 
 		if (sparqlIdProperties.size() == 1) {
-			SparqlClassIdProperty sparqlIdProperty = sparqlIdProperties.get(0);
+			SparqlClassProperty sparqlIdProperty = sparqlIdProperties.get(0);
 
 			List<String> conditionList = new ArrayList<>();
 			conditionList.add("?element " + sparqlIdProperty.getNamespaceName()
@@ -436,7 +442,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(objectToAdd);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(objectToAdd);
 
 		// Start a writing transaction
@@ -446,13 +452,13 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		Model myModel = myDataset.getDefaultModel();
 
 		SparqlClassProperty uriProperty = sparqlEntity.getUri();
-		String defaultNamespaceUri = sparqlEntity.getDefaultNamespace();
+		String defaultNamespaceUri = sparqlEntity.getDefaultNamespace(objectToAdd);
 
 		try {
 			if (uriProperty != null && defaultNamespaceUri != null
-					&& !((String) uriProperty.getValue()).isEmpty()) {
+					&& !((String) uriProperty.getValue(objectToAdd)).isEmpty()) {
 				Resource resourceToAdd = myModel
-						.createResource((String) uriProperty.getValue());
+						.createResource((String) uriProperty.getValue(objectToAdd));
 
 				myModel.add(
 						resourceToAdd,
@@ -477,12 +483,12 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 									.getDdbsToolkitSupportedEntity()
 									.equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
 						addElement(myModel, resourceToAdd, sparqlClassProperty,
-								sparqlClassProperty.getValue());
+								sparqlClassProperty.getValue(objectToAdd));
 					} else if (sparqlClassProperty
 							.getDdbsToolkitSupportedEntity()
 							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
 
-						int[] array = (int[]) sparqlClassProperty.getValue();
+						int[] array = (int[]) sparqlClassProperty.getValue(objectToAdd);
 						if (array != null) {
 							for (int elementToAdd : array) {
 								addElement(myModel, resourceToAdd,
@@ -494,7 +500,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							.getDdbsToolkitSupportedEntity()
 							.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
 
-						long[] array = (long[]) sparqlClassProperty.getValue();
+						long[] array = (long[]) sparqlClassProperty.getValue(objectToAdd);
 						if (array != null) {
 							for (long elementToAdd : array) {
 								addElement(myModel, resourceToAdd,
@@ -506,7 +512,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
 
 						float[] array = (float[]) sparqlClassProperty
-								.getValue();
+								.getValue(objectToAdd);
 
 						if (array != null) {
 							for (float elementToAdd : array) {
@@ -519,7 +525,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
 
 						double[] array = (double[]) sparqlClassProperty
-								.getValue();
+								.getValue(objectToAdd);
 						if (array != null) {
 							for (double elementToAdd : array) {
 								addElement(myModel, resourceToAdd,
@@ -531,7 +537,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 							.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
 
 						String[] array = (String[]) sparqlClassProperty
-								.getValue();
+								.getValue(objectToAdd);
 						if (array != null) {
 							for (String elementToAdd : array) {
 								addElement(myModel, resourceToAdd,
@@ -573,7 +579,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(objectToDelete);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(objectToDelete);
 
 		// Start a writing transaction
@@ -586,9 +592,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 			SparqlClassProperty uriProperty = sparqlEntity.getUri();
 
-			if (uriProperty != null && uriProperty.getValue() != null) {
+			if (uriProperty != null && uriProperty.getValue(objectToDelete) != null) {
 				// Remove all the triples associated with the URI
-				myModel.createResource((String) uriProperty.getValue())
+				myModel.createResource((String) uriProperty.getValue(objectToDelete))
 						.removeAll(null);
 
 				// Commit the transaction
@@ -616,7 +622,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			String orderBy) throws DDBSToolkitException {
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(objectToLoad);
 
 		testConnection(objectToLoad);
@@ -633,7 +639,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 			if (linkProperty != null && uri != null) {
 				List<String> listCondition = new ArrayList<String>();
-				listCondition.add("<" + uri.getValue() + "> "
+				listCondition.add("<" + uri.getValue(objectToLoad) + "> "
 						+ linkProperty.getNamespaceName() + ":"
 						+ linkProperty.getPropertyName() + " "
 						+ getObjectVariable(objectLinked));
@@ -796,14 +802,12 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			
 			T myData = null;
 
-			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = SparqlDDBSEntity
+			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 					.getDDBSEntity(myObject);
 
 			SparqlResults sparqlResults = new SparqlResults();
 			
-			Class<?> classElement = Class.forName(
-					ClassInspector.getClassInspector().getFullClassName(
-							myObject));
+			Class<?> classElement = Class.forName(sparqlEntity.getFullClassName());
 
 			while (results.hasNext()) {
 

@@ -1,7 +1,7 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena.model;
 
 import org.ddbstoolkit.toolkit.core.IEntity;
-import org.ddbstoolkit.toolkit.core.Id;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;

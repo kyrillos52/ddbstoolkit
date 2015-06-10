@@ -3,7 +3,7 @@ package org.ddbstoolkit.toolkit.jdbc.model;
 import java.sql.Timestamp;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
-import org.ddbstoolkit.toolkit.core.Id;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 
 /**
  * Entity representing a film

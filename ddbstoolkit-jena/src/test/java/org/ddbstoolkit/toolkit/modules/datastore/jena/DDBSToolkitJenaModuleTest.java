@@ -125,7 +125,7 @@ public class DDBSToolkitJenaModuleTest {
         manager.open();
 
         List<String> listCondition = new ArrayList<String>();
-        listCondition.add(DistributedSPARQLManager.getObjectVariable(new Film())+" dc:title 'The Return of the King'");
+        listCondition.add(((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'");
 
         List<Film> listEntity = manager.listAll(new Film(), listCondition, null);
 
@@ -140,7 +140,7 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertEquals(myFilm.runtime, 98);
 
         listCondition = new ArrayList<String>();
-        listCondition.add(DistributedSPARQLManager.getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en");
+        listCondition.add(((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en");
         listCondition.add("FILTER ( lang(?title) =  'en' )");
         listCondition.add("FILTER ( lang(?summary) = 'en' )");
 

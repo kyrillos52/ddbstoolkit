@@ -6,7 +6,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ddbstoolkit.toolkit.core.Id;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
+import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
 
 /**
  * Class which inspects an object using Java Reflection
@@ -20,20 +21,6 @@ public class ClassInspector {
 	 * Peer UID property name
 	 */
 	protected static final String PEER_UID_PROPERTY_NAME = "peerUid";
-	
-	/**
-	 * Class inspector
-	 */
-	protected static ClassInspector classInspector;
-	
-	public static ClassInspector getClassInspector()
-	{
-		if(classInspector == null)
-		{
-			classInspector = new ClassInspector();
-		}
-		return classInspector;
-	}
 	
     /**
      * Get the full class name of an object
@@ -60,7 +47,7 @@ public class ClassInspector {
      * @param object : object to inspect
      * @return list of properties
      */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
     {
         Field[] fields = object.getClass().getFields();
@@ -69,72 +56,50 @@ public class ClassInspector {
 
         for(int counterProperties = 0; counterProperties < fields.length; ++counterProperties)
         {
-            String nameProperty = fields[counterProperties].getName();
-            boolean isArray = fields[counterProperties].getType().isArray();
-            String type = fields[counterProperties].getType().getName();
-
-            boolean isId = false;
-            boolean hasAutoIncrement = true;
-            Object value = null;
-            String propertyName = null;
-
-            AnnotatedElement element = (AnnotatedElement) fields[counterProperties];
-            Annotation[] propertyAnnotations = element.getAnnotations();
-
-            for(Annotation annotation : propertyAnnotations)
-            {
-                if(annotation instanceof Id)
-                {
-                    isId = true;
-                    hasAutoIncrement = ((Id)annotation).autoincrement();
-                }
-                else if(annotation instanceof PropertyName)
-                {
-                    PropertyName myProperty = (PropertyName)annotation;
-
-                    propertyName = myProperty.name();
-                }
-            }
-            try
-            {
-                value = fields[counterProperties].get(object);
-            }
-            catch (IllegalAccessException e)
-            {
-                //TODO Log
-            }
-            
-            DDBSToolkitSupportedEntity typeDDBSProperty = null;
-			try {
-				typeDDBSProperty = DDBSToolkitSupportedEntity.valueOf(fields[counterProperties]);
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            
-
-            if(propertyName == null)
-            {
-                propertyName = nameProperty;
-            }
-
-            if(!nameProperty.equals(PEER_UID_PROPERTY_NAME) && typeDDBSProperty != null)
-            {
-            	if(isId)
-                {
-                	listProperties.add((T)new DDBSEntityIDProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName, hasAutoIncrement));
-                }
-                else
-                {
-                	listProperties.add((T)new DDBSEntityProperty(isArray, nameProperty, type, typeDDBSProperty, value, propertyName));
-                }
-            }
+        	DDBSEntityProperty ddbsEntityProperty = new DDBSEntityProperty();
+        	updateDDBSEntityProperty(fields[counterProperties], ddbsEntityProperty, counterProperties);
+        	listProperties.add((T)ddbsEntityProperty);
         }
 
         return listProperties;
+    }
+    
+    /**
+     * Update a DDBSEntity property
+     * @param field Field
+     * @return DDBSEntityProperty
+     */
+    protected void updateDDBSEntityProperty(Field field, DDBSEntityProperty ddbsEntityProperty, int counterProperties) {
+    	
+    	ddbsEntityProperty.setType(field.getType().getName());
+    	ddbsEntityProperty.setName(field.getName());
+    	ddbsEntityProperty.setPropertyName(field.getName());
+    	ddbsEntityProperty.setArray(field.getType().isArray());
+    	ddbsEntityProperty.setFieldIndex(counterProperties);
+    	try {
+			ddbsEntityProperty.setDdbsToolkitSupportedEntity(DDBSToolkitSupportedEntity.valueOf(field));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			//Do Nothing
+		};
+    	
+    	AnnotatedElement element = (AnnotatedElement) field;
+        Annotation[] propertyAnnotations = element.getAnnotations();
+
+        for(Annotation annotation : propertyAnnotations)
+        {
+            if(annotation instanceof Id)
+            {
+            	DDBSEntityIDProperty ddbsEntityIDProperty = new DDBSEntityIDProperty();
+            	ddbsEntityIDProperty.setAutoIncrement(((Id)annotation).autoincrement());
+            	ddbsEntityProperty.setDdbsEntityIDProperty(ddbsEntityIDProperty);
+            }
+            else if(annotation instanceof PropertyName)
+            {
+                PropertyName myProperty = (PropertyName)annotation;
+                ddbsEntityProperty.setPropertyName(myProperty.name());
+            }
+        }
+    	
     }
 
 }
