@@ -1,8 +1,8 @@
 package org.ddbstoolkit.demo.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
-import org.ddbstoolkit.toolkit.core.Id;
-import org.ddbstoolkit.toolkit.core.reflexion.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
+import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;

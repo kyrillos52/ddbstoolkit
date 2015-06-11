@@ -111,7 +111,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
 
             switch (myCommand.getAction()) {
                 case DDBSCommand.LIST_ALL_COMMAND:
-                    return entityManager.listAll(myCommand.getObject(), myCommand.getConditionList(), myCommand.getOrderBy());
+                    return entityManager.listAll(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
                 case DDBSCommand.READ_COMMAND:
                     return entityManager.read(myCommand.getObject());
                 case DDBSCommand.READ_LAST_ELEMENT_COMMAND:

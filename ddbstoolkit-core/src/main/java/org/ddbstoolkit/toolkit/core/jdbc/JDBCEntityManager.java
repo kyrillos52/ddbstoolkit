@@ -16,6 +16,7 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
@@ -143,7 +144,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 	@Override
 	public <T extends IEntity> List<T> listAll(T object,
-			List<String> conditionList, String orderBy)
+			String conditionQueryString, OrderBy orderBy)
 			throws DDBSToolkitException {
 
 		testConnection(object);
@@ -170,22 +171,28 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			listAllQuery.append(ddbsEntity.getDatastoreEntityName());
 
 			// If there is conditions
-			if (conditionList != null && !conditionList.isEmpty()) {
+			if (conditionQueryString != null && !conditionQueryString.isEmpty()) {
 				listAllQuery.append(" WHERE ");
 
-				Iterator<String> conditionIterator = conditionList.iterator();
-				while (conditionIterator.hasNext()) {
-					listAllQuery.append(conditionIterator.next());
-
-					if (conditionIterator.hasNext()) {
-						listAllQuery.append(" AND ");
-					}
-				}
+				listAllQuery.append(conditionQueryString);
 			}
 
-			if (orderBy != null && !orderBy.isEmpty()) {
+			if (orderBy != null) {
+				DDBSEntityProperty ddbsEntityProperty = ddbsEntity.getDDBSEntityProperty(orderBy.getName());
+				
 				listAllQuery.append(" ORDER BY ");
-				listAllQuery.append(orderBy);
+				listAllQuery.append(ddbsEntityProperty.getPropertyName());
+				switch (orderBy.getType()) {
+				case ASC:
+					listAllQuery.append(" ASC");
+					break;
+				case DESC:
+					listAllQuery.append(" DESC");
+					break;
+
+				default:
+					break;
+				}
 			}
 
 			listAllQuery.append(";");
@@ -523,7 +530,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 	@Override
 	public <T extends IEntity> T loadArray(T objectToLoad, String field,
-			String orderBy) throws DDBSToolkitException {
+			OrderBy orderBy) throws DDBSToolkitException {
 
 		testConnection(objectToLoad);
 
@@ -535,10 +542,21 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					.getEntityIDProperties();
 
 			if (idProperties.size() > 0) {
-				List<String> listCondition = new ArrayList<String>();
-				for (DDBSEntityProperty idProperty : idProperties) {
-					listCondition.add(idProperty.getPropertyName() + " = "
-							+ idProperty.getValue(objectToLoad));
+				
+				StringBuilder conditionQueryString = new StringBuilder();
+				
+				Iterator<DDBSEntityProperty> conditionIterator = idProperties.iterator();
+				while (conditionIterator.hasNext()) {
+					
+					DDBSEntityProperty idProperty = conditionIterator.next();
+					
+					conditionQueryString.append(idProperty.getPropertyName());
+					conditionQueryString.append(" = ");
+					conditionQueryString.append(idProperty.getValue(objectToLoad));
+
+					if (conditionIterator.hasNext()) {
+						conditionQueryString.append(" AND ");
+					}
 				}
 
 				DDBSEntityProperty propertyName = ddbsEntity
@@ -550,7 +568,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 								propertyName.getObjectTypeName()).newInstance();
 
 						List<IEntity> listObject = listAll(objectLinked,
-								listCondition, orderBy);
+								conditionQueryString.toString(), orderBy);
 
 						Field f = objectToLoad.getClass().getField(field);
 

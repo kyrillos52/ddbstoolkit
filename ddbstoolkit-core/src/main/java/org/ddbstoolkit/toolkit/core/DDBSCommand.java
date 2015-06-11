@@ -1,7 +1,8 @@
 package org.ddbstoolkit.toolkit.core;
 
 import java.io.Serializable;
-import java.util.List;
+
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
 /**
  * Class which represents commands sent through a network
@@ -41,12 +42,12 @@ public class DDBSCommand implements Serializable {
     /**
      * List of conditions : listAll command only
      */
-    private List<String> conditionList;
+    private String conditionQueryString;
 
     /**
      * Order by condition : listAll and loadArray command only
      */
-    private String orderBy;
+    private OrderBy orderBy;
 
     /**
      * Field to load : loadArray command only
@@ -134,28 +135,28 @@ public class DDBSCommand implements Serializable {
     public void setObject(IEntity object) {
         this.object = object;
     }
-
+    
     /**
-     * Get the list of conditions of a command : listAll command only
+     * Get the condition query string : listAll command only
      * @return List of conditions
      */
-    public List<String> getConditionList() {
-        return conditionList;
-    }
+    public String getConditionQueryString() {
+		return conditionQueryString;
+	}
 
     /**
-     * Set the list of conditions of a command : listAll command only
+     * Set the conditions query string of a command : listAll command only
      * @param conditionList list of conditions
      */
-    public void setConditionList(List<String> conditionList) {
-        this.conditionList = conditionList;
-    }
+	public void setConditionQueryString(String conditionQueryString) {
+		this.conditionQueryString = conditionQueryString;
+	}
 
     /**
      * Get the order by value : listAll command only
      * @return  Order by value
      */
-    public String getOrderBy() {
+    public OrderBy getOrderBy() {
         return orderBy;
     }
 
@@ -163,7 +164,7 @@ public class DDBSCommand implements Serializable {
      * Set the order by value : listAll command only
      * @param orderBy Order by value
      */
-    public void setOrderBy(String orderBy) {
+    public void setOrderBy(OrderBy orderBy) {
         this.orderBy = orderBy;
     }
 
@@ -202,7 +203,8 @@ public class DDBSCommand implements Serializable {
 	@Override
 	public String toString() {
 		return "DDBSCommand [destination=" + destination + ", action=" + action
-				+ ", object=" + object + ", conditionList=" + conditionList
-				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad + "]";
+				+ ", object=" + object + ", conditionQueryString="
+				+ conditionQueryString + ", orderBy=" + orderBy
+				+ ", fieldToLoad=" + fieldToLoad + "]";
 	}
 }

@@ -1,12 +1,13 @@
 package org.ddbstoolkit.toolkit.jdbc;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
 import org.junit.Assert;
@@ -226,7 +227,7 @@ public abstract class JDBCModuleTest {
         Assert.assertNotNull(manager.listAll(new Film(), null, null));
 
         //Select a movie order by filmID
-        Assert.assertNotNull(manager.listAll(new Film(), null, "film_ID ASC"));
+        Assert.assertNotNull(manager.listAll(new Film(), null, OrderBy.get("film_ID", OrderByType.ASC)));
     }
     
     @Test
@@ -442,13 +443,11 @@ public abstract class JDBCModuleTest {
         }
 
         //Check if the 3 elements have been added
-        List<String> listCondition = new ArrayList<String>();
-        listCondition.add("film_id = "+lastFilmAdded.film_ID);
-        List<Actor> listActors = manager.listAll(new Actor(), listCondition, null);
+        List<Actor> listActors = manager.listAll(new Actor(), "film_id = "+lastFilmAdded.film_ID, null);
         Assert.assertEquals(listActors.size(), 3);
 
         //Loader load the array of actors
-        lastFilmAdded = manager.loadArray(lastFilmAdded, "actors", "actor_id ASC");
+        lastFilmAdded = manager.loadArray(lastFilmAdded, "actors", OrderBy.get("actor_id", OrderByType.ASC));
 
         Assert.assertEquals(lastFilmAdded.actors.length, 3);
 

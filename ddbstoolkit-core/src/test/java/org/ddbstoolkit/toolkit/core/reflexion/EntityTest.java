@@ -14,6 +14,11 @@ import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
  */
 public class EntityTest extends DistributedEntity {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id(autoincrement=false)
 	public int intField;
 	

@@ -184,7 +184,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 switch (myCommand.getAction()) {
                     case DDBSCommand.LIST_ALL_COMMAND:
                         //Get the list of entities
-                        List<? extends IEntity> results = entityManager.listAll(myCommand.getObject(), myCommand.getConditionList(), myCommand.getOrderBy());
+                        List<? extends IEntity> results = entityManager.listAll(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
 
                         for (IEntity iEntity : results) {
                             resultSpace.write(new Tuple(SqlSpacesConverter.toString(iEntity)));

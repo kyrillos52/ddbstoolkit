@@ -3,6 +3,7 @@ package org.ddbstoolkit.toolkit.core;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
 /**
  * Interface to access to distributed data sources
@@ -45,12 +46,12 @@ public interface DistributableEntityManager {
     /**
      * List all entities of a specific object
      * @param object Object to search
-     * @param conditionList List of conditions to filter the results
-     * @param orderBy String to order the results : field order (Example : myField ASC)
+     * @param conditionQueryString Condition query string to filter the results
+     * @param orderBy Order By Object
      * @return list of entities that match the request
      * @throws DDBSToolkitException Error during the process
      */
-    public <T extends IEntity> List<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException;
+    public <T extends IEntity> List<T> listAll(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException;
 
     /**
      * Read details about an object
@@ -96,10 +97,11 @@ public interface DistributableEntityManager {
      * Load a property of the object corresponding to an array
      * @param objectToLoad Object to load
      * @param field Array to load
+     * @param orderBy Order By Object
      * @return the entity with the new field loaded
      * @throws DDBSToolkitException Problem during operation
      */
-    public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException;
+    public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException;
 
     /**
      * Create the structure of the entity

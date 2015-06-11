@@ -7,6 +7,11 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.jgroups.*;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestOptions;
@@ -52,6 +57,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Name of the peers
      */
     private Peer myPeer;
+    
+	/**
+	 * DDBS Entity manager
+	 */
+	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
 
     /**
      * Constructor of the sender
@@ -64,6 +74,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
         this.myPeer = new Peer();
         this.myPeer.setName(peerName);
+        this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
     }
 
     /**
@@ -77,7 +88,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
         DDBSCommand command = new DDBSCommand();
         command.setAction(DDBSCommand.LIST_PEERS_COMMAND);
         command.setObject(null);
-        command.setConditionList(null);
+        command.setConditionQueryString(null);
 
         RspList<Peer> rsp_list = dispatcher.castMessage(null,
                 new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
@@ -194,19 +205,21 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public <T extends IEntity> List<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> List<T> listAll(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 
     	try
     	{
     		//Connection must be established
             if(isOpen == true && object != null)
             {
+            	DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+            	
                 DistributedEntity myEntity = (DistributedEntity) object;
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.LIST_ALL_COMMAND);
                 command.setObject(object);
-                command.setConditionList(conditionList);
+                command.setConditionQueryString(conditionQueryString);
                 command.setOrderBy(orderBy);
 
                 RspList<List<T>> rsp_list;
@@ -236,9 +249,9 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                     }
                 }
 
-                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null && !orderBy.equals(""))
+                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null)
                 {
-                    Collections.sort(listEntity, new ObjectComparator(orderBy));
+                    Collections.sort(listEntity, new ObjectComparator(ddbsEntity, orderBy));
                 }
 
 
@@ -279,7 +292,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.READ_COMMAND);
                 command.setObject(object);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid() );
 
@@ -334,7 +347,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.READ_LAST_ELEMENT_COMMAND);
                 command.setObject(object);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
@@ -389,7 +402,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.ADD_COMMAND);
                 command.setObject(objectToAdd);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
@@ -438,7 +451,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.UPDATE_COMMAND);
                 command.setObject(objectToUpdate);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid() );
 
@@ -487,7 +500,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.DELETE_COMMAND);
                 command.setObject(objectToDelete);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
@@ -530,7 +543,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.CREATE_ENTITY);
                 command.setObject(objectToCreate);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
 
                 Address peerToSend = getAddressPeer(myDistributedEntity.getPeerUid());
 
@@ -568,7 +581,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {
     	try
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
@@ -580,7 +593,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSCommand.LOAD_ARRAY_COMMAND);
                 command.setObject(objectToLoad);
-                command.setConditionList(null);
+                command.setConditionQueryString(null);
                 command.setFieldToLoad(field);
                 command.setOrderBy(orderBy);
 

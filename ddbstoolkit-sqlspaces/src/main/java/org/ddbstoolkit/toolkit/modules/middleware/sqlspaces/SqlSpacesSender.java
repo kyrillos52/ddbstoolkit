@@ -17,8 +17,10 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
-import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
 /**
@@ -70,6 +72,13 @@ public class SqlSpacesSender implements DistributableSenderInterface {
      * Port of the server
      */
     private int port;
+    
+	/**
+	 * DDBS Entity manager
+	 */
+	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
+	
+	protected ClassInspector classInspector = new ClassInspector();
 
     /**
      * Create a SqlSpaces Sender using localhost server
@@ -84,6 +93,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
         this.port = 2525;
         this.myPeer = new Peer();
         this.myPeer.setName(peerName);
+        this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
     }
 
     /**
@@ -99,6 +109,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
         this.ipAddressServer = ipAddress;
         this.myPeer = new Peer();
         this.myPeer.setName(peerName);
+        this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
     }
 
     @Override
@@ -154,7 +165,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     @SuppressWarnings("unchecked")
 	@Override
-    public <T extends IEntity> ArrayList<T> listAll(T object, List<String> conditionList, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> ArrayList<T> listAll(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 
     	try
     	{
@@ -162,10 +173,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	        if(isOpen == true && object != null)
 	        {
 	            DistributedEntity myEntity = (DistributedEntity) object;
+	            
+	            DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
 	
 	            DDBSCommand command = new DDBSCommand();
 	            command.setAction(DDBSCommand.LIST_ALL_COMMAND);
-	            command.setConditionList(conditionList);
+	            command.setConditionQueryString(conditionQueryString);
 	
 	            if(myEntity.getPeerUid() != null && !myEntity.getPeerUid().isEmpty())
 	            {
@@ -213,9 +226,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	                returnList.add((T) SqlSpacesConverter.fromString(encodedValue));
 	            }
 	
-	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null && !orderBy.equals(""))
+	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null)
 	            {
-	                Collections.sort(returnList, new ObjectComparator(orderBy));
+	                Collections.sort(returnList, new ObjectComparator(ddbsEntity, orderBy));
 	            }
 	
 	            resultSpace.disconnect();
@@ -367,7 +380,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     	try
     	{
-    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate);
+    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToUpdate, classInspector);
     		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
@@ -376,7 +389,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             {
 
                 //List of primary keys
-            	List<DDBSEntityIDProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
+            	List<DDBSEntityProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToUpdate;
 
@@ -427,14 +440,14 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     	{
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
     		
-    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete);
+    		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(objectToDelete, classInspector);
 
             //Connection must be established
             if(isOpen == true && objectToDelete != null && myDistributedEntity.getPeerUid() != null)
             {
 
                 //Check the primary key
-                List<DDBSEntityIDProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
+                List<DDBSEntityProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToDelete;
 
@@ -522,7 +535,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     @SuppressWarnings("unchecked")
 	@Override
-    public <T extends IEntity> T loadArray(T objectToLoad, String field, String orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {
 
     	try
     	{

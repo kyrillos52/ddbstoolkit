@@ -1,11 +1,12 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Actor;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Book;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Company;
@@ -124,10 +125,9 @@ public class DDBSToolkitJenaModuleTest {
         manager = new DistributedSPARQLManager();
         manager.open();
 
-        List<String> listCondition = new ArrayList<String>();
-        listCondition.add(((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'");
-
-        List<Film> listEntity = manager.listAll(new Film(), listCondition, null);
+        String conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'";
+        
+        List<Film> listEntity = manager.listAll(new Film(), conditionQueryString, null);
 
         //There is only one element
         Assert.assertEquals(listEntity.size(), 1);
@@ -139,15 +139,14 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertEquals(myFilm.title, myFilm.title);
         Assert.assertEquals(myFilm.runtime, 98);
 
-        listCondition = new ArrayList<String>();
-        listCondition.add(((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en");
-        listCondition.add("FILTER ( lang(?title) =  'en' )");
-        listCondition.add("FILTER ( lang(?summary) = 'en' )");
+        conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en.\\n";
+        conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";
+        conditionQueryString += "FILTER ( lang(?summary) = 'en' )";
 
-        List<Book> listBook = manager.listAll(new Book(), listCondition, null);
+        List<Book> listBook = manager.listAll(new Book(), conditionQueryString, null);
 
         Book myBook = listBook.get(0);
-        myBook = manager.loadArray(myBook, "author", "name ASC");
+        myBook = manager.loadArray(myBook, "author", OrderBy.get("name", OrderByType.ASC));
         myBook = manager.loadArray(myBook, "genre", null);
         myBook = manager.loadArray(myBook, "character", null);
         

@@ -15,9 +15,9 @@ public class OrderBy implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Property name
+	 * Name
 	 */
-	private String propertyName;
+	private String name;
 	
 	/**
 	 * Order By type
@@ -25,11 +25,11 @@ public class OrderBy implements Serializable {
 	private OrderByType type;
 	
 	/**
-	 * Get property name
+	 * Get Name
 	 * @return Property name
 	 */
-	public String getPropertyName() {
-		return propertyName;
+	public String getName() {
+		return name;
 	}
 	
 	/**
@@ -40,9 +40,9 @@ public class OrderBy implements Serializable {
 		return type;
 	}
 
-	private OrderBy(String propertyName, OrderByType type) {
+	private OrderBy(String name, OrderByType type) {
 		super();
-		this.propertyName = propertyName;
+		this.name = name;
 		this.type = type;
 	}
 	
@@ -58,6 +58,6 @@ public class OrderBy implements Serializable {
 
 	@Override
 	public String toString() {
-		return "OrderBy [propertyName=" + propertyName + ", type=" + type + "]";
+		return "OrderBy [name=" + name + ", type=" + type + "]";
 	}
 }

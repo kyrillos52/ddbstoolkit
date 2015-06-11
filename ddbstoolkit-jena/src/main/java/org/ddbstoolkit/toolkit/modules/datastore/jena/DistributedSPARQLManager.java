@@ -16,6 +16,8 @@ import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSEntity;
@@ -179,9 +181,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 * @return
 	 */
 	private <T extends IEntity> String getSparqlRequest(T object,
-			List<String> conditionList, String orderBy,
+			String conditionQueryString, OrderBy orderBy,
 			@SuppressWarnings("rawtypes") SparqlDDBSEntity sparqlEntity, Set<String> additionalHeaders) {
-
+		
 		StringBuilder sparqlHeader = new StringBuilder();
 		Set<String> listHeaders = new HashSet<String>();
 
@@ -258,28 +260,15 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		sparqlRequest.append(sparqlSelect);
 		sparqlRequest.append(" WHERE { ");
 		sparqlRequest.append(sparqlWhere);
-		if (conditionList != null && !conditionList.isEmpty()) {
+		if (conditionQueryString != null && !conditionQueryString.isEmpty()) {
 			sparqlRequest.append(".\n");
-
-			for (int i = 0; i < conditionList.size(); i++) {
-				sparqlRequest.append(conditionList.get(i));
-
-				if (i < conditionList.size() - 1) {
-					sparqlRequest.append(".\n");
-				}
-			}
-
+			sparqlRequest.append(conditionQueryString);
 		}
 		sparqlRequest.append("} ");
 		if (orderBy != null) {
-			String[] list = orderBy.split(" ");
-			if (list.length == 2) {
-				String comparatorField = list[0];
-				String orderByOrder = list[1];
-
-				sparqlRequest.append("ORDER BY " + orderByOrder + "(?"
-						+ comparatorField + ")");
-			}
+			
+			sparqlRequest.append("ORDER BY " + orderBy.getType().name() + "(?"
+						+ orderBy.getName() + ")");
 
 		}
 		return sparqlRequest.toString();
@@ -309,7 +298,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	}
 	
 	private <T extends IEntity> List<T> listAll(T object,
-			List<String> conditionList, String orderBy, Set<String> additionalHeaders)
+			String conditionQueryString, OrderBy orderBy, Set<String> additionalHeaders)
 			throws DDBSToolkitException {
 		
 		testConnection(object);
@@ -319,7 +308,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				.getDDBSEntity(object);
 
 		Query query = QueryFactory.create(getSparqlRequest(object,
-				conditionList, orderBy, sparqlEntity, additionalHeaders));
+				conditionQueryString, orderBy, sparqlEntity, additionalHeaders));
 
 		String serviceUrl = sparqlEntity.getServiceUrl(object);
 
@@ -354,10 +343,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 	@Override
 	public <T extends IEntity> List<T> listAll(T object,
-			List<String> conditionList, String orderBy)
+			String conditionQueryString, OrderBy orderBy)
 			throws DDBSToolkitException {
 
-		return listAll(object, conditionList, orderBy, null);
+		return listAll(object, conditionQueryString, orderBy, null);
 	}
 
 	@Override
@@ -373,13 +362,12 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 		if(otherEntities.size() > 0)
 		{
-			List<String> conditionList = new ArrayList<>();
 			SparqlClassProperty uriProperty = sparqlEntity.getUri();
-			conditionList.add("<" + uriProperty.getValue(object)+"> "
+			String conditionQueryString = "<" + uriProperty.getValue(object)+"> "
 					+ otherEntities.get(0).getNamespaceName() + ":"
-					+ otherEntities.get(0).getPropertyName() + " ?" + otherEntities.get(0).getName());
+					+ otherEntities.get(0).getPropertyName() + " ?" + otherEntities.get(0).getName();
 
-			List<T> results = listAll(object, conditionList, null);
+			List<T> results = listAll(object, conditionQueryString, null);
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
@@ -417,13 +405,12 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 		if (sparqlIdProperties.size() == 1) {
 			SparqlClassProperty sparqlIdProperty = sparqlIdProperties.get(0);
+			
+			String conditionQueryString = "?element " + sparqlIdProperty.getNamespaceName()
+			+ ":" + sparqlIdProperty.getPropertyName() + " ?entity_id";
 
-			List<String> conditionList = new ArrayList<>();
-			conditionList.add("?element " + sparqlIdProperty.getNamespaceName()
-					+ ":" + sparqlIdProperty.getPropertyName() + " ?entity_id");
-
-			List<T> results = listAll(object, conditionList,
-					"ORDER BY DESC(?entity_id)");
+			List<T> results = listAll(object, conditionQueryString,
+					OrderBy.get("entity_id", OrderByType.DESC));
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
@@ -619,7 +606,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 	@Override
 	public <T extends IEntity> T loadArray(T objectToLoad, String field,
-			String orderBy) throws DDBSToolkitException {
+			OrderBy orderBy) throws DDBSToolkitException {
 
 		@SuppressWarnings("unchecked")
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
@@ -638,17 +625,17 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					linkProperty.getObjectTypeName()).newInstance();
 
 			if (linkProperty != null && uri != null) {
-				List<String> listCondition = new ArrayList<String>();
-				listCondition.add("<" + uri.getValue(objectToLoad) + "> "
+				
+				String conditionQueryString = "<" + uri.getValue(objectToLoad) + "> "
 						+ linkProperty.getNamespaceName() + ":"
 						+ linkProperty.getPropertyName() + " "
-						+ getObjectVariable(objectLinked));
+						+ getObjectVariable(objectLinked);
 				
 				Set<String> additionalHeader = new HashSet<>();
 				additionalHeader.add("prefix " + linkProperty.getNamespaceName()
 					+ ": <" + linkProperty.getNamespaceURL() + ">\n");
 
-				List<IEntity> listObject = listAll(objectLinked, listCondition,
+				List<IEntity> listObject = listAll(objectLinked, conditionQueryString,
 						orderBy, additionalHeader);
 
 				Field f = objectToLoad.getClass().getField(
