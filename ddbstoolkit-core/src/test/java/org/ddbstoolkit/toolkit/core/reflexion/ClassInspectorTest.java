@@ -28,7 +28,7 @@ public class ClassInspectorTest {
 		entityTest.setPeerUid("uid");
 		
 		ClassInspector classInspector = new ClassInspector();
-		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(entityTest, classInspector);
+		DDBSEntity<DDBSEntityProperty> ddbsEntity = DDBSEntity.getDDBSEntity(entityTest.getClass(), classInspector);
 		
 		/**
 		 * Check entity data

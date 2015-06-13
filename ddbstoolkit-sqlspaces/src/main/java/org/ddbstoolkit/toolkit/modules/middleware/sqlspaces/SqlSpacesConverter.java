@@ -3,8 +3,11 @@ package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 import info.collide.sqlspaces.commons.Tuple;
 
 import java.io.*;
+
+import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
 /**
@@ -47,14 +50,14 @@ public class SqlSpacesConverter {
     {
 
         DDBSCommand myObjectCommand = new DDBSCommand();
-        myObjectCommand.setAction((Integer) myCommand.getField(0).getValue());
+        myObjectCommand.setAction((DDBSAction) myCommand.getField(0).getValue());
         try {
             myObjectCommand.setObject((IEntity)SqlSpacesConverter.fromString((String)myCommand.getField(1).getValue()));
         } catch (Exception e) {
             e.printStackTrace();
         }
         myObjectCommand.setConditionQueryString((String) myCommand.getField(2).getValue());
-        myObjectCommand.setDestination((String) myCommand.getField(3).getValue());
+        myObjectCommand.setDestination((Peer) myCommand.getField(3).getValue());
         myObjectCommand.setOrderBy((OrderBy) myCommand.getField(4).getValue());
         myObjectCommand.setFieldToLoad((String) myCommand.getField(5).getValue());
         return myObjectCommand;

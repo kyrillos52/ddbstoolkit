@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +13,7 @@ import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -50,6 +50,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	 * DDBS Entity manager
 	 */
 	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
+	
+	/**
+	 * JDBC Condition converter
+	 */
+	protected JDBCConditionConverter jdbcConditionConverter;
 
 	/**
 	 * JDBC Entity manager constructor
@@ -61,6 +66,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		super();
 		this.myConnector = myConnector;
 		this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
+		this.jdbcConditionConverter = new JDBCConditionConverter(ddbsEntityManager);
 	}
 
 	/**
@@ -141,9 +147,82 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		}
 
 	}
+	
+	@Override
+	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
+			OrderBy orderBy) throws DDBSToolkitException {
+		
+		testConnection(object);
+
+		try {
+			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+
+			StringBuilder listAllQuery = new StringBuilder();
+
+			listAllQuery.append("SELECT ");
+
+			Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
+					.getSupportedPrimaryTypeEntityProperties().iterator();
+			while (iteratorProperties.hasNext()) {
+				listAllQuery
+						.append(iteratorProperties.next().getPropertyName());
+
+				if (iteratorProperties.hasNext()) {
+					listAllQuery.append(",");
+				}
+			}
+
+			listAllQuery.append(" FROM ");
+			listAllQuery.append(ddbsEntity.getDatastoreEntityName());
+
+			// If there is conditions
+			if (conditions.getConditions() != null && !conditions.getConditions().isEmpty()) {
+				listAllQuery.append(" WHERE ");
+
+				listAllQuery.append(jdbcConditionConverter.getConditionsString(conditions, object));
+			}
+
+			if (orderBy != null) {
+				DDBSEntityProperty ddbsEntityProperty = ddbsEntity.getDDBSEntityProperty(orderBy.getName());
+				
+				listAllQuery.append(" ORDER BY ");
+				listAllQuery.append(ddbsEntityProperty.getPropertyName());
+				switch (orderBy.getType()) {
+				case ASC:
+					listAllQuery.append(" ASC");
+					break;
+				case DESC:
+					listAllQuery.append(" DESC");
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			listAllQuery.append(";");
+			
+			PreparedStatement preparedRequest = myConnector.prepareStatement(listAllQuery.toString());
+			
+			jdbcConditionConverter.prepareStatement(preparedRequest, conditions, ddbsEntity);
+			
+			ResultSet results = myConnector
+					.queryPreparedStatement(preparedRequest);
+
+			if (object instanceof ImplementableEntity) {
+				return ((ImplementableEntity) object).conversionResultSet(
+						results, object);
+			} else {
+				return conversionResultSet(results, object);
+			}
+		} catch (SQLException sqle) {
+			throw new DDBSToolkitException(
+					"Error during execution of the SQL request", sqle);
+		}
+	}
 
 	@Override
-	public <T extends IEntity> List<T> listAll(T object,
+	public <T extends IEntity> List<T> listAllWithQueryString(T object,
 			String conditionQueryString, OrderBy orderBy)
 			throws DDBSToolkitException {
 
@@ -265,8 +344,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 								PreparedStatementType.READ, sqlReadString.toString());
 			}
 
-			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getEntityIDProperties(), object);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), object);
 
 			ResultSet results = myConnector
 					.queryPreparedStatement(preparedRequest);
@@ -399,8 +477,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 								sqlAddString.toString());
 			}
 
-			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getNotIncrementingEntityProperties(), objectToAdd);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToAdd);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -468,8 +545,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			listPreparedEntities.addAll(ddbsEntity.getEntityNonIDProperties());
 			listPreparedEntities.addAll(ddbsEntity.getEntityIDProperties());
 
-			prepareParametersPreparedStatement(preparedRequest,
-					listPreparedEntities, objectToUpdate);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToUpdate);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -517,8 +593,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 								sqlDeleteString.toString());
 			}
 
-			prepareParametersPreparedStatement(preparedRequest,
-					ddbsEntity.getEntityIDProperties(), objectToDelete);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToDelete);
 
 			return myConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -567,7 +642,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 						IEntity objectLinked = (IEntity) Class.forName(
 								propertyName.getObjectTypeName()).newInstance();
 
-						List<IEntity> listObject = listAll(objectLinked,
+						List<IEntity> listObject = listAllWithQueryString(objectLinked,
 								conditionQueryString.toString(), orderBy);
 
 						Field f = objectToLoad.getClass().getField(field);
@@ -626,14 +701,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		
 		// List properties
 		List<DDBSEntityProperty> listProperties = ddbsEntity.getEntityProperties();
-		
-		Class<?> objectClass ;
-		try {
-			objectClass = Class.forName(ddbsEntity.getFullClassName());
-		} catch (ClassNotFoundException cnfe) {
-			throw new DDBSToolkitException("Class not found using reflection",
-					cnfe);
-		}
 
 		// For each object
 		try {
@@ -641,7 +708,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 				// Instantiate the object
 				@SuppressWarnings("unchecked")
-				T myData = (T) objectClass.newInstance();
+				T myData = (T) ddbsEntity.newInstance();
 
 				// Set object properties
 				for (DDBSEntityProperty myProperty : listProperties) {
@@ -693,10 +760,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		} catch (SQLException se) {
 			throw new DDBSToolkitException(
 					"SQL exception during parsing the request", se);
-		} catch (InstantiationException ie) {
-			throw new DDBSToolkitException(
-					"Problem during instantiation of the object using reflection",
-					ie);
 		} catch (IllegalAccessException iae) {
 			throw new DDBSToolkitException(
 					"Illegal access exception using reflection", iae);
@@ -706,56 +769,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		}
 
 		return resultList;
-	}
-
-	/**
-	 * Prepare SQL Request with parameters
-	 * 
-	 * @param ddbsEntities
-	 *            DDBS Entities
-	 * @return
-	 * @throws SQLException
-	 *             Error when preparing query
-	 */
-	protected <T extends DDBSEntityProperty> PreparedStatement prepareParametersPreparedStatement(
-			PreparedStatement preparedStatement, List<T> ddbsEntityProperties, IEntity entity)
-			throws SQLException {
-		int counterParameter = 1;
-		for (DDBSEntityProperty ddbsEntityProperty : ddbsEntityProperties) {
-			if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.INTEGER)) {
-				preparedStatement.setInt(counterParameter,
-						(Integer) ddbsEntityProperty.getValue(entity));
-			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.LONG)) {
-				preparedStatement.setLong(counterParameter,
-						(Long) ddbsEntityProperty.getValue(entity));
-			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.FLOAT)) {
-				preparedStatement.setFloat(counterParameter,
-						(Float) ddbsEntityProperty.getValue(entity));
-			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.DOUBLE)) {
-				preparedStatement.setDouble(counterParameter,
-						(Double) ddbsEntityProperty.getValue(entity));
-			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.STRING)) {
-				if (ddbsEntityProperty.getValue(entity) != null) {
-					preparedStatement.setString(counterParameter,
-							(String) ddbsEntityProperty.getValue(entity));
-				} else {
-					preparedStatement.setString(counterParameter, "");
-				}
-
-			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-					DDBSToolkitSupportedEntity.TIMESTAMP)) {
-				preparedStatement.setTimestamp(counterParameter,
-						(Timestamp) ddbsEntityProperty.getValue(entity));
-			}
-			counterParameter++;
-		}
-
-		return preparedStatement;
 	}
 
 }

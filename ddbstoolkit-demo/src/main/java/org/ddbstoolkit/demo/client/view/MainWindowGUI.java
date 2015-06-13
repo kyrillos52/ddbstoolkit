@@ -137,7 +137,7 @@ public class MainWindowGUI {
                     ArrayList<Book> listBooks = new ArrayList<Book>();
 
                     //Get the results
-                    List<Book> listEntity = sender.listAll(myBook, conditionString, OrderBy.get("title", OrderByType.ASC));
+                    List<Book> listEntity = sender.listAllWithQueryString(myBook, conditionString, OrderBy.get("title", OrderByType.ASC));
                     for(IEntity entity : listEntity)
                     {
                         Book aBook = (Book)entity;

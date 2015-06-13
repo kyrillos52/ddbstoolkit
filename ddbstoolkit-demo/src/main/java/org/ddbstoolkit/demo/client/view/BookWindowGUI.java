@@ -172,7 +172,7 @@ public class BookWindowGUI extends JFrame {
                     for (Genre genre : genreDataModel.getListGenres()) {
                         genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                        List<Genre> listGenre = sender.listAll(genre, "name = '" + genre.name + "'", null);
+                        List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '" + genre.name + "'", null);
 
                         //If the genre didn't exist, the genre is added
                         if (listGenre == null || listGenre.size() == 0) {
@@ -356,7 +356,7 @@ public class BookWindowGUI extends JFrame {
                         {
                             genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                            List<Genre> listGenre = sender.listAll(genre, "name = '"+genre.name+"'", null);
+                            List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '"+genre.name+"'", null);
 
                             //If no genre
                             if(listGenre == null || listGenre.size() == 0)
@@ -448,7 +448,7 @@ public class BookWindowGUI extends JFrame {
                         {
                             genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                            List<Genre> listGenre = sender.listAll(genre, "name = '"+genre.name+"'", null);
+                            List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '"+genre.name+"'", null);
 
                             //If no genre, add the genre
                             if(listGenre == null || listGenre.size() == 0)
@@ -527,7 +527,7 @@ public class BookWindowGUI extends JFrame {
         			conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";
         			conditionQueryString += "FILTER ( lang(?summary) = 'en' )";	
 
-                    List<Book> listBook = manager.listAll(new Book(), conditionQueryString, null);
+                    List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
 
                     //If the first matching didn't succeed
                     if(listBook.size() == 0)
@@ -538,7 +538,7 @@ public class BookWindowGUI extends JFrame {
             			conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";	
             			conditionQueryString += "FILTER ( lang(?summary) = 'en' )";	
 
-                        listBook = manager.listAll(new Book(), conditionQueryString, null);
+                        listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
                     }
 
                     //No book found

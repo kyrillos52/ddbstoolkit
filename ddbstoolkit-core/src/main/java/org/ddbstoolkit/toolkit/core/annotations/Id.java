@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation representing the identifier of an element
+ * Annotation representing an identifier of an IEntity
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */

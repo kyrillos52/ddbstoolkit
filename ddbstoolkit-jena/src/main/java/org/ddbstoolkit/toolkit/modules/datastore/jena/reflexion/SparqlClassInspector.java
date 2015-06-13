@@ -5,6 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
@@ -27,9 +28,9 @@ public class SparqlClassInspector extends ClassInspector {
      */
 	@SuppressWarnings("unchecked")
 	@Override
-    public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
+    public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData)
     {
-        Annotation[] classAnnotations = object.getClass().getAnnotations();
+        Annotation[] classAnnotations = classData.getAnnotations();
 		
 		//Get the default namespace
         String defaultNamespaceName = "";
@@ -45,7 +46,7 @@ public class SparqlClassInspector extends ClassInspector {
             }
         }
 		
-		Field[] fields = object.getClass().getFields();
+		Field[] fields = classData.getFields();
 
         List<T> listProperties = new ArrayList<>();
 

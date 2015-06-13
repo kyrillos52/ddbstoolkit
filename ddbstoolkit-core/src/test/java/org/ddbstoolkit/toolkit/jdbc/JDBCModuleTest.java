@@ -43,12 +43,12 @@ public abstract class JDBCModuleTest {
 	 */
 	public void cleanData() throws ClassNotFoundException, DDBSToolkitException {
 		
-		for(Actor actor : manager.listAll(new Actor(), null, null))
+		for(Actor actor : manager.listAllWithQueryString(new Actor(), null, null))
 		{
 			manager.delete(actor);
 		}
 		
-		for(Film actor : manager.listAll(new Film(), null, null))
+		for(Film actor : manager.listAllWithQueryString(new Film(), null, null))
 		{
 			manager.delete(actor);
 		}
@@ -98,7 +98,7 @@ public abstract class JDBCModuleTest {
 
         int numberOfElement = 0;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //All parameters with no values
         Film filmToAdd = new Film();
@@ -109,7 +109,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //Add the string
         filmToAdd = new Film();
@@ -121,7 +121,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //Add the duration
         filmToAdd = new Film();
@@ -135,7 +135,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //Add the float
         filmToAdd = new Film();
@@ -150,7 +150,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //Add the long
         filmToAdd = new Film();
@@ -166,7 +166,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
 
         //Add the timestamp
         filmToAdd = new Film();
@@ -183,7 +183,7 @@ public abstract class JDBCModuleTest {
 
         numberOfElement++;
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), numberOfElement);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), numberOfElement);
     }
     
     /**
@@ -213,7 +213,7 @@ public abstract class JDBCModuleTest {
     {
     	thrown.expect(IllegalArgumentException.class);
     	
-    	manager.listAll(null, null, null);
+    	manager.listAllWithQueryString(null, null, null);
     }
 
     /**
@@ -224,10 +224,10 @@ public abstract class JDBCModuleTest {
     public void testListAll() throws Exception {
 
         //Select a movie
-        Assert.assertNotNull(manager.listAll(new Film(), null, null));
+        Assert.assertNotNull(manager.listAllWithQueryString(new Film(), null, null));
 
         //Select a movie order by filmID
-        Assert.assertNotNull(manager.listAll(new Film(), null, OrderBy.get("film_ID", OrderByType.ASC)));
+        Assert.assertNotNull(manager.listAllWithQueryString(new Film(), null, OrderBy.get("film_ID", OrderByType.ASC)));
     }
     
     @Test
@@ -360,7 +360,7 @@ public abstract class JDBCModuleTest {
         //If there is no primary key, must return false
         Assert.assertEquals(manager.delete(new Film()), false);
         
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), 0);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), 0);
         
         //Add a movie
         Film filmToAdd = new Film();
@@ -373,7 +373,7 @@ public abstract class JDBCModuleTest {
 
         manager.add(filmToAdd);
 
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), 1);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), 1);
         
         Film lastFilm = new Film();
         addReceiverPeerUID(lastFilm);
@@ -382,7 +382,7 @@ public abstract class JDBCModuleTest {
         manager.delete(filmToDelete);
 
         //Check if all entities has been deleted
-        Assert.assertEquals(manager.listAll(new Film(), null, null).size(), 0);
+        Assert.assertEquals(manager.listAllWithQueryString(new Film(), null, null).size(), 0);
     }
     
     @Test
@@ -443,7 +443,7 @@ public abstract class JDBCModuleTest {
         }
 
         //Check if the 3 elements have been added
-        List<Actor> listActors = manager.listAll(new Actor(), "film_id = "+lastFilmAdded.film_ID, null);
+        List<Actor> listActors = manager.listAllWithQueryString(new Actor(), "film_id = "+lastFilmAdded.film_ID, null);
         Assert.assertEquals(listActors.size(), 3);
 
         //Loader load the array of actors

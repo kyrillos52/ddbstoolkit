@@ -15,6 +15,7 @@ import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
@@ -342,7 +343,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	}
 
 	@Override
-	public <T extends IEntity> List<T> listAll(T object,
+	public <T extends IEntity> List<T> listAllWithQueryString(T object,
 			String conditionQueryString, OrderBy orderBy)
 			throws DDBSToolkitException {
 
@@ -367,7 +368,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					+ otherEntities.get(0).getNamespaceName() + ":"
 					+ otherEntities.get(0).getPropertyName() + " ?" + otherEntities.get(0).getName();
 
-			List<T> results = listAll(object, conditionQueryString, null);
+			List<T> results = listAllWithQueryString(object, conditionQueryString, null);
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
@@ -409,7 +410,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			String conditionQueryString = "?element " + sparqlIdProperty.getNamespaceName()
 			+ ":" + sparqlIdProperty.getPropertyName() + " ?entity_id";
 
-			List<T> results = listAll(object, conditionQueryString,
+			List<T> results = listAllWithQueryString(object, conditionQueryString,
 					OrderBy.get("entity_id", OrderByType.DESC));
 			if (results.size() == 1) {
 				return results.get(0);
@@ -596,12 +597,19 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			myDataset.end();
 		}
 	}
+	
+	@Override
+	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
+			OrderBy orderBy) throws DDBSToolkitException {
+		//TODO
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public boolean createEntity(IEntity objectToCreate)
 			throws DDBSToolkitException {
-		// No Create table statement with Sparql Endpoint
-		return true;
+		//TODO
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

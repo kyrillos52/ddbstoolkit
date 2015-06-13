@@ -9,6 +9,11 @@ import java.io.Serializable;
  */
 public class Peer implements Serializable {
 
+	/**
+	 * Indicate the we select all peer
+	 */
+	public static Peer ALL = new Peer("ALL", null);
+	
     /**
 	 * Serial Version ID
 	 */
@@ -23,8 +28,18 @@ public class Peer implements Serializable {
      * Name of the peer
      */
     protected String name;
+    
+    public Peer() {
+		super();
+	}
+    
+    public Peer(String uid, String name) {
+		super();
+		this.uid = uid;
+		this.name = name;
+	}
 
-    /**
+	/**
      * Get the UID of the peer
      * @return UID of the peer
      */

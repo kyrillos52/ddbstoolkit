@@ -21,26 +21,6 @@ public class ClassInspector {
 	 * Peer UID property name
 	 */
 	protected static final String PEER_UID_PROPERTY_NAME = "peerUid";
-	
-    /**
-     * Get the full class name of an object
-     * @param object : object to inspect
-     * @return Object full class name
-     */
-    public <T> String getFullClassName(T object)
-    {
-        return object.getClass().getName();
-    }
-
-    /**
-     * Get the class name of an object
-     * @param object : object to inspect
-     * @return Object class name
-     */
-    public String getClassName(Object object)
-    {
-        return object.getClass().getSimpleName();
-    }
 
     /**
      * List public properties of an object
@@ -48,9 +28,9 @@ public class ClassInspector {
      * @return list of properties
      */
 	@SuppressWarnings("unchecked")
-	public <T extends DDBSEntityProperty> List<T> exploreProperties(Object object)
+	public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData)
     {
-        Field[] fields = object.getClass().getFields();
+        Field[] fields = classData.getFields();
 
         List<T> listProperties = new ArrayList<>();
 

@@ -6,6 +6,8 @@ import java.util.List;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 
+import com.esotericsoftware.reflectasm.ConstructorAccess;
+
 /**
  * DDBS Entity
  * 
@@ -15,19 +17,26 @@ import org.ddbstoolkit.toolkit.core.IEntity;
 public class DDBSEntity<T extends DDBSEntityProperty> {
 	
 	/**
-	 * Full class Name
+	 * Class data
 	 */
-	protected String fullClassName;
-	
-	/**
-	 * Datastore entity name
-	 */
-	protected String datastoreEntityName;
+	protected Class<?> classData;
 
 	/**
 	 * Entity properties
 	 */
 	protected List<T> entityProperties;
+	
+	/**
+	 * Reflect ASM Constructor Access
+	 */
+	private ConstructorAccess<?> access;
+	
+	public Object newInstance() {
+		if(access == null) {
+			access = ConstructorAccess.get(classData);
+		}
+		return access.newInstance();
+	}
 
 	/**
 	 * Datastore entity name
@@ -35,7 +44,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * @return
 	 */
 	public String getDatastoreEntityName() {
-		return datastoreEntityName;
+		return classData.getSimpleName();
 	}
 
 	/**
@@ -48,11 +57,11 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	}
 	
 	/**
-	 * Get full class name
+	 * Get the full class name of an object
 	 * @return Full class name
 	 */
 	public String getFullClassName() {
-		return fullClassName;
+		return classData.getName();
 	}
 	
 	/**
@@ -84,8 +93,8 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * @param iEntity
 	 *            IEntity
 	 */
-	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
-		return new DDBSEntity<DDBSEntityProperty>(iEntity, classInspector);
+	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(Class<?> classData, ClassInspector classInspector) {
+		return new DDBSEntity<DDBSEntityProperty>(classData, classInspector);
 	}
 	
 	/**
@@ -94,10 +103,9 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * @param iEntity
 	 * @param classInspector
 	 */
-	protected DDBSEntity(IEntity iEntity, ClassInspector classInspector) {
-		this.datastoreEntityName = classInspector.getClassName(iEntity);
-		this.fullClassName = classInspector.getFullClassName(iEntity);
-		this.entityProperties = classInspector.exploreProperties(iEntity);
+	protected DDBSEntity(Class<?> classData, ClassInspector classInspector) {
+		this.classData = classData;
+		this.entityProperties = classInspector.exploreProperties(classData);
 	}
 
 	/**

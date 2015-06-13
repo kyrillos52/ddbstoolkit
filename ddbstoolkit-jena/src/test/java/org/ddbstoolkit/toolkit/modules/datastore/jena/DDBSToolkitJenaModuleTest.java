@@ -66,17 +66,17 @@ public class DDBSToolkitJenaModuleTest {
 	 */
 	public void cleanData() throws ClassNotFoundException, DDBSToolkitException {
 		
-		for(Actor actor : manager.listAll(new Actor(), null, null))
+		for(Actor actor : manager.listAllWithQueryString(new Actor(), null, null))
 		{
 			manager.delete(actor);
 		}
 		
-		for(Company company : manager.listAll(new Company(), null, null))
+		for(Company company : manager.listAllWithQueryString(new Company(), null, null))
 		{
 			manager.delete(company);
 		}
 		
-		for(Employee employee : manager.listAll(new Employee(), null, null))
+		for(Employee employee : manager.listAllWithQueryString(new Employee(), null, null))
 		{
 			manager.delete(employee);
 		}
@@ -111,7 +111,7 @@ public class DDBSToolkitJenaModuleTest {
     {
     	thrown.expect(IllegalArgumentException.class);
     	
-    	manager.listAll(null, null, null);
+    	manager.listAllWithQueryString(null, null, null);
     }
 
     /**
@@ -127,7 +127,7 @@ public class DDBSToolkitJenaModuleTest {
 
         String conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'";
         
-        List<Film> listEntity = manager.listAll(new Film(), conditionQueryString, null);
+        List<Film> listEntity = manager.listAllWithQueryString(new Film(), conditionQueryString, null);
 
         //There is only one element
         Assert.assertEquals(listEntity.size(), 1);
@@ -143,7 +143,7 @@ public class DDBSToolkitJenaModuleTest {
         conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";
         conditionQueryString += "FILTER ( lang(?summary) = 'en' )";
 
-        List<Book> listBook = manager.listAll(new Book(), conditionQueryString, null);
+        List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
 
         Book myBook = listBook.get(0);
         myBook = manager.loadArray(myBook, "author", OrderBy.get("name", OrderByType.ASC));
@@ -209,7 +209,7 @@ public class DDBSToolkitJenaModuleTest {
     @Test
     public void testAdd() throws Exception {
 
-        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 0);
+        Assert.assertEquals(manager.listAllWithQueryString(new Company(), null, null).size(), 0);
 
         //Bad parameters
         Company companyToTest = new Company();
@@ -217,11 +217,11 @@ public class DDBSToolkitJenaModuleTest {
         companyToTest.company_uri = "http://cyril-grandjean.co.uk/business/CompanyTest";
         Assert.assertTrue(manager.add(companyToTest));
         
-        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 0);
+        Assert.assertEquals(manager.listAllWithQueryString(new Company(), null, null).size(), 0);
 
         manager.delete(companyToTest);
         
-        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 0);
+        Assert.assertEquals(manager.listAllWithQueryString(new Company(), null, null).size(), 0);
 
         //Add a company
         Company companyToAdd = new Company();
@@ -258,7 +258,7 @@ public class DDBSToolkitJenaModuleTest {
 
         manager.add(companyToAdd);
 
-        Assert.assertEquals(manager.listAll(new Company(), null, null).size(), 1);
+        Assert.assertEquals(manager.listAllWithQueryString(new Company(), null, null).size(), 1);
 
         Company myCompany = manager.readLastElement(new Company());
 
@@ -440,7 +440,7 @@ public class DDBSToolkitJenaModuleTest {
         employee2.name = "Steve Jobs";
         manager.add(employee2);
 
-        List<Employee> listEmployees = manager.listAll(new Employee(), null, null);
+        List<Employee> listEmployees = manager.listAllWithQueryString(new Employee(), null, null);
         assert listEmployees.size() == 2;
 
         Employee[] listEmployee = new Employee[2];

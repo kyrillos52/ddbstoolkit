@@ -38,7 +38,7 @@ public class DDBSEntityManager<T extends DDBSEntity> {
 		DDBSEntity<DDBSEntityProperty> ddbsEntity = mapEntities.get(object.getClass());
 		
 		if(ddbsEntity == null) {
-			ddbsEntity = DDBSEntity.getDDBSEntity(object, classInspector);
+			ddbsEntity = DDBSEntity.getDDBSEntity(object.getClass(), classInspector);
 			mapEntities.put(object.getClass(), (T)ddbsEntity);
 		}
 		

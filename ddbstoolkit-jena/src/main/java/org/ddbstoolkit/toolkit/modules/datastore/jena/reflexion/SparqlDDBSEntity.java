@@ -71,7 +71,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	}
 	
 	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
-		super(iEntity, classInspector);
+		super(iEntity.getClass(), classInspector);
 	}
 	
 	/**
@@ -80,7 +80,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * @param iEntity
 	 *            IEntity
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public static SparqlDDBSEntity getDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
 		return new SparqlDDBSEntity<SparqlClassProperty>(iEntity, classInspector);
 	}

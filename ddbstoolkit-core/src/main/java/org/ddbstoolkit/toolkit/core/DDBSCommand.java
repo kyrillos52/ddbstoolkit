@@ -2,10 +2,11 @@ package org.ddbstoolkit.toolkit.core;
 
 import java.io.Serializable;
 
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
 /**
- * Class which represents commands sent through a network
+ * DDBS command sent through a network
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
@@ -19,20 +20,12 @@ public class DDBSCommand implements Serializable {
 	/**
      * Destination of the command
      */
-    private String destination;
+    private Peer destination;
 
     /**
-     * Action to do
-     * 1 = listAll
-     * 2 = read
-     * 3 = readLastElement
-     * 4 = add
-     * 5 = update
-     * 6 = delete
-     * 7 = listPeersName
-     * 8 = loadArray
+     * Action to perform
      */
-    private int action;
+    private DDBSAction action;
 
     /**
      * Object to send
@@ -40,9 +33,14 @@ public class DDBSCommand implements Serializable {
     private IEntity object;
 
     /**
-     * List of conditions : listAll command only
+     * Query string of all conditions of a query : listAll command only
      */
     private String conditionQueryString;
+    
+    /**
+     * List of conditions of a query
+     */
+    private Conditions conditions;
 
     /**
      * Order by condition : listAll and loadArray command only
@@ -53,74 +51,24 @@ public class DDBSCommand implements Serializable {
      * Field to load : loadArray command only
      */
     private String fieldToLoad;
-    
-    /**
-     * List all elements action number
-     */
-    public final static int LIST_ALL_COMMAND = 1;
 
     /**
-     * Read element action number
+     * Get the action of a command
+     * @return Command action
      */
-    public final static int READ_COMMAND = 2;
+    public DDBSAction getAction() {
+		return action;
+	}
 
     /**
-     * Read last element action number
+     * Set the action of a command
+     * @param action Action of a command
      */
-    public final static int READ_LAST_ELEMENT_COMMAND = 3;
+	public void setAction(DDBSAction action) {
+		this.action = action;
+	}
 
-    /**
-     * Add an element action number
-     */
-    public final static int ADD_COMMAND = 4;
-
-    /**
-     * Update an element action number
-     */
-    public final static int UPDATE_COMMAND = 5;
-
-    /**
-     * Delete an element action number
-     */
-    public final static int DELETE_COMMAND = 6;
-
-    /**
-     * List all peers action number
-     */
-    public final static int LIST_PEERS_COMMAND = 7;
-
-    /**
-     * Load an array of objects action number
-     */
-    public final static int LOAD_ARRAY_COMMAND = 8;
-
-    /**
-     * Create an entity action number
-     */
-    public final static int CREATE_ENTITY = 9;
-
-    /**
-     * Code action to send to all peers
-     */
-    public final static String DESTINATION_ALL_PEERS = "ALL";
-
-    /**
-     * Get the action number of a command
-     * @return Action number corresponding to an action
-     */
-    public int getAction() {
-        return action;
-    }
-
-    /**
-     * Set the action number of a command
-     * @param Action number corresponding to an action
-     */
-    public void setAction(int action) {
-        this.action = action;
-    }
-
-    /**
+	/**
      * Get the object of a command
      * @return Object of a command
      */
@@ -151,8 +99,24 @@ public class DDBSCommand implements Serializable {
 	public void setConditionQueryString(String conditionQueryString) {
 		this.conditionQueryString = conditionQueryString;
 	}
+	
+	/**
+     * Get the conditions of a query : listAll command only
+     * @return List of conditions
+     */
+    public Conditions getConditions() {
+		return conditions;
+	}
 
     /**
+     * Set the conditions of a query : listAll command only
+     * @return List of conditions
+     */
+	public void setConditions(Conditions conditions) {
+		this.conditions = conditions;
+	}
+
+	/**
      * Get the order by value : listAll command only
      * @return  Order by value
      */
@@ -172,7 +136,7 @@ public class DDBSCommand implements Serializable {
      * Get the destination of a command
      * @return destination of a command
      */
-    public String getDestination() {
+    public Peer getDestination() {
         return destination;
     }
 
@@ -180,7 +144,7 @@ public class DDBSCommand implements Serializable {
      * Set the destination of a command
      * @param destination destination of a command
      */
-    public void setDestination(String destination) {
+    public void setDestination(Peer destination) {
         this.destination = destination;
     }
 
@@ -204,7 +168,7 @@ public class DDBSCommand implements Serializable {
 	public String toString() {
 		return "DDBSCommand [destination=" + destination + ", action=" + action
 				+ ", object=" + object + ", conditionQueryString="
-				+ conditionQueryString + ", orderBy=" + orderBy
-				+ ", fieldToLoad=" + fieldToLoad + "]";
+				+ conditionQueryString + ", conditions=" + conditions
+				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad + "]";
 	}
 }

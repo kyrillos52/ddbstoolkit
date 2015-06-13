@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.core;
 
 import java.util.List;
 
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
@@ -23,7 +24,7 @@ public interface DistributableEntityManager {
      * @return
      */
     public Peer getPeer();
-
+    
     /**
      * Check if the connection is open
      * @return State of the connection
@@ -46,13 +47,23 @@ public interface DistributableEntityManager {
     /**
      * List all entities of a specific object
      * @param object Object to search
+     * @param conditions Conditions to filter the results
+     * @param orderBy Order By Object
+     * @return list of entities that match the request
+     * @throws DDBSToolkitException Error during the process
+     */
+    public <T extends IEntity> List<T> listAll(T object, Conditions conditions, OrderBy orderBy) throws DDBSToolkitException;
+    
+    /**
+     * List all entities of a specific object
+     * @param object Object to search
      * @param conditionQueryString Condition query string to filter the results
      * @param orderBy Order By Object
      * @return list of entities that match the request
      * @throws DDBSToolkitException Error during the process
      */
-    public <T extends IEntity> List<T> listAll(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException;
-
+    public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException;
+    
     /**
      * Read details about an object
      * @param object object to read

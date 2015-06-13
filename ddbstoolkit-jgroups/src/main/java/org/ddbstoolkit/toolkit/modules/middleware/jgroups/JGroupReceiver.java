@@ -110,21 +110,21 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
             entityManager.open();
 
             switch (myCommand.getAction()) {
-                case DDBSCommand.LIST_ALL_COMMAND:
-                    return entityManager.listAll(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
-                case DDBSCommand.READ_COMMAND:
+                case LIST_ALL:
+                    return entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
+                case READ:
                     return entityManager.read(myCommand.getObject());
-                case DDBSCommand.READ_LAST_ELEMENT_COMMAND:
+                case READ_LAST_ELEMENT:
                     return entityManager.readLastElement(myCommand.getObject());
-                case DDBSCommand.ADD_COMMAND:
+                case ADD:
                     return entityManager.add(myCommand.getObject());
-                case DDBSCommand.UPDATE_COMMAND:
+                case UPDATE:
                     return entityManager.update(myCommand.getObject());
-                case DDBSCommand.DELETE_COMMAND:
+                case DELETE:
                     return entityManager.delete(myCommand.getObject());
-                case DDBSCommand.LIST_PEERS_COMMAND:
+                case LIST_PEERS:
                     return myPeer;
-                case DDBSCommand.LOAD_ARRAY_COMMAND:
+                case LOAD_ARRAY:
                     return entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
                 default:
                     break;

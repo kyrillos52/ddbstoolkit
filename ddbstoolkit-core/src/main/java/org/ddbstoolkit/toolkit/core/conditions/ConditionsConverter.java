@@ -9,5 +9,5 @@ import org.ddbstoolkit.toolkit.core.IEntity;
  */
 public interface ConditionsConverter {
 
-	String getConditionsString(Conditions conditions, IEntity entity);
+	String getConditionsString(Conditions conditions, IEntity object);
 }

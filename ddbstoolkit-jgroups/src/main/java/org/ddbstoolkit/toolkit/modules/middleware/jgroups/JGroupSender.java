@@ -1,11 +1,13 @@
 package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 
+import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
@@ -86,7 +88,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     public List<Peer> getListPeers() throws Exception {
 
         DDBSCommand command = new DDBSCommand();
-        command.setAction(DDBSCommand.LIST_PEERS_COMMAND);
+        command.setAction(DDBSAction.LIST_PEERS);
         command.setObject(null);
         command.setConditionQueryString(null);
 
@@ -195,6 +197,85 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
         }
         return null;
     }
+    
+    /**
+     * List all entities of a specific object
+     * @param object Object to search
+     * @param conditions Conditions to filter the results
+     * @param orderBy Order By Object
+     * @return list of entities that match the request
+     * @throws DDBSToolkitException Error during the process
+     */
+	@Override
+	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
+			OrderBy orderBy) throws DDBSToolkitException {
+		
+		try
+    	{
+    		//Connection must be established
+            if(isOpen == true && object != null)
+            {
+            	DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+            	
+                DistributedEntity myEntity = (DistributedEntity) object;
+
+                DDBSCommand command = new DDBSCommand();
+                command.setAction(DDBSAction.LIST_ALL);
+                command.setObject(object);
+                command.setConditions(conditions);
+                command.setOrderBy(orderBy);
+
+                RspList<List<T>> rsp_list;
+                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty())
+                {
+                    Address peerToSend = getAddressPeer(myEntity.getPeerUid() );
+                    ArrayList<Address> toSend = new ArrayList<Address>();
+                    toSend.add(peerToSend);
+
+                    rsp_list = dispatcher.castMessage(toSend,
+                            new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+                    command.setDestination(new Peer(myEntity.getPeerUid(),null) );
+                }
+                else
+                {
+                    rsp_list = dispatcher.castMessage(null,
+                            new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+                }
+
+                List<T> listEntity = new ArrayList<T>();
+
+                //Merge all the results on the same ArrayList
+                if(rsp_list.getResults().size() > 0)
+                {
+                    for (List<T> list : rsp_list.getResults()) {
+                        listEntity.addAll(list);
+                    }
+                }
+
+                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null)
+                {
+                    Collections.sort(listEntity, new ObjectComparator(ddbsEntity, orderBy));
+                }
+
+
+                return listEntity;
+            }
+            else
+            {
+            	if(!isOpen())
+				{
+					throw new DDBSToolkitException("The database connection is not opened");
+				}
+				else
+				{
+					throw new DDBSToolkitException("The object passed in parameter is null");
+				}
+            }
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
+	}
 
     /**
      * List all objects in a network
@@ -205,7 +286,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @throws Exception
      */
     @Override
-    public <T extends IEntity> List<T> listAll(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
+    public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 
     	try
     	{
@@ -217,7 +298,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 DistributedEntity myEntity = (DistributedEntity) object;
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.LIST_ALL_COMMAND);
+                command.setAction(DDBSAction.LIST_ALL);
                 command.setObject(object);
                 command.setConditionQueryString(conditionQueryString);
                 command.setOrderBy(orderBy);
@@ -231,7 +312,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                     rsp_list = dispatcher.castMessage(toSend,
                             new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-                    command.setDestination(myEntity.getPeerUid() );
+                    command.setDestination(new Peer(myEntity.getPeerUid(),null) );
                 }
                 else
                 {
@@ -290,7 +371,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             if(isOpen == true && object != null && myDistributedEntity.getPeerUid()  != null)
             {
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.READ_COMMAND);
+                command.setAction(DDBSAction.READ);
                 command.setObject(object);
                 command.setConditionQueryString(null);
 
@@ -345,7 +426,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.READ_LAST_ELEMENT_COMMAND);
+                command.setAction(DDBSAction.READ_LAST_ELEMENT);
                 command.setObject(object);
                 command.setConditionQueryString(null);
 
@@ -400,7 +481,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.ADD_COMMAND);
+                command.setAction(DDBSAction.ADD);
                 command.setObject(objectToAdd);
                 command.setConditionQueryString(null);
 
@@ -449,7 +530,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.UPDATE_COMMAND);
+                command.setAction(DDBSAction.UPDATE);
                 command.setObject(objectToUpdate);
                 command.setConditionQueryString(null);
 
@@ -498,7 +579,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.DELETE_COMMAND);
+                command.setAction(DDBSAction.DELETE);
                 command.setObject(objectToDelete);
                 command.setConditionQueryString(null);
 
@@ -541,7 +622,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.CREATE_ENTITY);
+                command.setAction(DDBSAction.CREATE_ENTITY);
                 command.setObject(objectToCreate);
                 command.setConditionQueryString(null);
 
@@ -591,7 +672,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             {
 
                 DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSCommand.LOAD_ARRAY_COMMAND);
+                command.setAction(DDBSAction.LOAD_ARRAY);
                 command.setObject(objectToLoad);
                 command.setConditionQueryString(null);
                 command.setFieldToLoad(field);
