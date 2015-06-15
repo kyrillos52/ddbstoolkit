@@ -3,6 +3,7 @@ package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
+import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -39,6 +40,11 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
      * Current peer of the receiver
      */
     Peer myPeer;
+    
+    /**
+     * Distributed entity converter
+     */
+    DistributedEntityConverter entityConverter;
 
     @Override
     public Peer getMyPeer() {
@@ -74,7 +80,6 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
         channel.connect(clusterName);
 
         this.myPeer.setUid(channel.getAddress().toString());
-        entityManager.setPeer(this.myPeer);
     }
 
     /**
@@ -111,11 +116,16 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
 
             switch (myCommand.getAction()) {
                 case LIST_ALL:
-                    return entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
+                	if(myCommand.getConditions() != null) {
+                		return entityConverter.enrichWithPeerUID(entityManager.listAll(myCommand.getObject(), myCommand.getConditions(), myCommand.getOrderBy()));
+                	} else {
+                		return entityConverter.enrichWithPeerUID(entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy()));
+                	}
+                    
                 case READ:
-                    return entityManager.read(myCommand.getObject());
+                    return entityConverter.enrichWithPeerUID(entityManager.read(myCommand.getObject()));
                 case READ_LAST_ELEMENT:
-                    return entityManager.readLastElement(myCommand.getObject());
+                    return entityConverter.enrichWithPeerUID(entityManager.readLastElement(myCommand.getObject()));
                 case ADD:
                     return entityManager.add(myCommand.getObject());
                 case UPDATE:
@@ -125,7 +135,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
                 case LIST_PEERS:
                     return myPeer;
                 case LOAD_ARRAY:
-                    return entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
+                    return entityConverter.enrichWithPeerUID(entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy()));
                 default:
                     break;
             }

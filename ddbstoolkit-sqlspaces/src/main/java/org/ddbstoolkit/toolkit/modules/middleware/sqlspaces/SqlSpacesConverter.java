@@ -3,12 +3,10 @@ package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 import info.collide.sqlspaces.commons.Tuple;
 
 import java.io.*;
+import java.util.ArrayList;
 
-import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.IEntity;
-import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
 /**
  * Class to convert data objects into Tuples objects
@@ -27,16 +25,29 @@ public class SqlSpacesConverter {
     public static Tuple getTuple(DDBSCommand myCommand, int timeout) throws Exception
     {
 
+        String conditionString = "";
+
+        if(myCommand.getConditionList() != null)
+        {
+            for(int i = 0; i < myCommand.getConditionList().size(); i++)
+            {
+                conditionString += myCommand.getConditionList().get(i);
+                if(i < myCommand.getConditionList().size() - 1)
+                {
+                    conditionString += "<separator>";
+                }
+            }
+        }
         if(myCommand.getOrderBy() == null)
         {
-            myCommand.setOrderBy(OrderBy.get(null, null));
+            myCommand.setOrderBy("");
         }
         if(myCommand.getFieldToLoad() == null)
         {
             myCommand.setFieldToLoad("");
         }
 
-        Tuple myTuple = new Tuple(myCommand.getAction(), SqlSpacesConverter.toString(myCommand.getObject()), myCommand.getConditionQueryString(), myCommand.getDestination(), myCommand.getOrderBy(), myCommand.getFieldToLoad());
+        Tuple myTuple = new Tuple(myCommand.getAction(), SqlSpacesConverter.toString(myCommand.getObject()), conditionString, myCommand.getDestination(), myCommand.getOrderBy(), myCommand.getFieldToLoad());
         myTuple.setExpiration(timeout);
         return myTuple;
     }
@@ -50,15 +61,26 @@ public class SqlSpacesConverter {
     {
 
         DDBSCommand myObjectCommand = new DDBSCommand();
-        myObjectCommand.setAction((DDBSAction) myCommand.getField(0).getValue());
+        myObjectCommand.setAction((Integer) myCommand.getField(0).getValue());
         try {
             myObjectCommand.setObject((IEntity)SqlSpacesConverter.fromString((String)myCommand.getField(1).getValue()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        myObjectCommand.setConditionQueryString((String) myCommand.getField(2).getValue());
-        myObjectCommand.setDestination((Peer) myCommand.getField(3).getValue());
-        myObjectCommand.setOrderBy((OrderBy) myCommand.getField(4).getValue());
+        String conditionString = (String) myCommand.getField(2).getValue();
+        String[] listCondition = conditionString.split("<separator>");
+
+        if(listCondition.length > 0 && !conditionString.equals(""))
+        {
+            ArrayList<String> conditionListObject = new ArrayList<String>();
+            for(int i = 0; i < listCondition.length; i++)
+            {
+                conditionListObject.add(listCondition[i]);
+            }
+            myObjectCommand.setConditionList(conditionListObject);
+        }
+        myObjectCommand.setDestination((String) myCommand.getField(3).getValue());
+        myObjectCommand.setOrderBy((String) myCommand.getField(4).getValue());
         myObjectCommand.setFieldToLoad((String) myCommand.getField(5).getValue());
         return myObjectCommand;
     }

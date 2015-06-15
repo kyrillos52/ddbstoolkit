@@ -12,18 +12,6 @@ import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
  * @version 1.0 Creation of the class
  */
 public interface DistributableEntityManager {
-
-    /**
-     * Set a peer to the entity manager
-     * @param myPeer Peer to set
-     */
-    public void setPeer(Peer myPeer);
-
-    /**
-     * Get the Peer of the entity manager
-     * @return
-     */
-    public Peer getPeer();
     
     /**
      * Check if the connection is open

@@ -118,24 +118,6 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     }
 
     /**
-     * Set the peer associated with this interface
-     * @param myPeer Peer to set
-     */
-    @Override
-    public void setPeer(Peer myPeer) {
-        this.myPeer = myPeer;
-    }
-
-    /**
-     * Get the peer associated with this interface
-     * @return  Get the current peer
-     */
-    @Override
-    public Peer getPeer() {
-        return this.myPeer;
-    }
-
-    /**
      * Indicates if the object can send commands
      * @return  boolean
      */

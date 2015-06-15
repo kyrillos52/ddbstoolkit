@@ -1,6 +1,5 @@
 package org.ddbstoolkit.toolkit.modules.datastore.sqlite;
 
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.jdbc.JDBCEntityManager;
 
 /**
@@ -15,10 +14,5 @@ public class DistributedSQLiteTableManager extends JDBCEntityManager {
 
 	public DistributedSQLiteTableManager(SQLiteConnector myConnector) {
 		super(myConnector);
-	}
-
-	public DistributedSQLiteTableManager(SQLiteConnector myConnector,
-			Peer myPeer) {
-		super(myConnector, myPeer);
 	}
 }

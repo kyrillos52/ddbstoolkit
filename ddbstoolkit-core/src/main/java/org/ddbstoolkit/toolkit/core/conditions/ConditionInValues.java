@@ -3,7 +3,7 @@ package org.ddbstoolkit.toolkit.core.conditions;
 import java.util.List;
 
 /**
- * Condition with a starting and ending value
+ * Condition with a list of values
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  * Used for the following condition type

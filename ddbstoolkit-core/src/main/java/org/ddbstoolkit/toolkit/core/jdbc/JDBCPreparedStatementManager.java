@@ -16,7 +16,7 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 public class JDBCPreparedStatementManager {
 	
 	/**
-	 * Connector SQLite
+	 * JDBC Connector
 	 */
 	private JDBCConnector myConnector;
 	

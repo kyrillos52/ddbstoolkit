@@ -1,6 +1,8 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
 import java.sql.Timestamp;
+
+import org.ddbstoolkit.toolkit.core.model.EntityTest;
 import org.junit.Assert;
 import org.junit.Test;
 

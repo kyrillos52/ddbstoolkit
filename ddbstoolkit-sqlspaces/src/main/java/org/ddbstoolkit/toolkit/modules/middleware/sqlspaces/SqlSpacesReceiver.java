@@ -12,6 +12,7 @@ import java.util.Random;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
+import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 
@@ -63,7 +64,12 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
     /**
      * Registration number
      */
-    int registrationNumber;
+    private int registrationNumber;
+    
+    /**
+     * Distributed entity converter
+     */
+    private DistributedEntityConverter entityConverter;
 
     @Override
     public void setEntityManager(DistributableEntityManager entityManager) {
@@ -87,6 +93,8 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 
         this.myPeer = new Peer();
         this.myPeer.setName(peerName);
+        
+        this.entityConverter = new DistributedEntityConverter(this.myPeer);
     }
 
     /**
@@ -98,12 +106,9 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
      * @param port Port of the SQLSpaces Server
      */
     public SqlSpacesReceiver(DistributableEntityManager entityManager, String clusterName, String peerName, String ipAddress, int port) {
-        this.clusterName = clusterName;
-        this.entityManager = entityManager;
+        this(entityManager, clusterName, peerName);
         this.port = port;
         this.ipAddressServer = ipAddress;
-        this.myPeer = new Peer();
-        this.myPeer.setName(peerName);
     }
 
     /**
@@ -169,7 +174,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         DDBSCommand myCommand = SqlSpacesConverter.getObject(afterTuple);
 
         //If the command is for the receiver
-        if(myCommand.getDestination().getUid().equals(Peer.ALL.getUid()) || myCommand.getDestination().equals(myPeer.getUid()))
+        if(myCommand.getDestination().equals(DDBSCommand.DESTINATION_ALL_PEERS) || myCommand.getDestination().equals(myPeer.getUid()))
         {
             TupleSpace resultSpace = null;
 
@@ -182,16 +187,18 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+afterTuple.getTupleID());
 
                 switch (myCommand.getAction()) {
-                    case LIST_ALL:
-                        //Get the list of entities
-                        List<? extends IEntity> results = null;
+                    case DDBSCommand.LIST_ALL_COMMAND:
+                    	
+                    	//Get the list of entities
+                        List<? extends IEntity> results;
                         
-                        if(myCommand.getConditionQueryString() != null && myCommand.getConditionQueryString().isEmpty()) {
-                        	results = entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
-                        } else {
+                        if(myCommand.getConditions() != null) {
                         	results = entityManager.listAll(myCommand.getObject(), myCommand.getConditions(), myCommand.getOrderBy());
+
+                        } else {
+                        	results = entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
                         }
-                        
+
                         for (IEntity iEntity : results) {
                             resultSpace.write(new Tuple(SqlSpacesConverter.toString(iEntity)));
                         }
@@ -201,27 +208,27 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                         ackSpace.disconnect();
 
                         break;
-                    case READ:
-                        IEntity entity = entityManager.read(myCommand.getObject());
+                    case DDBSCommand.READ_COMMAND:
+                        IEntity entity = entityConverter.enrichWithPeerUID(entityManager.read(myCommand.getObject()));
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(entity)));
                         break;
-                    case READ_LAST_ELEMENT:
-                        IEntity lastEntity = entityManager.readLastElement(myCommand.getObject());
+                    case DDBSCommand.READ_LAST_ELEMENT_COMMAND:
+                        IEntity lastEntity = entityConverter.enrichWithPeerUID(entityManager.readLastElement(myCommand.getObject()));
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(lastEntity)));
                         break;
-                    case ADD:
+                    case DDBSCommand.ADD_COMMAND:
                         boolean resultAdd = entityManager.add(myCommand.getObject());
                         resultSpace.write(new Tuple(resultAdd));
                         break;
-                    case UPDATE:
+                    case DDBSCommand.UPDATE_COMMAND:
                         boolean resultUpdate = entityManager.update(myCommand.getObject());
                         resultSpace.write(new Tuple(resultUpdate));
                         break;
-                    case DELETE:
+                    case DDBSCommand.DELETE_COMMAND:
                         boolean resultdelete = entityManager.delete(myCommand.getObject());
                         resultSpace.write(new Tuple(resultdelete));
                         break;
-                    case LOAD_ARRAY:
+                    case DDBSCommand.LOAD_ARRAY_COMMAND:
                         IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
                         break;

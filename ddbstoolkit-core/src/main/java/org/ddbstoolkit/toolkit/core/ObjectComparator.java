@@ -40,29 +40,42 @@ public class ObjectComparator implements Comparator<IEntity> {
 
         int compareInt = 0;
         
-        if(ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null) {
+        Object valueEntity1 = ddbsEntityProperty.getValue(iEntity1);
+        Object valueEntity2 = ddbsEntityProperty.getValue(iEntity2);
+        
+        if(valueEntity1 == null && valueEntity2 == null) {
+        	compareInt = 0;
+        } else if(valueEntity1 == null && valueEntity2 != null) {
+        	compareInt = -1;
+        } else if(valueEntity1 != null && valueEntity2 == null) {
+        	compareInt = 1;
+        } else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null) {
         	
         	if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.INTEGER)) {
         		
-        		compareInt = Integer.compare((Integer)ddbsEntityProperty.getValue(iEntity1), (Integer)ddbsEntityProperty.getValue(iEntity2));
+        		compareInt = Integer.compare((Integer)valueEntity1, (Integer)valueEntity2);
 
         	} else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.LONG)) {
         		
-        		compareInt = Long.compare((Long)ddbsEntityProperty.getValue(iEntity1), (Long)ddbsEntityProperty.getValue(iEntity2));
+        		compareInt = Long.compare((Long)valueEntity1, (Long)valueEntity2);
                 
         	} else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.FLOAT)) {
         		
-        		compareInt = Float.compare((Float)ddbsEntityProperty.getValue(iEntity1), (Float)ddbsEntityProperty.getValue(iEntity2));
+        		compareInt = Float.compare((Float)valueEntity1, (Float)valueEntity2);
+                
+        	} else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.DOUBLE)) {
+        		
+        		compareInt = Double.compare((Double)valueEntity1, (Double)valueEntity2);
                 
         	} else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.STRING)) {
         			   
-        		String myString = (String)ddbsEntityProperty.getValue(iEntity1);
-                compareInt = myString.compareTo((String)ddbsEntityProperty.getValue(iEntity2));
+        		String myString = (String)valueEntity1;
+                compareInt = myString.compareTo((String)valueEntity2);
  
         	} else if(ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(DDBSToolkitSupportedEntity.TIMESTAMP)) {
         		
-        		Timestamp myTime1 = (Timestamp)ddbsEntityProperty.getValue(iEntity1);
-                Timestamp myTime2 = (Timestamp)ddbsEntityProperty.getValue(iEntity2);
+        		Timestamp myTime1 = (Timestamp)valueEntity1;
+                Timestamp myTime2 = (Timestamp)valueEntity2;
                 if(myTime1.getTime() == myTime2.getTime())
                 {
                     compareInt = 0;
@@ -77,6 +90,7 @@ public class ObjectComparator implements Comparator<IEntity> {
                 }
         	} 
         }
+        
 
         //If ascendant order, compare normally
         if(orderBy.getType().equals(OrderByType.ASC))

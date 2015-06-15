@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.core.reflexion;
+package org.ddbstoolkit.toolkit.core.model;
 
 import java.sql.Timestamp;
 

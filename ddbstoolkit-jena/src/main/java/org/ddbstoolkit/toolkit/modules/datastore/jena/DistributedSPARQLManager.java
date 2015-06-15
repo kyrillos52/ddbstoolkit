@@ -12,9 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
-import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -53,11 +51,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	private Dataset myDataset;
 
 	/**
-	 * Peer of the data source
-	 */
-	private Peer myPeer;
-
-	/**
 	 * Path of the Jena dataset
 	 */
 	private String pathDataset;
@@ -87,29 +80,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	public DistributedSPARQLManager(String datasetPath) {
 		this.pathDataset = datasetPath;
 		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new ClassInspector());
-	}
-
-	/**
-	 * Constructor when the peer is used to manage data
-	 * 
-	 * @param myPeer
-	 *            Peer to connect
-	 * @param datasetPath
-	 *            Path of the Jena data source folder
-	 */
-	public DistributedSPARQLManager(Peer myPeer, String datasetPath) {
-		this(datasetPath);
-		this.myPeer = myPeer;
-	}
-
-	@Override
-	public void setPeer(Peer myPeer) {
-		this.myPeer = myPeer;
-	}
-
-	@Override
-	public Peer getPeer() {
-		return this.myPeer;
 	}
 
 	@Override
@@ -910,12 +880,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 									sparqlClassProperty.getName(), uri,
 									stringResult);
 						}
-					}
-
-					if (myData instanceof DistributedEntity
-							&& getPeer() != null) {
-						((DistributedEntity) myData).setPeerUid(getPeer()
-								.getUid());
 					}
 				}
 			}

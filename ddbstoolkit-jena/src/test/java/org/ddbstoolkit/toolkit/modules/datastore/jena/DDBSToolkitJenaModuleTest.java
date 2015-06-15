@@ -3,7 +3,6 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
@@ -42,7 +41,7 @@ public class DDBSToolkitJenaModuleTest {
 	@Before 
 	public void initialiseDatabase() throws ClassNotFoundException, DDBSToolkitException {
 		
-		manager = new DistributedSPARQLManager(new Peer(), DATASTORE_DIRECTORY);
+		manager = new DistributedSPARQLManager(DATASTORE_DIRECTORY);
 		
 		manager.open();
 		
@@ -56,7 +55,7 @@ public class DDBSToolkitJenaModuleTest {
 	}
     
 	public void instantiateManager() {
-		manager = new DistributedSPARQLManager(new Peer(), DATASTORE_DIRECTORY);
+		manager = new DistributedSPARQLManager(DATASTORE_DIRECTORY);
 	}
 	
 	/**

@@ -12,8 +12,6 @@ import org.ddbstoolkit.demo.model.Genre;
 import org.ddbstoolkit.demo.model.Link_Book_Genre;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
-import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.DistributedSPARQLManager;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupSender;
 import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesSender;
@@ -172,7 +170,10 @@ public class BookWindowGUI extends JFrame {
                     for (Genre genre : genreDataModel.getListGenres()) {
                         genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                        List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '" + genre.name + "'", null);
+                        List<String> conditionList = new ArrayList<String>();
+                        conditionList.add("name = '" + genre.name + "'");
+
+                        List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                         //If the genre didn't exist, the genre is added
                         if (listGenre == null || listGenre.size() == 0) {
@@ -258,7 +259,7 @@ public class BookWindowGUI extends JFrame {
 
             }
 
-            bookToUpdate = sender.loadArray(bookToUpdate, "author", OrderBy.get("name", OrderByType.ASC));
+            bookToUpdate = sender.loadArray(bookToUpdate, "author", "name ASC");
             authorDataModel.setListAuthors(bookToUpdate.author);
             authorDataModel.reloadDataFromMySQLDatabase();
 
@@ -278,7 +279,7 @@ public class BookWindowGUI extends JFrame {
                 genreDataModel.reloadDataFromMySQLDatabase();
             }
 
-            bookToUpdate = sender.loadArray(bookToUpdate, "character", OrderBy.get("character_name", OrderByType.ASC));
+            bookToUpdate = sender.loadArray(bookToUpdate, "character", "character_name ASC");
             characterDataModel.setListCharacters(bookToUpdate.character);
             characterDataModel.reloadDataFromMySQLDatabase();
 
@@ -356,7 +357,10 @@ public class BookWindowGUI extends JFrame {
                         {
                             genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                            List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '"+genre.name+"'", null);
+                            List<String> conditionList = new ArrayList<String>();
+                            conditionList.add("name = '"+genre.name+"'");
+
+                            List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                             //If no genre
                             if(listGenre == null || listGenre.size() == 0)
@@ -448,7 +452,10 @@ public class BookWindowGUI extends JFrame {
                         {
                             genre.setPeerUid(listPeers.get(comboBoxLibrary.getSelectedIndex()).getUid());
 
-                            List<Genre> listGenre = sender.listAllWithQueryString(genre, "name = '"+genre.name+"'", null);
+                            List<String> conditionList = new ArrayList<String>();
+                            conditionList.add("name = '"+genre.name+"'");
+
+                            List<Genre> listGenre = sender.listAll(genre, conditionList, null);
 
                             //If no genre, add the genre
                             if(listGenre == null || listGenre.size() == 0)
@@ -523,22 +530,24 @@ public class BookWindowGUI extends JFrame {
                     DistributedSPARQLManager manager = new DistributedSPARQLManager();
 
                     //1st try : Exact match (Much faster)
-                    String conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name '"+formattedTextFieldTitle.getText()+"'@en.\\n";
-        			conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";
-        			conditionQueryString += "FILTER ( lang(?summary) = 'en' )";	
+                    List<String> listCondition = listCondition = new ArrayList<String>();
+                    listCondition.add(DistributedSPARQLManager.getObjectVariable(new Book())+" fb:type.object.name '"+formattedTextFieldTitle.getText()+"'@en");
+                    listCondition.add("FILTER ( lang(?title) =  'en' )");
+                    listCondition.add("FILTER ( lang(?summary) = 'en' )");
 
-                    List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
+                    List<Book> listBook = manager.listAll(new Book(), listCondition, null);
 
                     //If the first matching didn't succeed
                     if(listBook.size() == 0)
                     {
                         //2nd try : regex matching (Quite slow)
-                    	conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name ?nameToFind.\\n";
-            			conditionQueryString += "FILTER regex(str(?nameToFind), '"+formattedTextFieldTitle.getText()+"', 'i').\\n";
-            			conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";	
-            			conditionQueryString += "FILTER ( lang(?summary) = 'en' )";	
+                        listCondition = new ArrayList<String>();
+                        listCondition.add(DistributedSPARQLManager.getObjectVariable(new Book())+" fb:type.object.name ?nameToFind");
+                        listCondition.add("FILTER regex(str(?nameToFind), '"+formattedTextFieldTitle.getText()+"', 'i')");
+                        listCondition.add("FILTER ( lang(?title) =  'en' )");
+                        listCondition.add("FILTER ( lang(?summary) = 'en' )");
 
-                        listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
+                        listBook = manager.listAll(new Book(), listCondition, null);
                     }
 
                     //No book found
@@ -570,15 +579,15 @@ public class BookWindowGUI extends JFrame {
                         formattedTextFieldTitle.setText(foundBook.title);
                         textAreaSummary.setText(foundBook.summary);
 
-                        foundBook = manager.loadArray(foundBook, "author", OrderBy.get("name", OrderByType.ASC));
+                        foundBook = manager.loadArray(foundBook, "author", "name ASC");
                         authorDataModel.setListAuthors(foundBook.author);
                         authorDataModel.reloadDataFromEndpoint();
 
-                        foundBook = manager.loadArray(foundBook, "genre", OrderBy.get("name", OrderByType.ASC));
+                        foundBook = manager.loadArray(foundBook, "genre", "name ASC");
                         genreDataModel.setListGenres(foundBook.genre);
                         genreDataModel.reloadDataFromEndpoint();
 
-                        foundBook = manager.loadArray(foundBook, "character", OrderBy.get("character_name", OrderByType.ASC));
+                        foundBook = manager.loadArray(foundBook, "character", "character_name ASC");
                         characterDataModel.setListCharacters(foundBook.character);
                         characterDataModel.reloadDataFromEndpoint();
                     }
@@ -645,15 +654,15 @@ public class BookWindowGUI extends JFrame {
                             formattedTextFieldTitle.setText(foundBook.title);
                             textAreaSummary.setText(foundBook.summary);
 
-                            foundBook = manager.loadArray(foundBook, "author", OrderBy.get("name", OrderByType.ASC));
+                            foundBook = manager.loadArray(foundBook, "author", "name ASC");
                             authorDataModel.setListAuthors(foundBook.author);
                             authorDataModel.reloadDataFromEndpoint();
 
-                            foundBook = manager.loadArray(foundBook, "genre", OrderBy.get("name", OrderByType.ASC));
+                            foundBook = manager.loadArray(foundBook, "genre", "name ASC");
                             genreDataModel.setListGenres(foundBook.genre);
                             genreDataModel.reloadDataFromEndpoint();
 
-                            foundBook = manager.loadArray(foundBook, "character", OrderBy.get("character_name", OrderByType.ASC));
+                            foundBook = manager.loadArray(foundBook, "character", "character_name ASC");
                             characterDataModel.setListCharacters(foundBook.character);
                             characterDataModel.reloadDataFromEndpoint();
                         }

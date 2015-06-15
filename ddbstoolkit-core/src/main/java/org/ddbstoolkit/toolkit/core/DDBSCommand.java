@@ -94,7 +94,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the conditions query string of a command : listAll command only
-     * @param conditionList list of conditions
+     * @param conditionQueryString list of conditions
      */
 	public void setConditionQueryString(String conditionQueryString) {
 		this.conditionQueryString = conditionQueryString;

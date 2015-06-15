@@ -10,9 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
-import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
@@ -30,11 +28,6 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  * @1.0 Class creation
  */
 public abstract class JDBCEntityManager implements DistributableEntityManager {
-
-	/**
-	 * Database peer
-	 */
-	protected Peer myPeer;
 
 	/**
 	 * Connector SQLite
@@ -67,29 +60,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		this.myConnector = myConnector;
 		this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
 		this.jdbcConditionConverter = new JDBCConditionConverter(ddbsEntityManager);
-	}
-
-	/**
-	 * JDBC Entity manager constructor with peer
-	 * 
-	 * @param myConnector
-	 *            JDBC Connector
-	 * @param myPeer
-	 *            Peer
-	 */
-	public JDBCEntityManager(JDBCConnector myConnector, Peer myPeer) {
-		this(myConnector);
-		this.myPeer = myPeer;
-	}
-
-	@Override
-	public void setPeer(Peer myPeer) {
-		this.myPeer = myPeer;
-	}
-
-	@Override
-	public Peer getPeer() {
-		return this.myPeer;
 	}
 
 	@Override
@@ -148,6 +118,64 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 	}
 	
+	/**
+	 * Create a SQL Select query
+	 * @param object Object
+	 * @param conditionQueryString Condition query string
+	 * @param orderBy Order By element
+	 * @return SQL Select query
+	 */
+	private <T extends IEntity> String getSelectQueryString(T object,
+			String conditionQueryString, OrderBy orderBy) {
+		
+		DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+		
+		StringBuilder listAllQuery = new StringBuilder();
+		
+		listAllQuery.append("SELECT ");
+
+		Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
+				.getSupportedPrimaryTypeEntityProperties().iterator();
+		while (iteratorProperties.hasNext()) {
+			listAllQuery
+					.append(iteratorProperties.next().getPropertyName());
+
+			if (iteratorProperties.hasNext()) {
+				listAllQuery.append(",");
+			}
+		}
+
+		listAllQuery.append(" FROM ");
+		listAllQuery.append(ddbsEntity.getDatastoreEntityName());
+
+		if (conditionQueryString != null && !conditionQueryString.isEmpty()) {
+			listAllQuery.append(" WHERE ");
+
+			listAllQuery.append(conditionQueryString);
+		}
+
+		if (orderBy != null) {
+			DDBSEntityProperty ddbsEntityProperty = ddbsEntity.getDDBSEntityProperty(orderBy.getName());
+			
+			listAllQuery.append(" ORDER BY ");
+			listAllQuery.append(ddbsEntityProperty.getPropertyName());
+			switch (orderBy.getType()) {
+			case ASC:
+				listAllQuery.append(" ASC");
+				break;
+			case DESC:
+				listAllQuery.append(" DESC");
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		listAllQuery.append(";");
+		return listAllQuery.toString();
+	}
+	
 	@Override
 	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
 			OrderBy orderBy) throws DDBSToolkitException {
@@ -157,50 +185,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		try {
 			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
 
-			StringBuilder listAllQuery = new StringBuilder();
-
-			listAllQuery.append("SELECT ");
-
-			Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-					.getSupportedPrimaryTypeEntityProperties().iterator();
-			while (iteratorProperties.hasNext()) {
-				listAllQuery
-						.append(iteratorProperties.next().getPropertyName());
-
-				if (iteratorProperties.hasNext()) {
-					listAllQuery.append(",");
-				}
-			}
-
-			listAllQuery.append(" FROM ");
-			listAllQuery.append(ddbsEntity.getDatastoreEntityName());
-
-			// If there is conditions
-			if (conditions.getConditions() != null && !conditions.getConditions().isEmpty()) {
-				listAllQuery.append(" WHERE ");
-
-				listAllQuery.append(jdbcConditionConverter.getConditionsString(conditions, object));
-			}
-
-			if (orderBy != null) {
-				DDBSEntityProperty ddbsEntityProperty = ddbsEntity.getDDBSEntityProperty(orderBy.getName());
-				
-				listAllQuery.append(" ORDER BY ");
-				listAllQuery.append(ddbsEntityProperty.getPropertyName());
-				switch (orderBy.getType()) {
-				case ASC:
-					listAllQuery.append(" ASC");
-					break;
-				case DESC:
-					listAllQuery.append(" DESC");
-					break;
-
-				default:
-					break;
-				}
-			}
-
-			listAllQuery.append(";");
+			String listAllQuery = getSelectQueryString(object, jdbcConditionConverter.getConditionsString(conditions, object), orderBy);
 			
 			PreparedStatement preparedRequest = myConnector.prepareStatement(listAllQuery.toString());
 			
@@ -229,54 +214,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		testConnection(object);
 
 		try {
-			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+			
+			String listAllQuery = getSelectQueryString(object, conditionQueryString, orderBy);
 
-			StringBuilder listAllQuery = new StringBuilder();
-
-			listAllQuery.append("SELECT ");
-
-			Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-					.getSupportedPrimaryTypeEntityProperties().iterator();
-			while (iteratorProperties.hasNext()) {
-				listAllQuery
-						.append(iteratorProperties.next().getPropertyName());
-
-				if (iteratorProperties.hasNext()) {
-					listAllQuery.append(",");
-				}
-			}
-
-			listAllQuery.append(" FROM ");
-			listAllQuery.append(ddbsEntity.getDatastoreEntityName());
-
-			// If there is conditions
-			if (conditionQueryString != null && !conditionQueryString.isEmpty()) {
-				listAllQuery.append(" WHERE ");
-
-				listAllQuery.append(conditionQueryString);
-			}
-
-			if (orderBy != null) {
-				DDBSEntityProperty ddbsEntityProperty = ddbsEntity.getDDBSEntityProperty(orderBy.getName());
-				
-				listAllQuery.append(" ORDER BY ");
-				listAllQuery.append(ddbsEntityProperty.getPropertyName());
-				switch (orderBy.getType()) {
-				case ASC:
-					listAllQuery.append(" ASC");
-					break;
-				case DESC:
-					listAllQuery.append(" DESC");
-					break;
-
-				default:
-					break;
-				}
-			}
-
-			listAllQuery.append(";");
-
-			ResultSet results = myConnector.query(listAllQuery.toString());
+			ResultSet results = myConnector.query(listAllQuery);
 
 			if (object instanceof ImplementableEntity) {
 				return ((ImplementableEntity) object).conversionResultSet(
@@ -303,45 +244,28 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			if (preparedRequest == null) {
 
-				StringBuilder sqlReadString = new StringBuilder();
-
-				sqlReadString.append("SELECT ");
-
-				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-						.getSupportedPrimaryTypeEntityProperties().iterator();
-
-				while (iteratorProperties.hasNext()) {
-					sqlReadString.append(iteratorProperties.next()
-							.getPropertyName());
-
-					if (iteratorProperties.hasNext()) {
-						sqlReadString.append(",");
-					}
-				}
-				
-				sqlReadString.append(" FROM ");
-				sqlReadString.append(ddbsEntity.getDatastoreEntityName());
-				sqlReadString.append(" WHERE ");
+				StringBuilder sqlReadWhereString = new StringBuilder();
 
 				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
 						.getEntityIDProperties().iterator();
 
 				while (iteratorIDProperties.hasNext()) {
 
-					sqlReadString.append(iteratorIDProperties.next()
+					sqlReadWhereString.append(iteratorIDProperties.next()
 							.getPropertyName());
 
-					sqlReadString.append(" = ?");
+					sqlReadWhereString.append(" = ?");
 
 					if (iteratorIDProperties.hasNext()) {
-						sqlReadString.append(" AND ");
+						sqlReadWhereString.append(" AND ");
 					}
 				}
-				sqlReadString.append(";");
+				
+				String sqlReadString = getSelectQueryString(object, sqlReadWhereString.toString(), null);
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity,
-								PreparedStatementType.READ, sqlReadString.toString());
+								PreparedStatementType.READ, sqlReadString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), object);
@@ -383,37 +307,22 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					throw new DDBSToolkitException(
 							"There is more than one ID property");
 				} else {
-					StringBuilder sqlReadLastElementString = new StringBuilder();
+					StringBuilder sqlReadWhereString = new StringBuilder();
 
-					sqlReadLastElementString.append("SELECT ");
-
-					Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-							.getSupportedPrimaryTypeEntityProperties().iterator();
-
-					while (iteratorProperties.hasNext()) {
-						sqlReadLastElementString.append(iteratorProperties
-								.next().getPropertyName());
-
-						if (iteratorProperties.hasNext()) {
-							sqlReadLastElementString.append(",");
-						}
-					}
-
-					sqlReadLastElementString.append(" FROM ");
-					sqlReadLastElementString.append(ddbsEntity.getDatastoreEntityName());
-					sqlReadLastElementString.append(" WHERE ");
-					sqlReadLastElementString.append(ddbsIdProperties.get(0)
+					sqlReadWhereString.append(ddbsIdProperties.get(0)
 							.getPropertyName());
-					sqlReadLastElementString.append(" = (SELECT MAX(");
-					sqlReadLastElementString.append(ddbsIdProperties.get(0)
+					sqlReadWhereString.append(" = (SELECT MAX(");
+					sqlReadWhereString.append(ddbsIdProperties.get(0)
 							.getPropertyName());
-					sqlReadLastElementString.append(") FROM ");
-					sqlReadLastElementString.append(ddbsEntity.getDatastoreEntityName());
-					sqlReadLastElementString.append(");");
+					sqlReadWhereString.append(") FROM ");
+					sqlReadWhereString.append(ddbsEntity.getDatastoreEntityName());
+					sqlReadWhereString.append(")");
+					
+					String sqlReadLastElementString = getSelectQueryString(object, sqlReadWhereString.toString(), null);
 
 					preparedRequest = jdbcPreparedStatementManager
 							.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ_LAST_ELEMENT,
-									sqlReadLastElementString.toString());
+									sqlReadLastElementString);
 				}
 			}
 
@@ -742,11 +651,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 									.getPropertyName()));
 						}
 					}
-				}
-				
-				if(myData instanceof DistributedEntity && myPeer != null)
-				{
-					((DistributedEntity)myData).setPeerUid(myPeer.getUid());
 				}
 
 				resultList.add(myData);
