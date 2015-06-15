@@ -1,8 +1,7 @@
 package org.ddbstoolkit.demo.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
-import org.ddbstoolkit.toolkit.core.Id;
-
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 /**
  * Class representing a link between a book and a genre
  * @author Cyril GRANDJEAN

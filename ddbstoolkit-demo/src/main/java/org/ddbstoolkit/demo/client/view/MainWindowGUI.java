@@ -7,6 +7,8 @@ import org.ddbstoolkit.demo.model.Book;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
+import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.modules.middleware.jgroups.JGroupSender;
 import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesSender;
 
@@ -129,17 +131,15 @@ public class MainWindowGUI {
                     }
 
                     System.out.println(conditionString);
-                    List<String> conditionList = new ArrayList<String>();
-                    conditionList.add(conditionString);
 
                     ArrayList<Book> listBooks = new ArrayList<Book>();
 
                     //Get the results
-                    List<Book> listEntity = sender.listAll(myBook, conditionList, "title ASC");
+                    List<Book> listEntity = sender.listAllWithQueryString(myBook, conditionString, OrderBy.get("title", OrderByType.ASC));
                     for(IEntity entity : listEntity)
                     {
                         Book aBook = (Book)entity;
-                        aBook = (Book) sender.loadArray(aBook, "author", "name ASC");
+                        aBook = (Book) sender.loadArray(aBook, "author", OrderBy.get("name", OrderByType.ASC));
                         listBooks.add(aBook);
                     }
                     bookDataModel.setListBooks(listBooks);

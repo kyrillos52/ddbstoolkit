@@ -157,9 +157,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
             }
         }
 
-        //Set the entity manager with the new peer
-        this.entityManager.setPeer(myPeer);
-
         //Register in the peer space
         spacePeers.write(new Tuple(SqlSpacesConverter.toString(myPeer)));
 
@@ -174,7 +171,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         DDBSCommand myCommand = SqlSpacesConverter.getObject(afterTuple);
 
         //If the command is for the receiver
-        if(myCommand.getDestination().equals(DDBSCommand.DESTINATION_ALL_PEERS) || myCommand.getDestination().equals(myPeer.getUid()))
+        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid()))
         {
             TupleSpace resultSpace = null;
 
@@ -187,7 +184,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                 resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+afterTuple.getTupleID());
 
                 switch (myCommand.getAction()) {
-                    case DDBSCommand.LIST_ALL_COMMAND:
+                    case LIST_ALL:
                     	
                     	//Get the list of entities
                         List<? extends IEntity> results;
@@ -208,27 +205,27 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                         ackSpace.disconnect();
 
                         break;
-                    case DDBSCommand.READ_COMMAND:
+                    case READ:
                         IEntity entity = entityConverter.enrichWithPeerUID(entityManager.read(myCommand.getObject()));
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(entity)));
                         break;
-                    case DDBSCommand.READ_LAST_ELEMENT_COMMAND:
+                    case READ_LAST_ELEMENT:
                         IEntity lastEntity = entityConverter.enrichWithPeerUID(entityManager.readLastElement(myCommand.getObject()));
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(lastEntity)));
                         break;
-                    case DDBSCommand.ADD_COMMAND:
+                    case ADD:
                         boolean resultAdd = entityManager.add(myCommand.getObject());
                         resultSpace.write(new Tuple(resultAdd));
                         break;
-                    case DDBSCommand.UPDATE_COMMAND:
+                    case UPDATE:
                         boolean resultUpdate = entityManager.update(myCommand.getObject());
                         resultSpace.write(new Tuple(resultUpdate));
                         break;
-                    case DDBSCommand.DELETE_COMMAND:
+                    case DELETE:
                         boolean resultdelete = entityManager.delete(myCommand.getObject());
                         resultSpace.write(new Tuple(resultdelete));
                         break;
-                    case DDBSCommand.LOAD_ARRAY_COMMAND:
+                    case LOAD_ARRAY:
                         IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
                         break;
