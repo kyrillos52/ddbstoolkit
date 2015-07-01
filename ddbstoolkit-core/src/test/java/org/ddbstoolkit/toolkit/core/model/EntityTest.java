@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 
 
 /**
@@ -22,7 +22,7 @@ public class EntityTest extends DistributedEntity {
 	@Id(autoincrement=false)
 	public int intField;
 	
-	@PropertyName(name="customField")
+	@EntityName(name="customField")
 	public Integer integerField;
 	
 	public long longField;

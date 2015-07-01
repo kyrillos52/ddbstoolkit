@@ -15,7 +15,10 @@ public enum DDBSAction {
 	DELETE(6),
 	LIST_PEERS(7),
 	LOAD_ARRAY(8),
-	CREATE_ENTITY(9);
+	CREATE_ENTITY(9),
+	IS_AUTOCOMMIT(10),
+	COMMIT(11),
+	ROLLBACK(12);
 	
 	/**
 	 * Action code

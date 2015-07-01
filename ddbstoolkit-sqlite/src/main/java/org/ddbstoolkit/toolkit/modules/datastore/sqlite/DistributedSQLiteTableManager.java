@@ -1,6 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.sqlite;
 
-import org.ddbstoolkit.toolkit.core.jdbc.JDBCEntityManager;
+import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 
 /**
  * Class representing a distributed SQLite Database

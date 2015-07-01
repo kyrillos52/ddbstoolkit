@@ -3,6 +3,7 @@ package org.ddbstoolkit.toolkit.core.reflexion;
 import org.ddbstoolkit.toolkit.core.IEntity;
 
 import com.esotericsoftware.reflectasm.FieldAccess;
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * Class representing a DDBS Entity property
@@ -44,9 +45,24 @@ public class DDBSEntityProperty {
     protected int fieldIndex;
     
     /**
+     * Reflection getter index
+     */
+    protected int getterIndex;
+    
+    /**
+     * Reflection setter index
+     */
+    protected int setterIndex;
+    
+    /**
 	 * ID Property : null if the field is not an id
 	 */
 	protected DDBSEntityIDProperty ddbsEntityIDProperty;
+	
+	/**
+	 * Indicate if the field is encapsulated with getter and setter
+	 */
+	protected boolean isEncapsulated;
     
     /**
      * Get object type name
@@ -64,8 +80,14 @@ public class DDBSEntityProperty {
      */
     public Object getValue(IEntity iEntity)
     {
-    	FieldAccess access = FieldAccess.get(iEntity.getClass());
-    	return access.get(iEntity, fieldIndex);
+    	if(!isEncapsulated) {
+    		FieldAccess access = FieldAccess.get(iEntity.getClass());
+        	return access.get(iEntity, fieldIndex);
+    	} else {
+    		MethodAccess access = MethodAccess.get(iEntity.getClass());
+    		return access.invoke(iEntity, getterIndex);
+    	}
+    	
     }
     
     /**
@@ -76,8 +98,14 @@ public class DDBSEntityProperty {
      */
     public void setValue(IEntity iEntity, Object object)
     {
-    	FieldAccess access = FieldAccess.get(iEntity.getClass());
-    	access.set(iEntity, fieldIndex, object);
+    	if(!isEncapsulated) {
+    		FieldAccess access = FieldAccess.get(iEntity.getClass());
+        	access.set(iEntity, fieldIndex, object);
+    	} else {
+    		MethodAccess access = MethodAccess.get(iEntity.getClass());
+    		access.invoke(iEntity, setterIndex, object);
+    	}
+    	
     }
 
     /**
@@ -160,6 +188,30 @@ public class DDBSEntityProperty {
 
 	public void setFieldIndex(int fieldIndex) {
 		this.fieldIndex = fieldIndex;
+	}
+
+	public boolean isEncapsulated() {
+		return isEncapsulated;
+	}
+
+	public void setEncapsulated(boolean isEncapsulated) {
+		this.isEncapsulated = isEncapsulated;
+	}
+
+	public int getGetterIndex() {
+		return getterIndex;
+	}
+
+	public void setGetterIndex(int getterIndex) {
+		this.getterIndex = getterIndex;
+	}
+
+	public int getSetterIndex() {
+		return setterIndex;
+	}
+
+	public void setSetterIndex(int setterIndex) {
+		this.setterIndex = setterIndex;
 	}
 
 	@Override

@@ -70,7 +70,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 		return listIDProperties;
 	}
 	
-	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
+	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {	
 		super(iEntity.getClass(), classInspector);
 	}
 	

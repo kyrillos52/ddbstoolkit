@@ -1,10 +1,13 @@
-package org.ddbstoolkit.toolkit.core.jdbc;
+package org.ddbstoolkit.toolkit.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
+import org.ddbstoolkit.toolkit.jdbc.JDBCPreparedStatements;
+import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 

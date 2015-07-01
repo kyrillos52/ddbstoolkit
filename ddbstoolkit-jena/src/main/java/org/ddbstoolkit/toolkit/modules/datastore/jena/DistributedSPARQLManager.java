@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -61,6 +63,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	private boolean isOpen = false;
 	
 	/**
+	 * Indicates if there is auto-commit
+	 */
+	private boolean isAutocommit = true;
+	
+	/**
 	 * DDBS Entity manager
 	 */
 	protected SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> ddbsEntityManager;
@@ -103,6 +110,21 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			myDataset.close();
 		}
 		isOpen = false;
+	}
+	
+	@Override
+	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
+		this.isAutocommit = isAutoCommit;
+	}
+
+	@Override
+	public void commit() throws DDBSToolkitException {
+		myDataset.commit();
+	}
+
+	@Override
+	public void rollback() throws DDBSToolkitException {
+		myDataset.abort();
 	}
 
 	/**
@@ -506,15 +528,19 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				}
 
 				// Commit the transaction
-				myDataset.commit();
-
+				if(isAutocommit) {
+					myDataset.commit();
+				}
+				
 				return true;
 			} else {
 				throw new DDBSToolkitException("URI has not been defined");
 			}
 		} catch (Exception ex) {
 			
-			myDataset.abort();
+			if(isAutocommit) {
+				myDataset.abort();
+			}
 			
 			throw new DDBSToolkitException("An exception has occured", ex);
 		
@@ -556,7 +582,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						.removeAll(null);
 
 				// Commit the transaction
-				myDataset.commit();
+				if(isAutocommit) {
+					myDataset.commit();
+				}
 
 				return true;
 			} else {
@@ -1025,5 +1053,26 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			throw new DDBSToolkitException(
 					"No such field exception using reflection", nsfe);
 		}
+	}
+
+	@Override
+	public DDBSTransaction executeTransaction(
+			List<TransactionCommand> transactionCommands)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollback(DDBSTransaction transaction)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
 	}
 }

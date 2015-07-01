@@ -3,7 +3,7 @@ package org.ddbstoolkit.toolkit.core;
 import java.util.List;
 
 /**
- * Converter which add the peer UID to the data
+ * Converter which add the peer UID for the data
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */

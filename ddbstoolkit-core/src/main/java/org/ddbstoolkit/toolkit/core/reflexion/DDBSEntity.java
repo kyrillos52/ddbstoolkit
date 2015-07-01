@@ -1,10 +1,13 @@
 package org.ddbstoolkit.toolkit.core.reflexion;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 
 import com.esotericsoftware.reflectasm.ConstructorAccess;
 
@@ -27,6 +30,11 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	protected List<T> entityProperties;
 	
 	/**
+	 * Datastore entity name
+	 */
+	protected String datastoreEntityName;
+	
+	/**
 	 * Reflect ASM Constructor Access
 	 */
 	private ConstructorAccess<?> access;
@@ -44,7 +52,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 * @return
 	 */
 	public String getDatastoreEntityName() {
-		return classData.getSimpleName();
+		return this.datastoreEntityName;
 	}
 
 	/**
@@ -106,6 +114,19 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	protected DDBSEntity(Class<?> classData, ClassInspector classInspector) {
 		this.classData = classData;
 		this.entityProperties = classInspector.exploreProperties(classData);
+		this.datastoreEntityName = classData.getSimpleName();
+		
+		AnnotatedElement element = (AnnotatedElement) classData;
+        Annotation[] propertyAnnotations = element.getAnnotations();
+
+        for(Annotation annotation : propertyAnnotations)
+        {
+            if(annotation instanceof EntityName)
+            {
+                EntityName myProperty = (EntityName)annotation;
+                this.datastoreEntityName = myProperty.name();
+            }
+        }
 	}
 
 	/**
@@ -193,5 +214,11 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "DDBSEntity [classData=" + classData + ", entityProperties="
+				+ entityProperties + ", access=" + access + "]";
 	}
 }

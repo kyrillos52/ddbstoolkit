@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.core.jdbc;
+package org.ddbstoolkit.toolkit.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,15 +24,29 @@ public abstract class JDBCConnector {
 	 * JDBC Connection String
 	 */
 	protected String jdbcString;
+	
+	/**
+	 * Connection ID
+	 */
+	protected long connectionId;
 
 	/**
 	 * JDBC Connection constructor
 	 * 
 	 * @param jdbcString
 	 */
-	public JDBCConnector(String jdbcString) {
+	protected JDBCConnector(String jdbcString) {
 		super();
 		this.jdbcString = jdbcString;
+	}
+	
+	/**
+	 * JDBC Constructor
+	 * @param connector Connector
+	 */
+	public JDBCConnector(Connection connector) {
+		super();
+		this.connector = connector;
 	}
 
 	/**
@@ -129,6 +143,40 @@ public abstract class JDBCConnector {
 	 */
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
 		return connector.prepareStatement(sql);
+	}
+	
+	/**
+	 * Set auto commit value
+	 * @param isAutoCommit Boolean indicating expected auto commit value
+	 * @throws SQLException
+	 */
+	public void setAutoCommit(boolean isAutoCommit) throws SQLException {
+		connector.setAutoCommit(isAutoCommit);
+	}
+
+	/**
+	 * Get auto commit value
+	 * @return Boolean indicating the auto-commit state
+	 * @throws SQLException
+	 */
+	public boolean isAutoCommit() throws SQLException {
+		return connector.getAutoCommit();
+	}
+
+	/**
+	 * Commit the transaction
+	 * @throws SQLException
+	 */
+	public void commit() throws SQLException {
+		connector.commit();
+	}
+
+	/**
+	 * Rollback the transaction
+	 * @throws SQLException 
+	 */
+	public void rollback() throws SQLException  {
+		connector.rollback();
 	}
 
 }

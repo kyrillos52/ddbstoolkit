@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.core.jdbc;
+package org.ddbstoolkit.toolkit.jdbc;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -9,11 +9,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
+import org.ddbstoolkit.toolkit.jdbc.JDBCConditionConverter;
+import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
+import org.ddbstoolkit.toolkit.jdbc.JDBCPreparedStatementManager;
+import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
@@ -23,16 +29,15 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
 /**
  * JDBC Entity manager
- * 
  * @author Cyril Grandjean
  * @1.0 Class creation
  */
 public abstract class JDBCEntityManager implements DistributableEntityManager {
-
+	
 	/**
-	 * Connector SQLite
+	 * JDBC connector
 	 */
-	protected JDBCConnector myConnector;
+	protected JDBCConnector jdbcConnector;
 
 	/**
 	 * JDBC Prepared Statement Manager
@@ -48,24 +53,24 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	 * JDBC Condition converter
 	 */
 	protected JDBCConditionConverter jdbcConditionConverter;
-
+	
 	/**
-	 * JDBC Entity manager constructor
-	 * 
-	 * @param myConnector
-	 *            JDBC Connector
+	 * JDBC Entity manager with a single connection
+	 * @param jdbcConnector
 	 */
-	public JDBCEntityManager(JDBCConnector myConnector) {
+	public JDBCEntityManager(JDBCConnector jdbcConnector) {
 		super();
-		this.myConnector = myConnector;
+		this.jdbcConnector = jdbcConnector;
 		this.ddbsEntityManager = new DDBSEntityManager<DDBSEntity<DDBSEntityProperty>>(new ClassInspector());
 		this.jdbcConditionConverter = new JDBCConditionConverter(ddbsEntityManager);
 	}
 
+
 	@Override
 	public boolean isOpen() throws DDBSToolkitException {
 		try {
-			return myConnector.isOpen();
+			return jdbcConnector.isOpen();
+			
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
 					"Error during checking SQL connection", sqle);
@@ -75,9 +80,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	@Override
 	public void open() throws DDBSToolkitException {
 		try {
-			myConnector.open();
+			jdbcConnector.open();
+			
 			jdbcPreparedStatementManager = new JDBCPreparedStatementManager(
-					myConnector);
+						jdbcConnector);
+
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
 					"Error during opening SQL connection", sqle);
@@ -87,11 +94,77 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	@Override
 	public void close() throws DDBSToolkitException {
 		try {
-			myConnector.close();
-			jdbcPreparedStatementManager = null;
-		} catch (SQLException sqle) {
-			throw new DDBSToolkitException("Error during SQL connection", sqle);
+			jdbcConnector.close();
+		} catch (SQLException e) {
+			throw new DDBSToolkitException("Error during opening SQL connection",e);
 		}
+		jdbcPreparedStatementManager = null;
+	}
+
+	@Override
+	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
+		try {
+			jdbcConnector.setAutoCommit(isAutoCommit);
+		} catch (SQLException sqle) {
+			throw new DDBSToolkitException("Error during setting auto-commit value", sqle);
+		}
+	}
+
+	@Override
+	public void commit() throws DDBSToolkitException {
+		try {
+			jdbcConnector.commit();
+		} catch (SQLException sqle) {
+			throw new DDBSToolkitException("Error while committing the transaction", sqle);
+		}
+	}
+
+	@Override
+	public void rollback() throws DDBSToolkitException {
+		try {
+			jdbcConnector.rollback();
+		} catch (SQLException sqle) {
+			throw new DDBSToolkitException("Error while rollbacking the transaction", sqle);
+		}
+		
+	}
+
+	@Override
+	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
+		commit();
+	}
+
+	@Override
+	public void rollback(DDBSTransaction transaction) throws DDBSToolkitException {
+		rollback();
+	}
+	
+
+	@Override
+	public DDBSTransaction executeTransaction(List<TransactionCommand> transactionCommands)throws DDBSToolkitException {
+		
+		DDBSTransaction transaction = new DDBSTransaction(null);
+		
+		for(TransactionCommand transactionCommand : transactionCommands) {
+			switch (transactionCommand.getDataAction()) {
+			case ADD:
+				add(transactionCommand.getEntity());
+				break;
+			case UPDATE:
+				update(transactionCommand.getEntity());
+				break;
+			case DELETE:
+				delete(transactionCommand.getEntity());
+				break;
+			case CREATE_ENTITY:
+				createEntity(transactionCommand.getEntity());
+				break;
+			default:
+				break;
+			}
+		}
+		
+		return transaction;
 	}
 
 	/**
@@ -102,7 +175,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	private <T extends IEntity> void testConnection(T object)
 			throws DDBSToolkitException {
 		try {
-			if (!myConnector.isOpen()) {
+			if (!jdbcConnector.isOpen()) {
 				throw new DDBSToolkitException(
 						"The database connection is not opened");
 			}
@@ -187,11 +260,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			String listAllQuery = getSelectQueryString(object, jdbcConditionConverter.getConditionsString(conditions, object), orderBy);
 			
-			PreparedStatement preparedRequest = myConnector.prepareStatement(listAllQuery.toString());
+			PreparedStatement preparedRequest = jdbcConnector.prepareStatement(listAllQuery.toString());
 			
 			jdbcConditionConverter.prepareStatement(preparedRequest, conditions, ddbsEntity);
 			
-			ResultSet results = myConnector
+			ResultSet results = jdbcConnector
 					.queryPreparedStatement(preparedRequest);
 
 			if (object instanceof ImplementableEntity) {
@@ -217,7 +290,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			
 			String listAllQuery = getSelectQueryString(object, conditionQueryString, orderBy);
 
-			ResultSet results = myConnector.query(listAllQuery);
+			ResultSet results = jdbcConnector.query(listAllQuery);
 
 			if (object instanceof ImplementableEntity) {
 				return ((ImplementableEntity) object).conversionResultSet(
@@ -270,7 +343,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), object);
 
-			ResultSet results = myConnector
+			ResultSet results = jdbcConnector
 					.queryPreparedStatement(preparedRequest);
 
 			List<T> resultList = conversionResultSet(results, object);
@@ -326,7 +399,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 			}
 
-			ResultSet results = myConnector
+			ResultSet results = jdbcConnector
 					.queryPreparedStatement(preparedRequest);
 
 			List<T> resultList = conversionResultSet(results, object);
@@ -388,7 +461,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToAdd);
 
-			return myConnector.executePreparedQuery(preparedRequest) == 1;
+			return jdbcConnector.executePreparedQuery(preparedRequest) == 1;
 
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
@@ -456,7 +529,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToUpdate);
 
-			return myConnector.executePreparedQuery(preparedRequest) == 1;
+			return jdbcConnector.executePreparedQuery(preparedRequest) == 1;
 
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
@@ -504,7 +577,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToDelete);
 
-			return myConnector.executePreparedQuery(preparedRequest) == 1;
+			return jdbcConnector.executePreparedQuery(preparedRequest) == 1;
 
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(

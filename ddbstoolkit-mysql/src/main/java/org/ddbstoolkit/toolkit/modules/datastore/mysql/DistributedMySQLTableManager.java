@@ -1,7 +1,7 @@
 package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
 import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.core.jdbc.JDBCEntityManager;
+import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 
 /**
  * Class representing a distributed MySQL Database

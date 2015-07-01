@@ -2,7 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
@@ -28,22 +28,22 @@ public class Book extends DistributedEntity {
     public String book_uri;
 
     @Namespace(name = "rdfs", url = "http://www.w3.org/2000/01/rdf-schema#")
-    @PropertyName(name = "label")
+    @EntityName(name = "label")
     public String title;
 
     @Namespace(name = "rdfs", url = "http://www.w3.org/2000/01/rdf-schema#")
-    @PropertyName(name = "comment")
+    @EntityName(name = "comment")
     public String summary;
 
     @Namespace(name = "dbp-ont", url = "http://dbpedia.org/ontology/")
     public Author[] author;
 
     @Namespace(name = "fb", url = "http://rdf.freebase.com/ns/")
-    @PropertyName(name = "book.book.genre")
+    @EntityName(name = "book.book.genre")
     public Genre[] genre;
 
     @Namespace(name = "fb", url = "http://rdf.freebase.com/ns/")
-    @PropertyName(name = "book.book.characters")
+    @EntityName(name = "book.book.characters")
     public Character[] character;
 
     @Optional

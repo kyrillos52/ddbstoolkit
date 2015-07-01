@@ -2,7 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
 import java.sql.*;
 
-import org.ddbstoolkit.toolkit.core.jdbc.JDBCConnector;
+import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
 
 /**
  * Class representing a connection into a MySQL Database
@@ -14,17 +14,25 @@ public class MySQLConnector extends JDBCConnector {
     /**
      * MySQL Database URL
      */
-    private final String url;
+    private String url;
 
     /**
      * MySQL User Login
      */
-    private final String login;
+    private String login;
 
     /**
      * MySQL User Password
      */
-    private final String password;
+    private String password;
+    
+    /**
+	 * JDBC Constructor
+	 * @param connector Connector
+	 */
+	public MySQLConnector(Connection connector) {
+		super(connector);
+	}
 
     /**
      * Instantiate a MySQL connector

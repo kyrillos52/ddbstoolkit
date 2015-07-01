@@ -3,21 +3,21 @@ package org.ddbstoolkit.toolkit.core;
 import java.io.Serializable;
 
 /**
- * Class representing a peer
+ * Network peer
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
 public class Peer implements Serializable {
 
 	/**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Indicate the we select all peer
 	 */
 	public static Peer ALL = new Peer("ALL", null);
-	
-    /**
-	 * Serial Version ID
-	 */
-	private static final long serialVersionUID = 886731428324212350L;
 
 	/**
      * Unique identifier (UID) of a peer

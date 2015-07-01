@@ -1,8 +1,10 @@
-package org.ddbstoolkit.toolkit.core.jdbc;
+package org.ddbstoolkit.toolkit.jdbc;
 
 import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
 
 /**
  * JDBC Prepared Statements

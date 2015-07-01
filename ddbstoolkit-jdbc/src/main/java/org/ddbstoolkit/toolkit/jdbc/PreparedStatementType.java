@@ -1,4 +1,4 @@
-package org.ddbstoolkit.toolkit.core.jdbc;
+package org.ddbstoolkit.toolkit.jdbc;
 
 /**
  * Prepared statement type

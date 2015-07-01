@@ -6,13 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Name of the property inside a database or data source
+ * Name of the entity inside a database or data source
  * @author Cyril Grandjean
  * @version Creation of the class
  */
-@Target(value = {ElementType.FIELD})
+@Target(value = {ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PropertyName {
+public @interface EntityName {
 
     String name() default "";
 }

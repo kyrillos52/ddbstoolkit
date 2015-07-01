@@ -1,6 +1,8 @@
 package org.ddbstoolkit.toolkit.modules.datastore.sqlite;
 
-import org.ddbstoolkit.toolkit.core.jdbc.JDBCConnector;
+import java.sql.Connection;
+
+import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
 
 /**
  * Class representing a connection to SQLite
@@ -8,6 +10,14 @@ import org.ddbstoolkit.toolkit.core.jdbc.JDBCConnector;
  */
 public class SQLiteConnector extends JDBCConnector {
 
+	 /**
+	 * JDBC Constructor
+	 * @param connector Connector
+	 */
+	public SQLiteConnector(Connection connector) {
+		super(connector);
+	}
+	
     /**
      * Constructor : initialisation of the object
      * @throws ClassNotFoundException 

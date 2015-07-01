@@ -12,11 +12,13 @@ import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
+import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -590,5 +592,44 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 			OrderBy orderBy) throws DDBSToolkitException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void commit() throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollback() throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DDBSTransaction executeTransaction(
+			List<TransactionCommand> transactionCommands)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollback(DDBSTransaction transaction)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
 	}
 }

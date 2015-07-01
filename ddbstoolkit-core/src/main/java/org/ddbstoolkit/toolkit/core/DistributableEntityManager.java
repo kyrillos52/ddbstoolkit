@@ -9,7 +9,7 @@ import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 /**
  * Interface to access to distributed data sources
  * @author Cyril GRANDJEAN
- * @version 1.0 Creation of the class
+ * @version 1.0 Class creation
  */
 public interface DistributableEntityManager {
     
@@ -31,7 +31,47 @@ public interface DistributableEntityManager {
      * @throws DDBSToolkitException : Error to close the connection
      */
     public void close() throws DDBSToolkitException;
+    
+    /**
+     * Set the auto-commit for the data source
+     * @param isAutoCommit Boolean returning if there is auto-commit in the transaction
+     * @throws DDBSToolkitException : Error to set the auto-commit value
+     */
+    public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException;
+    
+    /**
+     * Commit a transaction
+     * @throws DDBSToolkitException : Error to commit the transaction
+     */
+    public void commit() throws DDBSToolkitException;
 
+    /**
+     * Rollback the transaction
+     * @throws DDBSToolkitException : Error to rollback the connection
+     */
+    public void rollback() throws DDBSToolkitException;
+    
+    /**
+     * Execute a list of actions
+     * @param transactionCommands List of commands
+     * @return transaction transaction
+     */
+    public DDBSTransaction executeTransaction(List<TransactionCommand> transactionCommands) throws DDBSToolkitException; 
+    
+    /**
+     * Commit a transaction
+     * @return transactionId Transaction Id
+     * @throws DDBSToolkitException : Error to commit the transaction
+     */
+    public void commit(DDBSTransaction transaction) throws DDBSToolkitException;
+
+    /**
+     * Rollback the transaction
+     * @return transactionId Transaction Id
+     * @throws DDBSToolkitException : Error to rollback the connection
+     */
+    public void rollback(DDBSTransaction transaction) throws DDBSToolkitException;
+    
     /**
      * List all entities of a specific object
      * @param object Object to search

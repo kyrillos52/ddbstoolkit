@@ -2,7 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
@@ -25,7 +25,7 @@ public class Genre extends DistributedEntity {
     @URI
     public String genre_uri;
 
-    @PropertyName(name = "type.object.name")
+    @EntityName(name = "type.object.name")
     public String name;
 }
 

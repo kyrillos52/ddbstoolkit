@@ -2,7 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.model;
 
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
@@ -28,7 +28,7 @@ public class Character extends DistributedEntity {
     public String character_uri;
 
     @Namespace(name = "rdfs", url = "http://www.w3.org/2000/01/rdf-schema#")
-    @PropertyName(name = "label")
+    @EntityName(name = "label")
     public String character_name;
 
     @Optional

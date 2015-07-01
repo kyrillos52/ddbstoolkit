@@ -1,6 +1,7 @@
 package org.ddbstoolkit.toolkit.core;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -8,14 +9,15 @@ import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 /**
  * DDBS command sent through a network
  * @author Cyril GRANDJEAN
- * @version 1.0 Creation of the class
+ * @version 1.0 Class creation
  */
 public class DDBSCommand implements Serializable {
 
-    /**
-	 * Version Id
+
+	/**
+	 * Serial Version ID
 	 */
-	private static final long serialVersionUID = 8335153155410423134L;
+	private static final long serialVersionUID = 1L;
 
 	/**
      * Destination of the command
@@ -51,10 +53,15 @@ public class DDBSCommand implements Serializable {
      * Field to load : loadArray command only
      */
     private String fieldToLoad;
+    
+    /**
+     * List of commands to execute in a transaction
+     */
+    private List<DDBSCommand> commandsTransation;
 
     /**
      * Get the action of a command
-     * @return Command action
+     * @return Action of a command
      */
     public DDBSAction getAction() {
 		return action;
@@ -86,7 +93,7 @@ public class DDBSCommand implements Serializable {
     
     /**
      * Get the condition query string : listAll command only
-     * @return List of conditions
+     * @return Condition query string
      */
     public String getConditionQueryString() {
 		return conditionQueryString;
@@ -94,7 +101,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the conditions query string of a command : listAll command only
-     * @param conditionQueryString list of conditions
+     * @param conditionQueryString Condition query string
      */
 	public void setConditionQueryString(String conditionQueryString) {
 		this.conditionQueryString = conditionQueryString;
@@ -117,7 +124,7 @@ public class DDBSCommand implements Serializable {
 	}
 
 	/**
-     * Get the order by value : listAll command only
+     * Get the order by value : listAll and loadArray command only
      * @return  Order by value
      */
     public OrderBy getOrderBy() {
@@ -125,7 +132,7 @@ public class DDBSCommand implements Serializable {
     }
 
     /**
-     * Set the order by value : listAll command only
+     * Set the order by value : listAll and loadArray command only
      * @param orderBy Order by value
      */
     public void setOrderBy(OrderBy orderBy) {
@@ -134,7 +141,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Get the destination of a command
-     * @return destination of a command
+     * @return Destination of a command
      */
     public Peer getDestination() {
         return destination;
@@ -142,7 +149,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the destination of a command
-     * @param destination destination of a command
+     * @param destination Destination of a command
      */
     public void setDestination(Peer destination) {
         this.destination = destination;
@@ -150,7 +157,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Get the field to load : loadArray command only
-     * @return field to load
+     * @return Field to load
      */
     public String getFieldToLoad() {
         return fieldToLoad;
@@ -158,17 +165,34 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the field to load : loadArray command only
-     * @param fieldToLoad field to load
+     * @param fieldToLoad Field to load
      */
     public void setFieldToLoad(String fieldToLoad) {
         this.fieldToLoad = fieldToLoad;
     }
+    
+    /**
+     * Get the list of commands to execute inside a transaction
+     * @return List of commands
+     */
+	public List<DDBSCommand> getCommandsTransation() {
+		return commandsTransation;
+	}
+
+	/**
+	 * Set the list of commands to execute inside a transaction
+	 * @param commandsTransation List of commands
+	 */
+	public void setCommandsTransation(List<DDBSCommand> commandsTransation) {
+		this.commandsTransation = commandsTransation;
+	}
 
 	@Override
 	public String toString() {
 		return "DDBSCommand [destination=" + destination + ", action=" + action
 				+ ", object=" + object + ", conditionQueryString="
 				+ conditionQueryString + ", conditions=" + conditions
-				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad + "]";
+				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad
+				+ ", commandsTransation=" + commandsTransation + "]";
 	}
 }

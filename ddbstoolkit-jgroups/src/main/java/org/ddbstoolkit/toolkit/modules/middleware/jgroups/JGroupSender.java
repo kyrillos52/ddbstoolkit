@@ -2,11 +2,13 @@ package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 
 import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
+import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -163,6 +165,53 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
         isOpen = false;
     }
+    
+	@Override
+	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
+		
+		try
+    	{
+            DDBSCommand command = new DDBSCommand();
+            command.setAction(DDBSAction.IS_AUTOCOMMIT);
+
+            dispatcher.castMessage(null,
+                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
+	}
+
+	@Override
+	public void commit() throws DDBSToolkitException {
+		
+		try
+    	{
+            DDBSCommand command = new DDBSCommand();
+            command.setAction(DDBSAction.COMMIT);
+
+            dispatcher.castMessage(null,
+                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}	
+	}
+
+	@Override
+	public void rollback() throws DDBSToolkitException {
+		try
+    	{
+            DDBSCommand command = new DDBSCommand();
+            command.setAction(DDBSAction.ROLLBACK);
+
+            dispatcher.castMessage(null,
+                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
+	}
 
     /**
      * Get the address associated with a peer name
@@ -686,4 +735,25 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
+
+	@Override
+	public DDBSTransaction executeTransaction(
+			List<TransactionCommand> transactionCommands)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rollback(DDBSTransaction transaction)
+			throws DDBSToolkitException {
+		// TODO Auto-generated method stub
+		
+	}
 }

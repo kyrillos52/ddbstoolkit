@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 
 /**
- * Class representing a distributed object
+ * Distributed entity
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
@@ -13,7 +13,7 @@ public class DistributedEntity implements IEntity {
     /**
 	 * Version Id
 	 */
-	private static final long serialVersionUID = -3845825399013088782L;
+	private static final long serialVersionUID = 1L;
 	
 	/**
      * Peer UID of the entity

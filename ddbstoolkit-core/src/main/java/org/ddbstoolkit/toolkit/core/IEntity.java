@@ -3,9 +3,9 @@ package org.ddbstoolkit.toolkit.core;
 import java.io.Serializable;
 
 /**
- * Interface representing an element in a data source
+ * DDBS Data entity
  * @author Cyril GRANDJEAN
- * @version 1.0 Creation of the class
+ * @version 1.0 Class creation
  */
 public interface IEntity extends Serializable {
 }

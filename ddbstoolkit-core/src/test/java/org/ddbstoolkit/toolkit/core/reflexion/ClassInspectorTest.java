@@ -35,7 +35,7 @@ public class ClassInspectorTest {
 		/**
 		 * Check entity data
 		 */
-		Assert.assertEquals(ddbsEntity.getFullClassName(), "org.ddbstoolkit.toolkit.core.reflexion.EntityTest");
+		Assert.assertEquals(ddbsEntity.getFullClassName(), "org.ddbstoolkit.toolkit.core.model.EntityTest");
 		Assert.assertEquals(ddbsEntity.getDatastoreEntityName(), "EntityTest");
 		Assert.assertEquals(ddbsEntity.getPeerUid(entityTest), "uid");
 		
@@ -56,7 +56,7 @@ public class ClassInspectorTest {
 		checkDDBSEntityProperty(ddbsEntity.getEntityProperties().get(7), false, "doubleObjectField", "doubleObjectField", "java.lang.Double", DDBSToolkitSupportedEntity.DOUBLE,7, null);
 		checkDDBSEntityProperty(ddbsEntity.getEntityProperties().get(8), false, "stringField", "stringField", "java.lang.String", DDBSToolkitSupportedEntity.STRING, 8, null);
 		checkDDBSEntityProperty(ddbsEntity.getEntityProperties().get(9), false, "timestampField", "timestampField", "java.sql.Timestamp", DDBSToolkitSupportedEntity.TIMESTAMP, 9, null);
-		checkDDBSEntityProperty(ddbsEntity.getEntityProperties().get(10), true, "entityField", "entityField", "[Lorg.ddbstoolkit.toolkit.core.reflexion.EntityTest;", DDBSToolkitSupportedEntity.IENTITY_ARRAY, 10, null);
+		checkDDBSEntityProperty(ddbsEntity.getEntityProperties().get(10), true, "entityField", "entityField", "[Lorg.ddbstoolkit.toolkit.core.model.EntityTest;", DDBSToolkitSupportedEntity.IENTITY_ARRAY, 10, null);
 		
 		/**
 		 * Check values

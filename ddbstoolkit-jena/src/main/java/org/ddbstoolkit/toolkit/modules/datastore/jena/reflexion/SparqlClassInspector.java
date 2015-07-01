@@ -3,10 +3,11 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ddbstoolkit.toolkit.core.annotations.PropertyName;
+import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
@@ -46,23 +47,31 @@ public class SparqlClassInspector extends ClassInspector {
             }
         }
 		
-		Field[] fields = classData.getFields();
+        Field[] fields = classData.getDeclaredFields();
 
         List<T> listProperties = new ArrayList<>();
-
-        for(int counterProperties = 0; counterProperties < fields.length; ++counterProperties)
+        int counterProperties = 0;
+        for(Field field : fields)
         {
-        	SparqlClassProperty ddbsEntityProperty = new SparqlClassProperty();
-        	updateDDBSEntityProperty(fields[counterProperties], ddbsEntityProperty, counterProperties, defaultNamespaceName, defaultNamespaceUrl);
-        	listProperties.add((T)ddbsEntityProperty);
+        	boolean hasGetterAndSetter = hasGetterAndSetter(classData, field.getName());
+        	
+        	if(!field.getName().equals(PEER_UID_PROPERTY_NAME) && !Modifier.isStatic(field.getModifiers())
+        			&& (Modifier.isPublic(field.getModifiers()) || hasGetterAndSetter)
+        			) {
+        		
+        		DDBSEntityProperty ddbsEntityProperty = new DDBSEntityProperty();
+            	updateDDBSEntityProperty(classData, field, ddbsEntityProperty, counterProperties, defaultNamespaceName, defaultNamespaceUrl, hasGetterAndSetter);
+            	listProperties.add((T)ddbsEntityProperty);
+            	counterProperties++;
+        	}
         }
 
         return listProperties;
     }
 
-	protected void updateDDBSEntityProperty(Field field,
-			DDBSEntityProperty ddbsEntityProperty, int counterProperties, String defaultNamespaceName, String defaultNamespaceUrl) {
-		super.updateDDBSEntityProperty(field, ddbsEntityProperty, counterProperties);
+	protected void updateDDBSEntityProperty(Class<?> classData, Field field,
+			DDBSEntityProperty ddbsEntityProperty, int counterProperties, String defaultNamespaceName, String defaultNamespaceUrl, boolean hasGetterAndSetter) {
+		super.updateDDBSEntityProperty(classData, field, ddbsEntityProperty, counterProperties, hasGetterAndSetter);
 		
 		if(ddbsEntityProperty instanceof SparqlClassProperty)
 		{
@@ -90,9 +99,9 @@ public class SparqlClassInspector extends ClassInspector {
 	            {
 	            	sparqlClassProperty.setOptional(true);
 	            }
-	            else if(annotation instanceof PropertyName)
+	            else if(annotation instanceof EntityName)
 	            {
-	                PropertyName myProperty = (PropertyName)annotation;
+	                EntityName myProperty = (EntityName)annotation;
 	                sparqlClassProperty.setPropertyName(myProperty.name());
 	            }
 	        }
