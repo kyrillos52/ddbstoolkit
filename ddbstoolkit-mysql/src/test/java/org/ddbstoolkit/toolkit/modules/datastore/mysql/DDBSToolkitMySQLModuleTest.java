@@ -1,6 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
-import org.ddbstoolkit.toolkit.core.DistributedEntity;
+import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.jdbc.JDBCModuleTest;
 import org.junit.After;
@@ -33,8 +33,6 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
 		
 		manager.open();
-		
-		cleanData();
 	}
 	
 	@After
@@ -49,7 +47,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	}
 
 	@Override
-	protected void addReceiverPeerUID(DistributedEntity distributedEntity) {
+	protected void addReceiverPeerUID(IEntity iEntity) {
 		//Nothing to add
 	}
 }

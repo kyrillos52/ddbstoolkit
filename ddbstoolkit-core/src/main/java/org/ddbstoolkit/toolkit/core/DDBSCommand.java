@@ -1,8 +1,6 @@
 package org.ddbstoolkit.toolkit.core;
 
 import java.io.Serializable;
-import java.util.List;
-
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 
@@ -55,9 +53,9 @@ public class DDBSCommand implements Serializable {
     private String fieldToLoad;
     
     /**
-     * List of commands to execute in a transaction
+     * A transaction to execute
      */
-    private List<DDBSCommand> commandsTransation;
+    private DDBSTransaction ddbsTransaction;
 
     /**
      * Get the action of a command
@@ -172,19 +170,19 @@ public class DDBSCommand implements Serializable {
     }
     
     /**
-     * Get the list of commands to execute inside a transaction
+     * Get the transaction to execute inside a transaction
      * @return List of commands
      */
-	public List<DDBSCommand> getCommandsTransation() {
-		return commandsTransation;
+	public DDBSTransaction getDDBSTransaction() {
+		return ddbsTransaction;
 	}
 
 	/**
-	 * Set the list of commands to execute inside a transaction
+	 * Set the transaction to execute inside a transaction
 	 * @param commandsTransation List of commands
 	 */
-	public void setCommandsTransation(List<DDBSCommand> commandsTransation) {
-		this.commandsTransation = commandsTransation;
+	public void setDDBSTransaction(DDBSTransaction ddbsTransaction) {
+		this.ddbsTransaction = ddbsTransaction;
 	}
 
 	@Override
@@ -193,6 +191,6 @@ public class DDBSCommand implements Serializable {
 				+ ", object=" + object + ", conditionQueryString="
 				+ conditionQueryString + ", conditions=" + conditions
 				+ ", orderBy=" + orderBy + ", fieldToLoad=" + fieldToLoad
-				+ ", commandsTransation=" + commandsTransation + "]";
+				+ ", ddbsTransaction=" + ddbsTransaction + "]";
 	}
 }

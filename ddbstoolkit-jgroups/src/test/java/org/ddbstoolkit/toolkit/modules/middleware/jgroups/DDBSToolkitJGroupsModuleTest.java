@@ -1,6 +1,10 @@
 package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 
+import org.ddbstoolkit.toolkit.jdbc.model.Actor;
+import org.ddbstoolkit.toolkit.jdbc.model.Film;
 import org.ddbstoolkit.toolkit.middleware.MiddlewareModuleTest;
+import org.ddbstoolkit.toolkit.model.interfaces.ActorInterface;
+import org.ddbstoolkit.toolkit.model.interfaces.FilmInterface;
 import org.ddbstoolkit.toolkit.modules.datastore.sqlite.DistributedSQLiteTableManager;
 import org.ddbstoolkit.toolkit.modules.datastore.sqlite.SQLiteConnector;
 
@@ -42,6 +46,16 @@ public class DDBSToolkitJGroupsModuleTest extends MiddlewareModuleTest {
 		
 		senderInterface = new JGroupSender(CLUSTER_NAME, SENDER_NAME);
 		
+	}
+
+	@Override
+	protected FilmInterface createFilm() {
+		return new Film();
+	}
+
+	@Override
+	protected ActorInterface createActor() {
+		return new Actor();
 	}
 
 }

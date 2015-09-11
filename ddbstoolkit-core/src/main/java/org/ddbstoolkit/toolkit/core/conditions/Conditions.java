@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.core.conditions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -119,7 +120,7 @@ public class Conditions implements Serializable {
 	 * @param propertyName Name of the property
 	 * @return condition
 	 */
-	public static Condition isNull(String propertyName, Object value) {
+	public static Condition isNull(String propertyName) {
 		return new Condition(propertyName, ConditionType.IS_NULL);
 	}
 	
@@ -128,7 +129,7 @@ public class Conditions implements Serializable {
 	 * @param propertyName Name of the property
 	 * @return condition
 	 */
-	public static Condition isNotNull(String propertyName, Object value) {
+	public static Condition isNotNull(String propertyName) {
 		return new Condition(propertyName, ConditionType.IS_NOT_NULL);
 	}
 	
@@ -161,8 +162,18 @@ public class Conditions implements Serializable {
 	 * @param values List of values
 	 * @return condition
 	 */
-	public static Condition in(String propertyName, List<Object> values) {
+	public static Condition in(String propertyName, List<? extends Object> values) {
 		return new ConditionInValues(propertyName, ConditionType.IN, values);
+	}
+	
+	/**
+	 * In condition
+	 * @param propertyName Name of the property
+	 * @param values List of values
+	 * @return condition
+	 */
+	public static Condition in(String propertyName, Object[] values) {
+		return new ConditionInValues(propertyName, ConditionType.IN, Arrays.asList(values));
 	}
 	
 	/**
@@ -171,8 +182,18 @@ public class Conditions implements Serializable {
 	 * @param values List of values
 	 * @return condition
 	 */
-	public static Condition notIn(String propertyName, List<Object> values) {
+	public static Condition notIn(String propertyName, List<? extends Object> values) {
 		return new ConditionInValues(propertyName, ConditionType.NOT_IN, values);
+	}
+	
+	/**
+	 * Not in condition
+	 * @param propertyName Name of the property
+	 * @param values List of values
+	 * @return condition
+	 */
+	public static Condition notIn(String propertyName, Object[] values) {
+		return new ConditionInValues(propertyName, ConditionType.NOT_IN, Arrays.asList(values));
 	}
 
 	/**

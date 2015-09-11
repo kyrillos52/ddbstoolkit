@@ -1,11 +1,18 @@
 package org.ddbstoolkit.toolkit.core;
 
+import java.io.Serializable;
+
 /**
  * DDBS data manipulation action 
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public class TransactionCommand {
+public class TransactionCommand implements Serializable {
+
+	/**
+	 * Serial ID
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Data manipulation action
@@ -16,6 +23,17 @@ public class TransactionCommand {
 	 * Entity
 	 */
 	private IEntity entity;
+	
+	/**
+	 * Constructor
+	 * @param dataAction Transaction action
+	 * @param entity entity
+	 */
+	public TransactionCommand(TransactionAction dataAction, IEntity entity) {
+		super();
+		this.dataAction = dataAction;
+		this.entity = entity;
+	}
 
 	/**
 	 * Get data manipulation action
@@ -26,27 +44,11 @@ public class TransactionCommand {
 	}
 
 	/**
-	 * Set data manipulation action
-	 * @param dataAction Data manipulation action
-	 */
-	public void setDataAction(TransactionAction dataAction) {
-		this.dataAction = dataAction;
-	}
-
-	/**
 	 * Get the entity
 	 * @return Entity
 	 */
 	public IEntity getEntity() {
 		return entity;
-	}
-
-	/**
-	 * Set entity
-	 * @param entity Entity
-	 */
-	public void setEntity(IEntity entity) {
-		this.entity = entity;
 	}
 
 	@Override

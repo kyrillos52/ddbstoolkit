@@ -8,7 +8,6 @@ import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -173,37 +172,6 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     	{
             DDBSCommand command = new DDBSCommand();
             command.setAction(DDBSAction.IS_AUTOCOMMIT);
-
-            dispatcher.castMessage(null,
-                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-    	}
-    	catch (Exception e) {
-			throw new DDBSToolkitException("Error executing the middleware request", e);
-		}
-	}
-
-	@Override
-	public void commit() throws DDBSToolkitException {
-		
-		try
-    	{
-            DDBSCommand command = new DDBSCommand();
-            command.setAction(DDBSAction.COMMIT);
-
-            dispatcher.castMessage(null,
-                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-    	}
-    	catch (Exception e) {
-			throw new DDBSToolkitException("Error executing the middleware request", e);
-		}	
-	}
-
-	@Override
-	public void rollback() throws DDBSToolkitException {
-		try
-    	{
-            DDBSCommand command = new DDBSCommand();
-            command.setAction(DDBSAction.ROLLBACK);
 
             dispatcher.castMessage(null,
                     new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
@@ -737,23 +705,44 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     }
 
 	@Override
-	public DDBSTransaction executeTransaction(
-			List<TransactionCommand> transactionCommands)
-			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
-		// TODO Auto-generated method stub
+		try
+    	{
+            DDBSCommand command = new DDBSCommand();
+            command.setAction(DDBSAction.COMMIT);
+            command.setDDBSTransaction(transaction);
+
+            dispatcher.castMessage(null,
+                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}		
 		
 	}
 
 	@Override
 	public void rollback(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
+		try
+    	{
+            DDBSCommand command = new DDBSCommand();
+            command.setAction(DDBSAction.ROLLBACK);
+            command.setDDBSTransaction(transaction);
+
+            dispatcher.castMessage(null,
+                    new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
+    	}
+    	catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
 		
+	}
+
+	@Override
+	public DDBSTransaction executeTransaction(DDBSTransaction transaction)
+			throws DDBSToolkitException {
+		
+		return null;
 	}
 }

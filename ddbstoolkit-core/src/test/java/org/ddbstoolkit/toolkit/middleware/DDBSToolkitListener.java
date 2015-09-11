@@ -42,8 +42,6 @@ public class DDBSToolkitListener implements Runnable {
 		this.keepListening = keepListening;
 	}
 
-
-
 	@Override
 	public void run() {
 		

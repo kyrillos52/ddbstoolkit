@@ -20,18 +20,18 @@ public class ConditionInValues extends Condition {
 	/**
 	 * List of values
 	 */
-	private List<Object> values;
+	private List<? extends Object> values;
 	
 	/**
 	 * Get list of values
 	 * @return List of values
 	 */
-	public List<Object> getValues() {
+	public List<? extends Object> getValues() {
 		return values;
 	}
 
 	public ConditionInValues(String propertyName, ConditionType conditionType,
-			List<Object> values) {
+			List<? extends Object> values) {
 		super(propertyName, conditionType);
 		this.values = values;
 	}

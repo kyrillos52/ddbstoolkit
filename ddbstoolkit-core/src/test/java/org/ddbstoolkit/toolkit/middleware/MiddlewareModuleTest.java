@@ -1,10 +1,12 @@
 package org.ddbstoolkit.toolkit.middleware;
 
+import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntity;
+import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.jdbc.JDBCModuleTest;
+import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,7 +18,7 @@ import org.junit.rules.ExpectedException;
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public abstract class MiddlewareModuleTest extends JDBCModuleTest {
+public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
 	/**
 	 * Wait time
@@ -56,9 +58,11 @@ public abstract class MiddlewareModuleTest extends JDBCModuleTest {
 	 * @param distributedEntity Distributed Entity
 	 */
 	@Override
-	protected void addReceiverPeerUID(DistributedEntity distributedEntity)
+	protected void addReceiverPeerUID(IEntity iEntity)
 	{
-		distributedEntity.setPeerUid(receiverPeer.getUid());
+		if(iEntity instanceof DistributedEntity) {
+			((DistributedEntity)iEntity).setPeerUid(receiverPeer.getUid());
+		}
 	}
 	
 	/**
@@ -85,8 +89,6 @@ public abstract class MiddlewareModuleTest extends JDBCModuleTest {
 		receiverPeer = senderInterface.getListPeers().get(0);
 		
 		manager = senderInterface;
-		
-		cleanData();
 	}
 	
 	public abstract void instantiateReceiverAndSenderInterface() throws Exception;
@@ -97,11 +99,16 @@ public abstract class MiddlewareModuleTest extends JDBCModuleTest {
 	}
 	
 	@After
-	public void closeConnection() throws Exception
+	public void closeConnection() throws DDBSToolkitException 
 	{
-		ddbsToolkitListener.setKeepListening(false);
-		senderInterface.close();
-		receiverInterface.stop();
+		try {
+			ddbsToolkitListener.setKeepListening(false);
+			senderInterface.close();
+			receiverInterface.stop();
+		} catch(Exception e) {
+			throw new DDBSToolkitException("Error closing the connexion", e);
+		}
+		
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package org.ddbstoolkit.toolkit.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class JDBCConditionConverter implements ConditionsConverter {
 				case IN:
 					conditionString.append(" IN (");
 					
-					Iterator<Object> iteratorIn = ((ConditionInValues)condition).getValues().iterator();
+					Iterator<? extends Object> iteratorIn = ((ConditionInValues)condition).getValues().iterator();
 					
 					while(iteratorIn.hasNext()) {
 						
@@ -98,9 +99,9 @@ public class JDBCConditionConverter implements ConditionsConverter {
 					conditionString.append(")");
 					break;
 				case NOT_IN:
-					conditionString.append(" IN (");
+					conditionString.append(" NOT IN (");
 					
-					Iterator<Object> iteratorNotIn = ((ConditionInValues)condition).getValues().iterator();
+					Iterator<? extends Object> iteratorNotIn = ((ConditionInValues)condition).getValues().iterator();
 					
 					while(iteratorNotIn.hasNext()) {
 						
@@ -187,35 +188,35 @@ public class JDBCConditionConverter implements ConditionsConverter {
 	 */
 	private void prepareData(PreparedStatement preparedStatement, int counterParameter, DDBSEntityProperty ddbsEntityProperty, Object value) throws SQLException {
 		
-		if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.INTEGER)) {
-			preparedStatement.setInt(counterParameter,
-					(Integer) value);
-		} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.LONG)) {
-			preparedStatement.setLong(counterParameter,
-					(Long) value);
-		} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.FLOAT)) {
-			preparedStatement.setFloat(counterParameter,
-					(Float) value);
-		} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.DOUBLE)) {
-			preparedStatement.setDouble(counterParameter,
-					(Double) value);
-		} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.STRING)) {
-			if (value != null) {
+		if(value == null) {
+			preparedStatement.setNull(counterParameter, Types.NULL);
+		} else {
+			if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.INTEGER)) {	
+				preparedStatement.setInt(counterParameter,
+						(Integer) value);
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.LONG)) {
+				preparedStatement.setLong(counterParameter,
+						(Long) value);
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.FLOAT)) {
+				preparedStatement.setFloat(counterParameter,
+						(Float) value);
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.DOUBLE)) {
+				preparedStatement.setDouble(counterParameter,
+						(Double) value);
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.STRING)) {
 				preparedStatement.setString(counterParameter,
-						(String) value);
-			} else {
-				preparedStatement.setString(counterParameter, "");
-			}
+							(String) value);
 
-		} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
-				DDBSToolkitSupportedEntity.TIMESTAMP)) {
-			preparedStatement.setTimestamp(counterParameter,
-					(Timestamp) value);
+			} else if (ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+					DDBSToolkitSupportedEntity.TIMESTAMP)) {
+				preparedStatement.setTimestamp(counterParameter,
+						(Timestamp) value);
+			}
 		}
 	}
 

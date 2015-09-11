@@ -50,13 +50,28 @@ public class JDBCPreparedStatementManager {
 	 */
 	public PreparedStatement setJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type, String query) throws SQLException
 	{
-		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null)
+		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null && !hasUnknownDDBSEntityProperties(ddbsEntity))
 		{
 			mapStatements.put(ddbsEntity.getDatastoreEntityName(), new JDBCPreparedStatements());
 		}
 		PreparedStatement preparedStatement = myConnector.prepareStatement(query);
 		mapStatements.get(ddbsEntity.getDatastoreEntityName()).setPreparedStatement(type, preparedStatement);
 		return preparedStatement;
+	}
+	
+	/**
+	 * Some properties are null and therefore impossible to detect the type
+	 * @param ddbsEntity DDBS Entity
+	 * @return
+	 */
+	private boolean hasUnknownDDBSEntityProperties(DDBSEntity<DDBSEntityProperty> ddbsEntity) {
+		
+		for(DDBSEntityProperty ddbsEntityProperty : ddbsEntity.getEntityProperties()) {
+			if(ddbsEntityProperty.getDdbsToolkitSupportedEntity() == null) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

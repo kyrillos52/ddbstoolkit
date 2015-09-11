@@ -106,12 +106,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		try {
 			jdbcConnector.setAutoCommit(isAutoCommit);
 		} catch (SQLException sqle) {
-			throw new DDBSToolkitException("Error during setting auto-commit value", sqle);
+			throw new DDBSToolkitException("Error while committing the transaction", sqle);
 		}
 	}
 
 	@Override
-	public void commit() throws DDBSToolkitException {
+	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
 		try {
 			jdbcConnector.commit();
 		} catch (SQLException sqle) {
@@ -120,32 +120,19 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	}
 
 	@Override
-	public void rollback() throws DDBSToolkitException {
+	public void rollback(DDBSTransaction transaction) throws DDBSToolkitException {
 		try {
 			jdbcConnector.rollback();
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException("Error while rollbacking the transaction", sqle);
 		}
-		
-	}
-
-	@Override
-	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
-		commit();
-	}
-
-	@Override
-	public void rollback(DDBSTransaction transaction) throws DDBSToolkitException {
-		rollback();
 	}
 	
 
 	@Override
-	public DDBSTransaction executeTransaction(List<TransactionCommand> transactionCommands)throws DDBSToolkitException {
+	public DDBSTransaction executeTransaction(DDBSTransaction transaction)throws DDBSToolkitException {
 		
-		DDBSTransaction transaction = new DDBSTransaction(null);
-		
-		for(TransactionCommand transactionCommand : transactionCommands) {
+		for(TransactionCommand transactionCommand : transaction.getTransactionCommands()) {
 			switch (transactionCommand.getDataAction()) {
 			case ADD:
 				add(transactionCommand.getEntity());
@@ -414,6 +401,41 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 		return null;
 	}
+	
+	/**
+	 * Create Insert SQL Query
+	 * @param ddbsEntity DDBSEntity
+	 * @return INSERT SQL Query
+	 */
+	protected String getInsertSQLString(DDBSEntity<DDBSEntityProperty> ddbsEntity) {
+		
+		StringBuilder sqlAddString = new StringBuilder();
+		StringBuilder sqlAddPart2String = new StringBuilder();
+
+		sqlAddString.append("INSERT INTO ");
+		sqlAddString.append(ddbsEntity.getDatastoreEntityName());
+		sqlAddString.append(" (");
+
+		Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
+				.getNotIncrementingEntityProperties().iterator();
+
+		while (iteratorProperties.hasNext()) {
+
+			sqlAddString.append(iteratorProperties.next()
+					.getPropertyName());
+			sqlAddPart2String.append("?");
+
+			if (iteratorProperties.hasNext()) {
+				sqlAddString.append(",");
+				sqlAddPart2String.append(",");
+			}
+		}
+
+		sqlAddString.append(") VALUES (");
+		sqlAddString.append(sqlAddPart2String);
+		sqlAddString.append(");");
+		return sqlAddString.toString();
+	}
 
 	@Override
 	public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
@@ -428,38 +450,14 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			if (preparedRequest == null) {
 
-				StringBuilder sqlAddString = new StringBuilder();
-				StringBuilder sqlAddPart2String = new StringBuilder();
-
-				sqlAddString.append("INSERT INTO ");
-				sqlAddString.append(ddbsEntity.getDatastoreEntityName());
-				sqlAddString.append(" (");
-
-				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-						.getNotIncrementingEntityProperties().iterator();
-
-				while (iteratorProperties.hasNext()) {
-
-					sqlAddString.append(iteratorProperties.next()
-							.getPropertyName());
-					sqlAddPart2String.append("?");
-
-					if (iteratorProperties.hasNext()) {
-						sqlAddString.append(",");
-						sqlAddPart2String.append(",");
-					}
-				}
-
-				sqlAddString.append(") VALUES (");
-				sqlAddString.append(sqlAddPart2String);
-				sqlAddString.append(");");
+				String sqlAddString = getInsertSQLString(ddbsEntity);
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD,
-								sqlAddString.toString());
+								sqlAddString);
 			}
 
-			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToAdd);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityNonIDProperties(), objectToAdd);
 
 			return jdbcConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -467,6 +465,51 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			throw new DDBSToolkitException(
 					"Error during execution of the SQL request", sqle);
 		}
+	}
+	
+	/**
+	 * Create Update SQL Query
+	 * @param ddbsEntity DDBSEntity
+	 * @return UPDATE SQL Query
+	 */
+	protected String getUpdateSQLString(DDBSEntity<DDBSEntityProperty> ddbsEntity) {
+		
+		StringBuilder sqlUpdateString = new StringBuilder();
+
+		sqlUpdateString.append("UPDATE ");
+		sqlUpdateString.append(ddbsEntity.getDatastoreEntityName());
+		sqlUpdateString.append(" SET ");
+
+		Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
+				.getEntityNonIDProperties().iterator();
+
+		while (iteratorProperties.hasNext()) {
+
+			sqlUpdateString.append(iteratorProperties.next()
+					.getPropertyName());
+			sqlUpdateString.append(" = ?");
+
+			if (iteratorProperties.hasNext()) {
+				sqlUpdateString.append(",");
+			}
+		}
+
+		sqlUpdateString.append(" WHERE ");
+
+		Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
+				.getEntityIDProperties().iterator();
+
+		while (iteratorIDProperties.hasNext()) {
+
+			sqlUpdateString.append(iteratorIDProperties.next()
+					.getPropertyName());
+			sqlUpdateString.append(" = ?");
+
+			if (iteratorIDProperties.hasNext()) {
+				sqlUpdateString.append(" AND ");
+			}
+		}
+		return sqlUpdateString.toString();
 	}
 
 	@Override
@@ -482,52 +525,18 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			if (preparedRequest == null) {
 
-				StringBuilder sqlUpdateString = new StringBuilder();
-
-				sqlUpdateString.append("UPDATE ");
-				sqlUpdateString.append(ddbsEntity.getDatastoreEntityName());
-				sqlUpdateString.append(" SET ");
-
-				Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-						.getEntityNonIDProperties().iterator();
-
-				while (iteratorProperties.hasNext()) {
-
-					sqlUpdateString.append(iteratorProperties.next()
-							.getPropertyName());
-					sqlUpdateString.append(" = ?");
-
-					if (iteratorProperties.hasNext()) {
-						sqlUpdateString.append(",");
-					}
-				}
-
-				sqlUpdateString.append(" WHERE ");
-
-				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
-						.getEntityIDProperties().iterator();
-
-				while (iteratorIDProperties.hasNext()) {
-
-					sqlUpdateString.append(iteratorIDProperties.next()
-							.getPropertyName());
-					sqlUpdateString.append(" = ?");
-
-					if (iteratorIDProperties.hasNext()) {
-						sqlUpdateString.append(" AND ");
-					}
-				}
+				String sqlUpdateString = getUpdateSQLString(ddbsEntity);
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE,
-								sqlUpdateString.toString());
+								sqlUpdateString);
 			}
 
 			List<DDBSEntityProperty> listPreparedEntities = new ArrayList<>();
 			listPreparedEntities.addAll(ddbsEntity.getEntityNonIDProperties());
 			listPreparedEntities.addAll(ddbsEntity.getEntityIDProperties());
 
-			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToUpdate);
+			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, listPreparedEntities, objectToUpdate);
 
 			return jdbcConnector.executePreparedQuery(preparedRequest) == 1;
 
@@ -535,6 +544,35 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			throw new DDBSToolkitException(
 					"Error during execution of the SQL request", sqle);
 		}
+	}
+	
+	/**
+	 * Create Delete SQL Query
+	 * @param ddbsEntity DDBSEntity
+	 * @return DELETE SQL Query
+	 */
+	protected String getDeleteSQLString(DDBSEntity<DDBSEntityProperty> ddbsEntity) {
+		
+		StringBuilder sqlDeleteString = new StringBuilder();
+
+		sqlDeleteString.append("DELETE FROM ");
+		sqlDeleteString.append(ddbsEntity.getDatastoreEntityName());
+		sqlDeleteString.append(" WHERE ");
+
+		Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
+				.getEntityIDProperties().iterator();
+
+		while (iteratorIDProperties.hasNext()) {
+
+			sqlDeleteString.append(iteratorIDProperties.next()
+					.getPropertyName());
+			sqlDeleteString.append(" = ?");
+
+			if (iteratorIDProperties.hasNext()) {
+				sqlDeleteString.append(" AND ");
+			}
+		}
+		return sqlDeleteString.toString();
 	}
 
 	@Override
@@ -550,25 +588,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			if (preparedRequest == null) {
 
-				StringBuilder sqlDeleteString = new StringBuilder();
-
-				sqlDeleteString.append("DELETE FROM ");
-				sqlDeleteString.append(ddbsEntity.getDatastoreEntityName());
-				sqlDeleteString.append(" WHERE ");
-
-				Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
-						.getEntityIDProperties().iterator();
-
-				while (iteratorIDProperties.hasNext()) {
-
-					sqlDeleteString.append(iteratorIDProperties.next()
-							.getPropertyName());
-					sqlDeleteString.append(" = ?");
-
-					if (iteratorIDProperties.hasNext()) {
-						sqlDeleteString.append(" AND ");
-					}
-				}
+				String sqlDeleteString = getDeleteSQLString(ddbsEntity);
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,
@@ -694,34 +714,37 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 				// Set object properties
 				for (DDBSEntityProperty myProperty : listProperties) {
-					Field f = myData.getClass().getField(myProperty.getName());
 
 					// If it's not an array
 					if (!myProperty.isArray()) {
 						if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.INTEGER)) {
-							f.set(myData, results.getInt(myProperty
+							myProperty.setValue(myData, results.getInt(myProperty
 									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.LONG)) {
-							f.set(myData, results.getLong(myProperty
+							myProperty.setValue(myData, results.getLong(myProperty
 									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.FLOAT)) {
-							f.set(myData, results.getFloat(myProperty
+							myProperty.setValue(myData, results.getFloat(myProperty
 									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.DOUBLE)) {
-							f.set(myData, results.getDouble(myProperty
+							myProperty.setValue(myData, results.getDouble(myProperty
 									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.STRING)) {
-							f.set(myData, results.getString(myProperty
-										.getPropertyName()));
+							myProperty.setValue(myData, results.getString(myProperty
+									.getPropertyName()));
 						} else if (myProperty.getDdbsToolkitSupportedEntity().equals(
 								DDBSToolkitSupportedEntity.TIMESTAMP)) {
-							f.set(myData, results.getTimestamp(myProperty
+							myProperty.setValue(myData, results.getTimestamp(myProperty
 									.getPropertyName()));
+						}
+						
+						if(results.wasNull()) {
+							myProperty.setValue(myData, null);
 						}
 					}
 				}
@@ -737,12 +760,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		} catch (SQLException se) {
 			throw new DDBSToolkitException(
 					"SQL exception during parsing the request", se);
-		} catch (IllegalAccessException iae) {
-			throw new DDBSToolkitException(
-					"Illegal access exception using reflection", iae);
-		} catch (NoSuchFieldException nsfe) {
-			throw new DDBSToolkitException(
-					"No such field exception using reflection", nsfe);
 		}
 
 		return resultList;

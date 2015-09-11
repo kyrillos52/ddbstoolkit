@@ -18,7 +18,8 @@ public enum DDBSAction {
 	CREATE_ENTITY(9),
 	IS_AUTOCOMMIT(10),
 	COMMIT(11),
-	ROLLBACK(12);
+	ROLLBACK(12),
+	TRANSACTION(13);
 	
 	/**
 	 * Action code

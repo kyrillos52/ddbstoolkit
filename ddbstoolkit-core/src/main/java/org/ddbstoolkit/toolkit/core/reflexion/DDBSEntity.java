@@ -138,7 +138,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 
 		List<DDBSEntityProperty> listWithoutPeerUID = new ArrayList<>();
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
-			if (!ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+			if (ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null && !ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
 					DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listWithoutPeerUID.add(ddbsEntityProperty);
 			}
@@ -154,7 +154,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	public List<DDBSEntityProperty> getEntityIDProperties() {
 		List<DDBSEntityProperty> listIDProperties = new ArrayList<>();
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
-			if (ddbsEntityProperty.getDdbsEntityIDProperty() != null) {
+			if (ddbsEntityProperty.isIDEntity() && ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null) {
 				listIDProperties.add(ddbsEntityProperty);
 			}
 		}
@@ -172,7 +172,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
 			if ((ddbsEntityProperty.isIDEntity() && !ddbsEntityProperty.getDdbsEntityIDProperty()
 					.isAutoIncrement()) || (!ddbsEntityProperty.isIDEntity()
-					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
+					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null && !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
 							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY))) {
 				listProperties.add(ddbsEntityProperty);
 			}
@@ -190,7 +190,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 		List<DDBSEntityProperty> listNonIdProperties = new ArrayList<>();
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
 			if (!ddbsEntityProperty.isIDEntity()
-					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
+					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null && !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
 							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listNonIdProperties.add(ddbsEntityProperty);
 			}
