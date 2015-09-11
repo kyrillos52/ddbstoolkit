@@ -10,6 +10,7 @@
 	<url>http://www.ddbstoolkit.org</url>
 	<modules>
 		<module>ddbstoolkit-core</module>
+		<module>ddbstoolkit-jdbc</module>
 		<module>ddbstoolkit-mysql</module>
 		<module>ddbstoolkit-sqlite</module>
 		<module>ddbstoolkit-jena</module>
@@ -106,6 +107,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
 				<executions>
 					<execution>
 						<goals>

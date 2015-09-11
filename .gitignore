@@ -1,3 +1,4 @@
+/target/**
 /ddbstoolkit-core/target/**
 /ddbstoolkit-jena/target/**
 /ddbstoolkit-demo/target/**
