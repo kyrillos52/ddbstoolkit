@@ -9,8 +9,8 @@ import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
-import org.ddbstoolkit.toolkit.model.interfaces.ActorInterface;
-import org.ddbstoolkit.toolkit.model.interfaces.FilmInterface;
+import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
+import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,14 +53,14 @@ public abstract class DataModuleTest {
 	 * 
 	 * @return an empty film object
 	 */
-	protected abstract FilmInterface createFilm();
+	protected abstract FilmBase createFilm();
 
 	/**
 	 * Create an empty actor
 	 * 
 	 * @return An empty actor
 	 */
-	protected abstract ActorInterface createActor();
+	protected abstract ActorBase createActor();
 
 	/**
 	 * Clean data inside the data source
@@ -75,12 +75,12 @@ public abstract class DataModuleTest {
 		
 		manager.open();
 		
-		for (ActorInterface actor : manager.listAllWithQueryString(
+		for (ActorBase actor : manager.listAllWithQueryString(
 				createActor(), null, null)) {
 			manager.delete(actor);
 		}
 
-		for (FilmInterface actor : manager.listAllWithQueryString(createFilm(),
+		for (FilmBase actor : manager.listAllWithQueryString(createFilm(),
 				null, null)) {
 			manager.delete(actor);
 		}
@@ -93,10 +93,10 @@ public abstract class DataModuleTest {
 	 * @param objectToCheck
 	 * @throws Exception
 	 */
-	private void testReadLastFilmElement(FilmInterface objectToCheck)
+	private void testReadLastFilmElement(FilmBase objectToCheck)
 			throws Exception {
 
-		FilmInterface lastFilm = createFilm();
+		FilmBase lastFilm = createFilm();
 		addReceiverPeerUID(lastFilm);
 		lastFilm = manager.readLastElement(lastFilm);
 
@@ -109,8 +109,8 @@ public abstract class DataModuleTest {
 	 * @param referenceObject
 	 * @param objectToCheck
 	 */
-	private void compareFilmElement(FilmInterface referenceObject,
-			FilmInterface objectToCheck) {
+	private void compareFilmElement(FilmBase referenceObject,
+			FilmBase objectToCheck) {
 
 		Assert.assertEquals( objectToCheck.getFilmName(),referenceObject.getFilmName());
 		Assert.assertEquals(objectToCheck.getDuration(),
@@ -171,7 +171,7 @@ public abstract class DataModuleTest {
 				numberOfElement);
 
 		// All parameters with no values
-		FilmInterface filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		Assert.assertTrue(manager.add(filmToAdd));
 
@@ -308,14 +308,14 @@ public abstract class DataModuleTest {
 	@Test
 	public void testRead() throws Exception {
 
-		FilmInterface filmToRead = createFilm();
+		FilmBase filmToRead = createFilm();
 
 		addReceiverPeerUID(filmToRead);
 		filmToRead.setFilmID(-1);
 
 		Assert.assertNull(manager.read(filmToRead));
 
-		FilmInterface filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 5");
 		filmToAdd.setDuration(10);
@@ -326,7 +326,7 @@ public abstract class DataModuleTest {
 		manager.add(filmToAdd);
 
 		// Get last film
-		FilmInterface lastFilm = createFilm();
+		FilmBase lastFilm = createFilm();
 		addReceiverPeerUID(lastFilm);
 		filmToRead = manager.read(manager.readLastElement(lastFilm));
 
@@ -377,7 +377,7 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(manager.update(createFilm()), false);
 
 		// Add a movie
-		FilmInterface filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit");
 		filmToAdd.setDuration(10);
@@ -391,7 +391,7 @@ public abstract class DataModuleTest {
 		testReadLastFilmElement(filmToAdd);
 
 		// Modify the last element
-		FilmInterface lastFilmAdded = createFilm();
+		FilmBase lastFilmAdded = createFilm();
 		addReceiverPeerUID(lastFilmAdded);
 		lastFilmAdded = manager.readLastElement(lastFilmAdded);
 		lastFilmAdded.setFilmName("Test JUnit Updated");
@@ -435,7 +435,7 @@ public abstract class DataModuleTest {
 				0);
 
 		// Add a movie
-		FilmInterface filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit");
 		filmToAdd.setDuration(10);
@@ -449,9 +449,9 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				1);
 
-		FilmInterface lastFilm = createFilm();
+		FilmBase lastFilm = createFilm();
 		addReceiverPeerUID(lastFilm);
-		FilmInterface filmToDelete = manager.readLastElement(lastFilm);
+		FilmBase filmToDelete = manager.readLastElement(lastFilm);
 
 		manager.delete(filmToDelete);
 
@@ -489,7 +489,7 @@ public abstract class DataModuleTest {
 	public void testLoadArray() throws Exception {
 
 		// Add a movie
-		FilmInterface filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit");
 		filmToAdd.setDuration(10);
@@ -502,13 +502,13 @@ public abstract class DataModuleTest {
 		// Check the last element
 		testReadLastFilmElement(filmToAdd);
 
-		FilmInterface lastFilmAdded = createFilm();
+		FilmBase lastFilmAdded = createFilm();
 		addReceiverPeerUID(lastFilmAdded);
 		lastFilmAdded = manager.readLastElement(lastFilmAdded);
 
 		// Add 3 actors
 		for (int i = 0; i < 3; i++) {
-			ActorInterface actorToAdd = createActor();
+			ActorBase actorToAdd = createActor();
 			addReceiverPeerUID(actorToAdd);
 			actorToAdd.setActorName("actor " + i);
 			actorToAdd.setFilmId(lastFilmAdded.getFilmID());
@@ -517,19 +517,19 @@ public abstract class DataModuleTest {
 		}
 
 		// Check if the 3 elements have been added
-		List<ActorInterface> listActors = manager.listAllWithQueryString(
+		List<ActorBase> listActors = manager.listAllWithQueryString(
 				createActor(), "film_id = " + lastFilmAdded.getFilmID(), null);
 		Assert.assertEquals(listActors.size(), 3);
 
 		// Loader load the array of actors
 		lastFilmAdded = manager.loadArray(lastFilmAdded, "actors",
-				OrderBy.get("actor_id", OrderByType.ASC));
+				OrderBy.get("actorId", OrderByType.ASC));
 
 		Assert.assertEquals(lastFilmAdded.getActors().length, 3);
 
 		// Check that the elements are corrects
 		for (int i = 0; i < lastFilmAdded.getActors().length; i++) {
-			ActorInterface anActor = lastFilmAdded.getActors()[i];
+			ActorBase anActor = lastFilmAdded.getActors()[i];
 			Assert.assertEquals(anActor.getActorName(), "actor " + i);
 			Assert.assertEquals(anActor.getFilmId(), lastFilmAdded.getFilmID());
 		}
@@ -540,12 +540,12 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException
 	 */
-	private Map<String, FilmInterface> createSampleData()
+	private Map<String, FilmBase> createSampleData()
 			throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = new HashMap<String, FilmInterface>();
+		Map<String, FilmBase> mapFilms = new HashMap<String, FilmBase>();
 
-		FilmInterface film1 = createFilm();
+		FilmBase film1 = createFilm();
 		addReceiverPeerUID(film1);
 		film1.setFilmName("Film 1");
 		film1.setDuration(10);
@@ -556,7 +556,7 @@ public abstract class DataModuleTest {
 		mapFilms.put("film1", film1);
 		manager.add(film1);
 
-		FilmInterface film2 = createFilm();
+		FilmBase film2 = createFilm();
 		addReceiverPeerUID(film2);
 		film2.setFilmName("Film 2");
 		film2.setDuration(20);
@@ -567,7 +567,7 @@ public abstract class DataModuleTest {
 		mapFilms.put("film2", film2);
 		manager.add(film2);
 
-		FilmInterface film3 = createFilm();
+		FilmBase film3 = createFilm();
 		addReceiverPeerUID(film3);
 		film3.setFilmName("Film 3");
 		film3.setDuration(30);
@@ -578,7 +578,7 @@ public abstract class DataModuleTest {
 		mapFilms.put("film3", film3);
 		manager.add(film3);
 
-		FilmInterface filmNull = createFilm();
+		FilmBase filmNull = createFilm();
 		addReceiverPeerUID(filmNull);
 
 		mapFilms.put("filmNull", filmNull);
@@ -590,11 +590,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionEquals() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsString = Conditions.createConditions().add(
 				Conditions.eq("filmName", "Film 2"));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsString, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -627,11 +627,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionNotEquals() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionNotEqualsString = Conditions.createConditions()
 				.add(Conditions.ne("filmName", "Film 2"));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionNotEqualsString, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -671,11 +671,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionLessThan() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.lt("duration", 20));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -702,11 +702,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionGreaterThan() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.gt("duration", 20));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film3"), results.get(0));
@@ -733,11 +733,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionLessThanOrEqual() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.le("duration", 20));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -768,11 +768,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionGreaterThanOrEqual() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.ge("duration", 20));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -803,11 +803,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionGreaterBetween() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.between("duration", 15, 25));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -835,11 +835,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionGreaterNotBetween() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.notBetween("duration", 15, 25));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -872,11 +872,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionLike() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.like("filmName", "%2%"));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsInteger, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -885,11 +885,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionIn() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsString = Conditions.createConditions().add(
 				Conditions.in("filmName", new String[]{"Film 2"}));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsString, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -922,11 +922,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionNotIn() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsString = Conditions.createConditions().add(
 				Conditions.notIn("filmName", new String[]{"Film 2"}));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsString, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -964,11 +964,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionIsNull() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsString = Conditions.createConditions().add(
 				Conditions.isNull("filmName"));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsString, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("filmNull"), results.get(0));
@@ -1001,11 +1001,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testConditionNotNull() throws DDBSToolkitException {
 
-		Map<String, FilmInterface> mapFilms = createSampleData();
+		Map<String, FilmBase> mapFilms = createSampleData();
 
 		Conditions conditionEqualsString = Conditions.createConditions().add(
 				Conditions.isNotNull("filmName"));
-		List<FilmInterface> results = manager.listAll(createFilm(),
+		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionEqualsString, null);
 		Assert.assertEquals(results.size(), 3);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));

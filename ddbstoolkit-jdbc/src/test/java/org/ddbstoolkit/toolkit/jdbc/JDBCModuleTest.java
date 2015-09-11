@@ -4,8 +4,8 @@ import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
-import org.ddbstoolkit.toolkit.model.interfaces.ActorInterface;
-import org.ddbstoolkit.toolkit.model.interfaces.FilmInterface;
+import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
+import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 
 /**
  * JUnit tests for all JDBC Modules
@@ -15,12 +15,12 @@ import org.ddbstoolkit.toolkit.model.interfaces.FilmInterface;
 public abstract class JDBCModuleTest extends DataModuleTest {
 
 	@Override
-	protected FilmInterface createFilm() {
+	protected FilmBase createFilm() {
 		return new Film();
 	}
 
 	@Override
-	protected ActorInterface createActor() {
+	protected ActorBase createActor() {
 		return new Actor();
 	}
 	

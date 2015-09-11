@@ -1,20 +1,20 @@
-package org.ddbstoolkit.toolkit.jdbc.model;
+package org.ddbstoolkit.toolkit.model.interfaces;
 
 import java.sql.Timestamp;
 
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
-import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 
 /**
  * Entity representing a film
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
-public class Film extends FilmBase {
+@EntityName(name="Film")
+public class FilmBase extends DistributedEntity {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;

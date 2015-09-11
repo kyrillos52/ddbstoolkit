@@ -1,16 +1,17 @@
-package org.ddbstoolkit.toolkit.jdbc.model;
+package org.ddbstoolkit.toolkit.model.interfaces;
 
+import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
-import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
+
 
 /**
  * Entity representing an actor
  * @author Cyril GRANDJEAN
  * @version 1.0 Creation of the class
  */
-@SuppressWarnings("serial")
-public class Actor extends ActorBase {
+@EntityName(name="Actor")
+public class ActorBase extends DistributedEntity {
 
     @Id
     @EntityName(name="actor_id")
@@ -21,6 +22,11 @@ public class Actor extends ActorBase {
 
     @EntityName(name="film_id")
     private Integer filmId;
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public Integer getActorId() {
 		return actorId;

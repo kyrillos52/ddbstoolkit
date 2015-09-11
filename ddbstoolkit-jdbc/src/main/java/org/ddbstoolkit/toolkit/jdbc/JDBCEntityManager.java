@@ -1,7 +1,6 @@
 package org.ddbstoolkit.toolkit.jdbc;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,10 +15,6 @@ import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.generation.ImplementableEntity;
-import org.ddbstoolkit.toolkit.jdbc.JDBCConditionConverter;
-import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
-import org.ddbstoolkit.toolkit.jdbc.JDBCPreparedStatementManager;
-import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
@@ -647,12 +642,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 						List<IEntity> listObject = listAllWithQueryString(objectLinked,
 								conditionQueryString.toString(), orderBy);
 
-						Field f = objectToLoad.getClass().getField(field);
-
 						Object array = Array
 								.newInstance(Class.forName(propertyName
 										.getObjectTypeName()), listObject
 										.size());
+						
+						propertyName.setValue(objectToLoad, array);
 
 						int i = 0;
 						for (IEntity entity : listObject) {
@@ -660,15 +655,13 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 							i++;
 						}
 
-						f.set(objectToLoad, array);
-
 						return objectToLoad;
 					} catch (InstantiationException | IllegalAccessException
 							| ClassNotFoundException e) {
 						throw new DDBSToolkitException("Class "
 								+ propertyName.getObjectTypeName()
 								+ " not found", e);
-					} catch (NoSuchFieldException | SecurityException e) {
+					} catch (SecurityException e) {
 						throw new DDBSToolkitException("No such field "
 								+ field, e);
 					}
