@@ -25,6 +25,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.ddbstoolkit.toolkit.jdbc</groupId>
+			<artifactId>ddbstoolkit-jdbc</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.jgroups</groupId>
 			<artifactId>jgroups</artifactId>
 			<version>3.6.3.Final</version>
