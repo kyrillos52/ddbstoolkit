@@ -10,3 +10,8 @@
 **/.DS_Store
 **/.classpath
 **/.settings/**
+**.iml
+.idea/**
+**.project
+.settings/**
+**/**.project
