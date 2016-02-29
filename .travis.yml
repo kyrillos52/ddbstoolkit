@@ -1,6 +1,8 @@
 language: java
 jdk:
   - oraclejdk7
+before_install:
+  - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
 after_success:
   - echo "<settings><servers><server><id>ossrh</id><username>\${env.SONATYPE_PASSWORD}</username><password>\${env.SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/settings.xml
   - mvn deploy --settings ~/settings.xml
