@@ -1,4 +1,9 @@
 language: java
+jdk:
+  - oraclejdk7
+after_success:
+  - echo "<settings><servers><server><id>ossrh</id><username>\${env.SONATYPE_PASSWORD}</username><password>\${env.SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/settings.xml
+  - mvn deploy --settings ~/settings.xml
 env:
   global:
   - secure: WHGaRRH2GWMGdRblMGh7jrbc4F0ox1tzK5s1TMDbkGVby8AfnKUriu/2d1wEEyD5puyTKIeC0HFg0eV79ES5WPDOzkSLCDAExU7WuM6RNM112uV575fnjkV1KCbrcbuPe7DVsqjmB4cmMhe/Afqi/rMROzcT4YzguCDaHT687nvQLpEkaxvaNB9tIHapnGXOmy1QKzFy8eoW5ddFZD4A1/q6swjsMklwiHCGsemHiNG0TbTGSr5QpcIWDnR6uOpE6stt15Z4Xo55AeeCJX5VCB4gxBWKbEYqrSgChiKAdIs57tEpUf7mfj3A+FdM5OlNpukwRdhnK13KRhLNjvwyIoqK1k/qbkcRT0rTCvvDOyYzmDDKUqqIEkvYld+GQNO97Vf9o0V40rpfuDyqN3ZViPL/p2M49xJm53mbhOPZEHOyB4YlZUGDL/YZYpithVh45/+RApIBXU7BL8JZ3EDWpa4vfa3kWNLGMDhw5DSPSBwuqoS5boEPMQUEExuP/+0yNZsq7dhbq86L4XtiqBgBnjhbMKCf4EJOGO26ZQHQPsnJFIE60qojqerk4BO2PXaLFkogAoFBPDyA/5VQzxHpdvXiC0wnwuRD8AZqSKW294U6RWX8k8+awy4EI1yTrLlKOsPEEG+Kd1jP3SHZjClMfFSTN6f+cFlkQSfPOwL4hxA=
