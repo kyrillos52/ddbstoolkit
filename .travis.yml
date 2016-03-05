@@ -1,7 +1,7 @@
 language: java
 jdk:
 - oraclejdk7
-install: mvn install -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -B -V
+install: mvn install -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 cache:
   directories:
   - ~/.m2/repository
