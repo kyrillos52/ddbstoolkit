@@ -70,7 +70,7 @@ public abstract class JDBCConnectionPool {
 	/**
 	 * Get JDBC connection
 	 * @return Connection
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception
 	 */
 	public Connection getConnection() throws SQLException {
 		return connectionPool.getConnection();
@@ -78,7 +78,7 @@ public abstract class JDBCConnectionPool {
 	
 	/**
 	 * Get JDBC connection
-	 * @param sessionID Session Id
+	 * @param transaction Transaction
 	 * @return Connection
 	 */
 	public Connection getConnection(DDBSTransaction transaction) {
@@ -87,7 +87,7 @@ public abstract class JDBCConnectionPool {
 	
 	/**
 	 * End JDBC session
-	 * @param sessionID Session ID
+	 * @param transaction Transaction
 	 * @throws SQLException SQL Exception
 	 */
 	public void endSession(DDBSTransaction transaction) throws SQLException {

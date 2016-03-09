@@ -22,7 +22,7 @@ public @interface Id {
     
     /**
      * Indicates if the field is auto incrementing
-     * @return
+     * @return Indicates if the id is auto incrementing
      */
     boolean autoincrement() default true;
 }

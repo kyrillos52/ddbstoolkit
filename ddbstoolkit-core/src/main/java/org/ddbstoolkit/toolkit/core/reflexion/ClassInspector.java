@@ -28,7 +28,8 @@ public class ClassInspector {
 
     /**
      * List public properties of an object
-     * @param object : object to inspect
+     * @param <T> Extended entity
+     * @param classData : object to inspect
      * @return list of properties
      */
 	@SuppressWarnings("unchecked")
@@ -60,7 +61,7 @@ public class ClassInspector {
 	 * Has getters and setters
 	 * @param classData Class object
 	 * @param fieldName Field name
-	 * @return
+	 * @return Indicates if the field has getter and setter
 	 */
 	protected boolean hasGetterAndSetter(Class<?> classData, String fieldName) {
 		
@@ -84,7 +85,7 @@ public class ClassInspector {
 	/**
 	 * retrieve the last part getter and setter
 	 * @param fieldName Field Name
-	 * @return
+	 * @return Retrieve the ending part
 	 */
 	private String retrieveLastPartGetterAndSetter(String fieldName) {
 		return fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1);
@@ -92,6 +93,7 @@ public class ClassInspector {
 	
 	/**
 	 * Retrieve getter method name
+	 * @param fieldName Field Name
 	 * @return  Getter method name
 	 */
 	protected String retrieveGetterMethodName(String fieldName) {
@@ -100,6 +102,7 @@ public class ClassInspector {
 	
 	/**
 	 * Retrieve setter method name
+	 * @param fieldName Field Name
 	 * @return  Setter method name
 	 */
 	protected String retrieveSetterMethodName(String fieldName) {
@@ -108,8 +111,11 @@ public class ClassInspector {
     
     /**
      * Update a DDBSEntity property
+     * @param classData Class data
      * @param field Field
-     * @return DDBSEntityProperty
+     * @param ddbsEntityProperty DDBS Entity property
+     * @param counterProperties Counter of properties
+     * @param hasGetterAndSetter Indicates if DDBS Entity property has getter and setter
      */
     protected void updateDDBSEntityProperty(Class<?> classData, Field field, DDBSEntityProperty ddbsEntityProperty, int counterProperties, Boolean hasGetterAndSetter) {
     	

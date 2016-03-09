@@ -20,6 +20,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	
 	/**
 	 * Get Sparql service URL
+	 * @param entityObject Entity object
 	 * @return service url or null
 	 */
 	public String getServiceUrl(IEntity entityObject)
@@ -36,6 +37,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	
 	/**
 	 * Get default namespace
+	 * @param entityObject Entity object
 	 * @return Default namespace
 	 */
 	public String getDefaultNamespace(IEntity entityObject)
@@ -77,8 +79,9 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	/**
 	 * Get DDBSEntity entity
 	 * 
-	 * @param iEntity
-	 *            IEntity
+	 * @param iEntity IEntity
+	 * @param classInspector Class inspector
+	 * @return DDBS Entity
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public static SparqlDDBSEntity getDDBSEntity(IEntity iEntity, ClassInspector classInspector) {
@@ -97,8 +100,8 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	
 	/**
 	 * Get Object variable
-	 * @param object
-	 * @return
+	 * @param object Entity
+	 * @return Object variable
 	 */
 	public String getObjectVariable(IEntity object) {
 		if (object != null) {

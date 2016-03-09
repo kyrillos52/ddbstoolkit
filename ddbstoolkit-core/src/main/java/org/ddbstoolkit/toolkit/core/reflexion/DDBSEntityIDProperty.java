@@ -14,12 +14,16 @@ public class DDBSEntityIDProperty {
 	
     /**
      * Indicates if the property is auto incrementing
-     * @return
+     * @return Indicates if the ID property is auto incrementing
      */
 	public boolean isAutoIncrement() {
 		return isAutoIncrement;
 	}
 
+	/**
+     * Set if the ID is auto incrementing
+     * @param isAutoIncrement Set if the ID is auto incrementing
+     */
 	public void setAutoIncrement(boolean isAutoIncrement) {
 		this.isAutoIncrement = isAutoIncrement;
 	}

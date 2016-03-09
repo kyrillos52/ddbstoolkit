@@ -41,27 +41,29 @@ public interface DistributableEntityManager extends UpdatableEntityManager {
     
     /**
      * Execute a list of actions
-     * @param transactionCommands List of commands
-     * @return transaction transaction
+     * @param transaction List of commands
+     * @return transaction executed
+     * @throws DDBSToolkitException : Error to execute the transaction
      */
     public DDBSTransaction executeTransaction(DDBSTransaction transaction) throws DDBSToolkitException;
     
     /**
      * Commit a transaction
-     * @return transactionId Transaction Id
+     * @param transaction Transaction
      * @throws DDBSToolkitException : Error to commit the transaction
      */
     public void commit(DDBSTransaction transaction) throws DDBSToolkitException;
 
     /**
      * Rollback the transaction
-     * @return transactionId Transaction Id
+     * @param transaction Transaction
      * @throws DDBSToolkitException : Error to rollback the connection
      */
     public void rollback(DDBSTransaction transaction) throws DDBSToolkitException;
     
     /**
      * List all entities of a specific object
+     * @param <T> IEntity extended entity
      * @param object Object to search
      * @param conditions Conditions to filter the results
      * @param orderBy Order By Object
@@ -72,6 +74,7 @@ public interface DistributableEntityManager extends UpdatableEntityManager {
     
     /**
      * List all entities of a specific object
+     * @param <T> IEntity extended entity
      * @param object Object to search
      * @param conditionQueryString Condition query string to filter the results
      * @param orderBy Order By Object
@@ -82,6 +85,7 @@ public interface DistributableEntityManager extends UpdatableEntityManager {
     
     /**
      * Read details about an object
+     * @param <T> IEntity extended entity
      * @param object object to read
      * @return Object with all the details
      * @throws DDBSToolkitException Error during reading
@@ -90,6 +94,7 @@ public interface DistributableEntityManager extends UpdatableEntityManager {
 
     /**
      * Read the last element added of a table or a type of data source (Id annotation has to be used)
+     * @param <T> IEntity extended entity
      * @param object object to read
      * @return Last object added
      * @throws DDBSToolkitException Error during reading
@@ -98,6 +103,7 @@ public interface DistributableEntityManager extends UpdatableEntityManager {
 
     /**
      * Load a property of the object corresponding to an array
+     * @param <T> IEntity extended entity
      * @param objectToLoad Object to load
      * @param field Array to load
      * @param orderBy Order By Object

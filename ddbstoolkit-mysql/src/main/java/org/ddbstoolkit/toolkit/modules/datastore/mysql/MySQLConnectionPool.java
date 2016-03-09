@@ -13,7 +13,7 @@ import com.jolbox.bonecp.BoneCPConfig;
 /**
  * MySQL Connection pool
  * @author Cyril Grandjean
- * @
+ * @version 1.0 Class creation
  */
 public class MySQLConnectionPool extends JDBCConnectionPool {
 

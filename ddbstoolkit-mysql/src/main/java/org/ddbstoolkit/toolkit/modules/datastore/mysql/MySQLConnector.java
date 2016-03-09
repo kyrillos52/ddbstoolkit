@@ -39,7 +39,7 @@ public class MySQLConnector extends JDBCConnector {
      * @param url MySQL Database URL
      * @param login MySQL User Login
      * @param password MySQL User Password
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException Class not found exception
      */
     public MySQLConnector(final String url, final String login, final String password) throws ClassNotFoundException {
         super(url);
@@ -53,7 +53,7 @@ public class MySQLConnector extends JDBCConnector {
 
     /**
      * Open connection to the database
-     * @throws SQLException 
+     * @throws SQLException SQL Exception
      */
     @Override
     public void open() throws SQLException

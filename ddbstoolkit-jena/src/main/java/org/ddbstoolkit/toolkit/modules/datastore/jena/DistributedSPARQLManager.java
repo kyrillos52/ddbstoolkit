@@ -370,7 +370,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 * @param object
 	 *            object to read
 	 * @return last element added
-	 * @throws Exception
+	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
 	@Override
 	public <T extends IEntity> T readLastElement(T object)

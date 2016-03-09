@@ -39,7 +39,7 @@ public class DDBSToolkitSupportedEntity {
 	/**
 	 * Get type
 	 * 
-	 * @return
+	 * @return Get the supported types
 	 */
 	public String[] getTypes() {
 		return types;

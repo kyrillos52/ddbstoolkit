@@ -115,7 +115,7 @@ public class DDBSCommand implements Serializable {
 
     /**
      * Set the conditions of a query : listAll command only
-     * @return List of conditions
+     * @param conditions Query condition of the command
      */
 	public void setConditions(Conditions conditions) {
 		this.conditions = conditions;
@@ -179,7 +179,7 @@ public class DDBSCommand implements Serializable {
 
 	/**
 	 * Set the transaction to execute inside a transaction
-	 * @param commandsTransation List of commands
+	 * @param ddbsTransaction DDBS Toolkit transaction
 	 */
 	public void setDDBSTransaction(DDBSTransaction ddbsTransaction) {
 		this.ddbsTransaction = ddbsTransaction;

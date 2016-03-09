@@ -11,7 +11,7 @@ import java.sql.Statement;
  * JDBC Connection object
  * 
  * @author Cyril Grandjean
- * @1.0 Class creation
+ * @version 1.0 Class creation
  */
 public abstract class JDBCConnector {
 
@@ -33,7 +33,7 @@ public abstract class JDBCConnector {
 	/**
 	 * JDBC Connection constructor
 	 * 
-	 * @param jdbcString
+	 * @param jdbcString JDBC String
 	 */
 	protected JDBCConnector(String jdbcString) {
 		super();
@@ -53,7 +53,7 @@ public abstract class JDBCConnector {
 	 * Function which check if the connection is opened
 	 * 
 	 * @return boolean
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public boolean isOpen() throws SQLException {
 		if (connector == null || connector.isClosed()) {
@@ -66,7 +66,7 @@ public abstract class JDBCConnector {
 	/**
 	 * Open connection to the database
 	 * 
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public void open() throws SQLException {
 		connector = DriverManager.getConnection(jdbcString);
@@ -75,7 +75,7 @@ public abstract class JDBCConnector {
 	/**
 	 * Close connection to the database
 	 * 
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public void close() throws SQLException {
 		connector.close();
@@ -87,7 +87,7 @@ public abstract class JDBCConnector {
 	 * @param sql
 	 *            Request to execute (without protection)
 	 * @return Result of the request
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public int executeQuery(String sql) throws SQLException {
 
@@ -101,7 +101,7 @@ public abstract class JDBCConnector {
 	 * @param preparedRequest
 	 *            SQL request to execute
 	 * @return Result of the request
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public int executePreparedQuery(PreparedStatement preparedRequest)
 			throws SQLException {
@@ -114,7 +114,7 @@ public abstract class JDBCConnector {
 	 * @param sql
 	 *            SQL request to execute (without protection)
 	 * @return Result of the request
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception
 	 */
 	public ResultSet query(String sql) throws SQLException {
 		Statement stmt = connector.createStatement();
@@ -127,7 +127,7 @@ public abstract class JDBCConnector {
 	 * @param preparedRequest
 	 *            Prepared Request
 	 * @return Result of the request
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception
 	 */
 	public ResultSet queryPreparedStatement(PreparedStatement preparedRequest) throws SQLException {
 		return preparedRequest.executeQuery();
@@ -139,7 +139,7 @@ public abstract class JDBCConnector {
 	 * @param sql
 	 *            SQL request to prepare
 	 * @return Prepared request
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception
 	 */
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
 		return connector.prepareStatement(sql);
@@ -148,7 +148,7 @@ public abstract class JDBCConnector {
 	/**
 	 * Set auto commit value
 	 * @param isAutoCommit Boolean indicating expected auto commit value
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public void setAutoCommit(boolean isAutoCommit) throws SQLException {
 		connector.setAutoCommit(isAutoCommit);
@@ -157,7 +157,7 @@ public abstract class JDBCConnector {
 	/**
 	 * Get auto commit value
 	 * @return Boolean indicating the auto-commit state
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public boolean isAutoCommit() throws SQLException {
 		return connector.getAutoCommit();
@@ -165,7 +165,7 @@ public abstract class JDBCConnector {
 
 	/**
 	 * Commit the transaction
-	 * @throws SQLException
+	 * @throws SQLException SQL Exception
 	 */
 	public void commit() throws SQLException {
 		connector.commit();
@@ -173,7 +173,7 @@ public abstract class JDBCConnector {
 
 	/**
 	 * Rollback the transaction
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception 
 	 */
 	public void rollback() throws SQLException  {
 		connector.rollback();

@@ -15,6 +15,7 @@ public interface ImplementableEntity extends IEntity {
 
 	/**
 	 * Convert a JDBC ResultSet into an array of objects
+	 * @param <T> IEntity extended entity
 	 * @param aResultSet A JDBC ResultSet
 	 * @param convertionObject Corresponding conversion object
 	 * @return List of converted objects

@@ -103,7 +103,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
     /**
      * When received a message
      * @param msg Message received
-     * @return
+     * @return Object handled
      */
     @Override
     public Object handle(Message msg) throws Exception {

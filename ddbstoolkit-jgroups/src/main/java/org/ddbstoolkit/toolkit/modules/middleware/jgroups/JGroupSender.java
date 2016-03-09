@@ -83,7 +83,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     /**
      * Get the list of peers
      * @return List of peers
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Override
     public List<Peer> getListPeers() throws Exception {
@@ -129,7 +129,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
     /**
      * Open connections
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public void open() throws DDBSToolkitException {
@@ -184,7 +184,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     /**
      * Get the address associated with a peer name
      * @param peerName Name of the peer
-     * @return
+     * @return Peer name
      */
     private Address getAddressPeer(String peerName)
     {
@@ -279,10 +279,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     /**
      * List all objects in a network
      * @param object Object to search
-     * @param conditionList List of conditions to filter the results
+     * @param conditionQueryString Conditions query string
      * @param orderBy String to order the results
      * @return result list
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
@@ -358,7 +358,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Read an object in the network
      * @param object object to read
      * @return object read
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public <T extends IEntity> T read(T object) throws DDBSToolkitException {
@@ -412,7 +412,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Read the last element added
      * @param object object to read
      * @return last object added
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
@@ -467,7 +467,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Add an object
      * @param objectToAdd Add an object to the database or data source
      * @return boolean
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
@@ -515,7 +515,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Update an object
      * @param objectToUpdate Object to update
      * @return object updated
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public boolean update(IEntity objectToUpdate) throws DDBSToolkitException {
@@ -564,7 +564,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * Delete an object
      * @param objectToDelete Object to delete
      * @return boolean
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public boolean delete(IEntity objectToDelete) throws DDBSToolkitException {
@@ -658,7 +658,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      * @param field Array to load
      * @param orderBy order by field
      * @return  object loaded
-     * @throws Exception
+     * @throws DDBSToolkitException DDBS Toolkit exception
      */
     @Override
     public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {

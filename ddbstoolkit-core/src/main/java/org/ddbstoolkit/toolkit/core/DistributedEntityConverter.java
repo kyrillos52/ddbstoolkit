@@ -25,6 +25,7 @@ public class DistributedEntityConverter {
 	
 	/**
 	 * Enrich list with peer UID
+	 * @param <T> IEntity extended entity
 	 * @param list List of entities with peer UID
 	 * @return List of entities with peer UID
 	 */
@@ -37,8 +38,9 @@ public class DistributedEntityConverter {
 	
 	/**
 	 * Enrich element with peer UID
-	 * @param entity
-	 * @return
+	 * @param <T> IEntity extended entity
+	 * @param entity Entity to enrich
+	 * @return Enriched entity
 	 */
 	public <T extends IEntity> T enrichWithPeerUID(T entity) {
 		if(entity instanceof DistributedEntity) {

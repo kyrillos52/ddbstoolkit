@@ -20,7 +20,7 @@ public class DDBSEntityManager<T extends DDBSEntity> {
 	
 	/**
 	 * DDBS Entity Manager
-	 * @param classInspector
+	 * @param classInspector Class inspector
 	 */
 	public DDBSEntityManager(ClassInspector classInspector) {
 		super();

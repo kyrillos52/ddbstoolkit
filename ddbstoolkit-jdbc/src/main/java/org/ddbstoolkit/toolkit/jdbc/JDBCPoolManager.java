@@ -15,7 +15,7 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 /**
  * JDBC Entity manager with a connection pool
  * @author Cyril Grandjean
- * @1.0 Class creation
+ * @version 1.0 Class creation
  */
 public abstract class JDBCPoolManager extends JDBCEntityManager {
 

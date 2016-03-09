@@ -25,7 +25,7 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 /**
  * JDBC Entity manager
  * @author Cyril Grandjean
- * @1.0 Class creation
+ * @version 1.0 Class creation
  */
 public abstract class JDBCEntityManager implements DistributableEntityManager {
 	
@@ -51,7 +51,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 	
 	/**
 	 * JDBC Entity manager with a single connection
-	 * @param jdbcConnector
+	 * @param jdbcConnector JDBC Connector
 	 */
 	public JDBCEntityManager(JDBCConnector jdbcConnector) {
 		super();

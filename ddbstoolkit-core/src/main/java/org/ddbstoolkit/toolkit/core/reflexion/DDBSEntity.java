@@ -48,8 +48,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 
 	/**
 	 * Datastore entity name
-	 * 
-	 * @return
+	 * @return Datastore entity name
 	 */
 	public String getDatastoreEntityName() {
 		return this.datastoreEntityName;
@@ -87,7 +86,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	/**
      * Set Peer UID
      * @param entity Entity
-     * @param Peer UID
+     * @param peerUid Peer UID
      */
 	public void setPeerUid(IEntity entity, String peerUid) {
 		if(entity instanceof DistributedEntity) {
@@ -97,9 +96,9 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	
 	/**
 	 * Get DDBSEntity entity
-	 * 
-	 * @param iEntity
-	 *            IEntity
+	 * @param classData Class data
+	 * @param classInspector Class inspector
+	 * @return DDBSEntity
 	 */
 	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(Class<?> classData, ClassInspector classInspector) {
 		return new DDBSEntity<DDBSEntityProperty>(classData, classInspector);
@@ -108,8 +107,8 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	/**
 	 * Constructor
 	 * 
-	 * @param iEntity
-	 * @param classInspector
+	 * @param classData Class data
+	 * @param classInspector Class inspector
 	 */
 	protected DDBSEntity(Class<?> classData, ClassInspector classInspector) {
 		this.classData = classData;
@@ -202,8 +201,7 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	/**
 	 * Get a DDBSEntity property
 	 * 
-	 * @param propertyName
-	 *            Property name
+	 * @param name Property name          
 	 * @return DDBSEntity property
 	 */
 	@SuppressWarnings("unchecked")

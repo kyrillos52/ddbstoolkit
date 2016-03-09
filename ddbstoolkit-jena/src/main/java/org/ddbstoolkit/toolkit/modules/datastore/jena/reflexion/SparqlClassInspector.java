@@ -24,8 +24,8 @@ public class SparqlClassInspector extends ClassInspector {
 
     /**
      * Explore properties of a Sparql object
-     * @param o Sparql object
-     * @return
+     * @param classData Sparql object
+     * @return DDBS Entity property
      */
 	@SuppressWarnings("unchecked")
 	@Override

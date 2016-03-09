@@ -27,6 +27,7 @@ public class ObjectComparator implements Comparator<IEntity> {
 
     /**
      * Constructor
+     * @param ddbsEntity Entity to compare
      * @param orderBy Order by object
      */
     public ObjectComparator(DDBSEntity<DDBSEntityProperty> ddbsEntity, OrderBy orderBy) {

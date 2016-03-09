@@ -76,7 +76,7 @@ public class DDBSEntityProperty {
     /**
      * Get value of the object
      * @param iEntity Entity
-     * @return
+     * @return Entity property value
      */
     public Object getValue(IEntity iEntity)
     {
@@ -94,7 +94,6 @@ public class DDBSEntityProperty {
      * Set value of the object
      * @param iEntity Entity
      * @param object Object
-     * @return
      */
     public void setValue(IEntity iEntity, Object object)
     {
@@ -126,7 +125,7 @@ public class DDBSEntityProperty {
 
     /**
      * Indicates if the property is an array
-     * @return  boolean
+     * @return Indicates if it's an array
      */
     public boolean isArray() {
         return isArray;
@@ -134,7 +133,7 @@ public class DDBSEntityProperty {
     
     /**
      * Get DDBSToolkitSupported Entity
-     * @return
+     * @return Supported entity
      */
     public DDBSToolkitSupportedEntity getDdbsToolkitSupportedEntity() {
 		return ddbsToolkitSupportedEntity;
@@ -142,78 +141,142 @@ public class DDBSEntityProperty {
 
 	/**
      * Get the name of the property in a database or data source
-     * @return
+     * @return Property name
      */
     public String getPropertyName() {
         return propertyName;
     }
 
+	/**
+     * Set if the element is an array
+     * @param isArray Boolean indicating if the element is an array
+     */
 	public void setArray(boolean isArray) {
 		this.isArray = isArray;
 	}
 
+	/**
+     * Set the name
+     * @param name name
+     */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+     * Set the property name
+     * @param propertyName Property name
+     */
 	public void setPropertyName(String propertyName) {
 		this.propertyName = propertyName;
 	}
 
+	/**
+     * Set the property type
+     * @param type Property type
+     */
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	/**
+     * Set the DDBS Toolkit Supporty entity
+     * @param ddbsToolkitSupportedEntity DDBS Toolkit Supporty entity
+     */
 	public void setDdbsToolkitSupportedEntity(
 			DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity) {
 		this.ddbsToolkitSupportedEntity = ddbsToolkitSupportedEntity;
 	}
 
+	/**
+     * Get DDBS Entity ID Property
+     * @return DDBS Entity ID Property
+     */
 	public DDBSEntityIDProperty getDdbsEntityIDProperty() {
 		return ddbsEntityIDProperty;
 	}
 
+	/**
+     * Set the DDBS Toolkit ID property
+     * @param ddbsEntityIDProperty DDBS Toolkit ID property
+     */
 	public void setDdbsEntityIDProperty(DDBSEntityIDProperty ddbsEntityIDProperty) {
 		this.ddbsEntityIDProperty = ddbsEntityIDProperty;
 	}
 	
+	/**
+     * Indicates if it's an ID Entity
+     * @return Indicates if it's an ID Entity
+     */
 	public boolean isIDEntity()
 	{
 		return ddbsEntityIDProperty != null;
 	}
 
+	/**
+     * Get Field index
+     * @return Field index
+     */
 	public int getFieldIndex() {
 		return fieldIndex;
 	}
 
+	/**
+     * Set the field index
+     * @param fieldIndex Field index
+     */
 	public void setFieldIndex(int fieldIndex) {
 		this.fieldIndex = fieldIndex;
 	}
 
+	/**
+     * Indicates if the property is encapsulated
+     * @return Indicates if the property is encapsulated
+     */
 	public boolean isEncapsulated() {
 		return isEncapsulated;
 	}
 
+	/**
+     * Set the encapsulated property
+     * @param isEncapsulated encapsulated property
+     */
 	public void setEncapsulated(boolean isEncapsulated) {
 		this.isEncapsulated = isEncapsulated;
 	}
 
+	/**
+     * Get Getter index
+     * @return Getter index
+     */
 	public int getGetterIndex() {
 		return getterIndex;
 	}
 
+	/**
+     * Set the getter index
+     * @param getterIndex Getter index
+     */
 	public void setGetterIndex(int getterIndex) {
 		this.getterIndex = getterIndex;
 	}
 
+	/**
+     * Get Setter index
+     * @return Setter index
+     */
 	public int getSetterIndex() {
 		return setterIndex;
 	}
 
+	/**
+     * Set the setterIndex index
+     * @param setterIndex Setter index
+     */
 	public void setSetterIndex(int setterIndex) {
 		this.setterIndex = setterIndex;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof DDBSEntityProperty)

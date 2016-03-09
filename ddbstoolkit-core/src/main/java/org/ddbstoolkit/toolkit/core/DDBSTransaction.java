@@ -79,7 +79,7 @@ public class DDBSTransaction implements Serializable, UpdatableEntityManager {
 	
 	/**
 	 * Set list of included transactions
-	 * @return list of included transactions
+	 * @param transactions list of included transactions
 	 */
 	public void setTransactions(List<DDBSTransaction> transactions) {
 		this.transactions = transactions;
@@ -87,7 +87,7 @@ public class DDBSTransaction implements Serializable, UpdatableEntityManager {
 	
 	/**
 	 * Set entity manager
-	 * @param distributableEntityManager
+	 * @param distributableEntityManager Distributed Entity Manager
 	 */
 	public void setDistributableEntityManager(
 			DistributableEntityManager distributableEntityManager) {

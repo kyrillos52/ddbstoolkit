@@ -30,7 +30,8 @@ public class JDBCPreparedStatementManager {
 
 	/**
 	 * Get JDBCPreparedStatements of the object
-	 * @param iEntity Entity
+	 * @param ddbsEntity Entity
+	 * @param type Prepared statement type
 	 * @return JDBCPreparedStatements object
 	 */
 	public PreparedStatement getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type)
@@ -44,7 +45,9 @@ public class JDBCPreparedStatementManager {
 	
 	/**
 	 * Get JDBCPreparedStatements of the object
-	 * @param iEntity Entity
+	 * @param ddbsEntity Entity
+	 * @param type Prepared statement type
+	 * @param query Query to prepare
 	 * @return JDBCPreparedStatements object
 	 * @throws SQLException SQLException
 	 */
