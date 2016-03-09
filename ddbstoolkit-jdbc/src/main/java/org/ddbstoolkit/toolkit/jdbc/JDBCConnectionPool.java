@@ -52,7 +52,7 @@ public abstract class JDBCConnectionPool {
 	/**
 	 * Create a new connection session
 	 * @return session id
-	 * @throws SQLException 
+	 * @throws SQLException SQL Exception
 	 */
 	public DDBSTransaction createSession() throws SQLException {
 		

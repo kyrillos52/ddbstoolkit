@@ -20,7 +20,8 @@ public class SQLiteConnector extends JDBCConnector {
 	
     /**
      * Constructor : initialisation of the object
-     * @throws ClassNotFoundException 
+     * @param name SQL Database name
+     * @throws ClassNotFoundException Class not found exception
      */
     public SQLiteConnector(String name) throws ClassNotFoundException {
         super("jdbc:sqlite:"+name);

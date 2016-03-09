@@ -24,6 +24,7 @@ public class SqlSpacesConverter {
      * Convert the command object into tuple objects
      * @param myCommand DDBS Command
      * @param timeout Timeout
+     * @throws Exception Exception
      * @return Tuple object
      */
     public static Tuple getTuple(DDBSCommand myCommand, int timeout) throws Exception

@@ -68,7 +68,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
 
     /**
      * Start the receiver
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Override
     public void start() throws Exception {
