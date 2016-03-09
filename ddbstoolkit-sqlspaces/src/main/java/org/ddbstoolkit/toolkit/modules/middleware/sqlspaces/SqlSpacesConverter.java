@@ -22,6 +22,8 @@ public class SqlSpacesConverter {
 
     /**
      * Convert the command object into tuple objects
+     * @param myCommand DDBS Command
+     * @param timeout Timeout
      * @return Tuple object
      */
     public static Tuple getTuple(DDBSCommand myCommand, int timeout) throws Exception
@@ -41,8 +43,8 @@ public class SqlSpacesConverter {
 
     /**
      * Convert the tuple object into a command object
-     * @param myCommand
-     * @return
+     * @param myCommand DDBS Command
+     * @return DDBS Command
      */
     public static DDBSCommand getObject(Tuple myCommand)
     {
@@ -66,8 +68,8 @@ public class SqlSpacesConverter {
      * Read the object from Base64 string;
      * @param s String to convert to object
      * @return an Object
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException IO Exception
+     * @throws ClassNotFoundException Class not found exception
      */
     public static Object fromString( String s ) throws IOException, ClassNotFoundException {
         byte [] data = Base64Coder.decode(s);
@@ -82,7 +84,7 @@ public class SqlSpacesConverter {
      * Write the object to a Base64 string
      * @param o object to convert to String
      * @return Base64 string
-     * @throws IOException
+     * @throws IOException IO exception
      */
     public static String toString( Serializable o ) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

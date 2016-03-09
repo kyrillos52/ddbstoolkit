@@ -113,7 +113,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 
     /**
      * Start the receiver
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Override
     public void start() throws Exception {
