@@ -1,5 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.datastore.sqlite;
 
+import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.jdbc.JDBCModuleTest;
 
 /**
@@ -9,17 +10,15 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCModuleTest;
 public class DDBSToolkitSQLiteModuleTest extends JDBCModuleTest {
 
 	/**
-	 * SQLite Directory path String
-	 */
-	private final static String SQLITE_DIRECTORY = "/Users/Cyril/Desktop/";
-	
-	/**
 	 * SQLLite Database file
 	 */
-	private final static String SQLITE_DATABASE = "ddbstoolkit.db";
+	private final static String SQLITE_DATABASE = ":memory:";
     
 	@Override
-	public void instantiateManager() throws ClassNotFoundException {
-		manager = new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DIRECTORY, SQLITE_DATABASE));
+	public void instantiateManager() throws ClassNotFoundException, DDBSToolkitException {
+		manager = new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DATABASE));
+		manager.open();
+		manager.createEntity(createActor());
+		manager.createEntity(createFilm());
 	}
 }

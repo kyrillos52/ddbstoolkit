@@ -53,14 +53,20 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
-      			<plugin>
-        			<groupId>org.apache.maven.plugins</groupId>
-        			<artifactId>maven-surefire-plugin</artifactId>
-        			<version>2.19.1</version>
-        			<configuration>
-          				<skipTests>true</skipTests>
-        			</configuration>
-      			</plugin>
+      		<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-surefire-plugin</artifactId>
+        		<version>2.19.1</version>
+			    <configuration>
+			    	<excludes>
+			    		<exclude>**/DDBSToolkitSQLiteModuleTest.java</exclude>
+			    		<exclude>**/DDBSToolkitMySQLModuleTest.java</exclude>
+			    		<exclude>**/DDBSToolkitJenaModuleTest.java</exclude>
+			    		<exclude>**/DDBSToolkitSQLSpacesModuleTest.java</exclude>
+			    		<exclude>**/DDBSToolkitJGroupsModuleTest.java</exclude>
+			    	</excludes>
+			    </configuration>
+      		</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>

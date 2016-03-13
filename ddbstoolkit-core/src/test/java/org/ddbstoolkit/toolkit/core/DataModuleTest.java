@@ -73,7 +73,9 @@ public abstract class DataModuleTest {
 
 		instantiateManager();
 		
-		manager.open();
+		if(!manager.isOpen()) {
+			manager.open();
+		}
 		
 		for (ActorBase actor : manager.listAllWithQueryString(
 				createActor(), null, null)) {
@@ -132,6 +134,8 @@ public abstract class DataModuleTest {
 
 		instantiateManager();
 
+		manager.close();
+		
 		Assert.assertEquals(manager.isOpen(), false);
 
 		manager.open();
@@ -1043,5 +1047,67 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film2"), results.get(1));
 		compareFilmElement(mapFilms.get("film3"), results.get(2));
+	}
+	
+	@Test
+	public void testTransactions() throws DDBSToolkitException {
+		
+		manager.setAutoCommit(false);
+		
+		//Test to add an element with commit
+		DDBSTransaction transaction1 = new DDBSTransaction("transaction1");
+		
+		int numberOfElement = 0;
+
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		// Add the timestamp
+		FilmBase filmToAdd = createFilm();
+		addReceiverPeerUID(filmToAdd);
+		filmToAdd.setFilmName("Test JUnit 5");
+		filmToAdd.setDuration(10);
+		filmToAdd.setFloatField(new Float(20));
+		filmToAdd.setLongField(new Long(100));
+		filmToAdd.setCreationDate(new Timestamp(100000));
+
+		Assert.assertTrue(transaction1.add(filmToAdd));
+		
+		manager.executeTransaction(transaction1);
+		
+		numberOfElement++;
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		manager.commit(transaction1);
+		
+		DDBSTransaction transaction2 = new DDBSTransaction("transaction2");
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		//Test to add an element with rollback
+		Assert.assertTrue(transaction2.add(filmToAdd));
+		
+		manager.executeTransaction(transaction2);
+		
+		numberOfElement++;
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		manager.rollback(transaction2);
+		
+		numberOfElement--;
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
 	}
 }
