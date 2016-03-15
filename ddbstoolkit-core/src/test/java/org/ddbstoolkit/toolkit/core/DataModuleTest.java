@@ -89,14 +89,13 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * JUnit tests to test that the last film element correspond to the last
-	 * element added
+	 * JUnit tests to check that the last film element corresponds 
+	 * to the object in parameter
 	 * 
-	 * @param objectToCheck
-	 * @throws Exception
+	 * @param objectToCheck Object to check
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
-	private void testReadLastFilmElement(FilmBase objectToCheck)
-			throws Exception {
+	private void testReadLastFilmElement(FilmBase objectToCheck) throws DDBSToolkitException {
 
 		FilmBase lastFilm = createFilm();
 		addReceiverPeerUID(lastFilm);
@@ -106,10 +105,10 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Compare film element
+	 * Compare a reference object with an object to check
 	 * 
-	 * @param referenceObject
-	 * @param objectToCheck
+	 * @param referenceObject Reference object
+	 * @param objectToCheck Object to check
 	 */
 	private void compareFilmElement(FilmBase referenceObject,
 			FilmBase objectToCheck) {
@@ -125,9 +124,9 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Test data source connection
+	 * Test data source connections
 	 * 
-	 * @throws Exception
+	 * @throws Exception Exception thrown
 	 */
 	@Test
 	public void testIsOpen() throws Exception {
@@ -148,7 +147,8 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Test to add a null value
+	 * Test the add() method with a null value
+	 * We should throw an illegal argument exception
 	 * 
 	 * @throws DDBSToolkitException
 	 */
@@ -156,25 +156,24 @@ public abstract class DataModuleTest {
 	public void testAddNullValue() throws DDBSToolkitException {
 		thrown.expect(IllegalArgumentException.class);
 
-		// No object : must return null
 		manager.add(null);
 	}
 
 	/**
-	 * Test adding an entity
-	 * 
-	 * @throws Exception
+	 * Test the add() method of entities with different values
+	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
 	@Test
-	public void testAdd() throws Exception {
+	public void testAdd() throws DDBSToolkitException {
 
+		//Expected no entities
 		int numberOfElement = 0;
 
 		Assert.assertEquals(
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// All parameters with no values
+		//We add an empty object with no parameter set
 		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		Assert.assertTrue(manager.add(filmToAdd));
@@ -187,7 +186,7 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// Add the string
+		//We add an object with only the film name set
 		filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 1");
@@ -201,11 +200,11 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// Add the duration
+		//We add an object with only the film name and duration set
 		filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 2");
-		filmToAdd.setDuration(10);
+		filmToAdd.setDuration(20);
 
 		Assert.assertTrue(manager.add(filmToAdd));
 
@@ -217,12 +216,12 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// Add the float
+		//We add an object with only the film name, the duration and the float field set
 		filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 3");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
+		filmToAdd.setDuration(30);
+		filmToAdd.setFloatField(new Float(300));
 
 		Assert.assertTrue(manager.add(filmToAdd));
 
@@ -234,13 +233,13 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// Add the long
+		//We add an object with only the film name, the duration, the float field and the long field set
 		filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 4");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(100));
+		filmToAdd.setDuration(40);
+		filmToAdd.setFloatField(new Float(400));
+		filmToAdd.setLongField(new Long(4000));
 
 		Assert.assertTrue(manager.add(filmToAdd));
 
@@ -252,14 +251,14 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 
-		// Add the timestamp
+		//We add an object with all parameters set
 		filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 5");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(100));
-		filmToAdd.setCreationDate(new Timestamp(100000));
+		filmToAdd.setDuration(50);
+		filmToAdd.setFloatField(new Float(50));
+		filmToAdd.setLongField(new Long(500));
+		filmToAdd.setCreationDate(new Timestamp(50000));
 
 		Assert.assertTrue(manager.add(filmToAdd));
 
@@ -273,9 +272,9 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Test list all method with null value
-	 * 
-	 * @throws DDBSToolkitException
+	 * Test list() method with null value
+	 * We expect to have an illegal argument exception
+	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
 	@Test
 	public void testListAllWithNullValue() throws DDBSToolkitException {
@@ -285,33 +284,43 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Test list all method
-	 * 
-	 * @throws Exception
+	 * Test list() all method with no data
+	 * @throws DDBSToolkitException DDBS Toolkit exceptions
 	 */
 	@Test
-	public void testListAll() throws Exception {
+	public void testListAll() throws DDBSToolkitException {
 
-		// Select a movie
 		Assert.assertNotNull(manager.listAllWithQueryString(createFilm(), null,
 				null));
+		Assert.assertEquals(manager.listAllWithQueryString(createFilm(), null,
+				null).size(), 0);
 
-		// Select a movie order by filmID
 		Assert.assertNotNull(manager.listAllWithQueryString(createFilm(), null,
 				OrderBy.get("filmID", OrderByType.ASC)));
+		Assert.assertEquals(manager.listAllWithQueryString(createFilm(), null,
+				OrderBy.get("filmID", OrderByType.ASC)).size(), 0);
 	}
 
+	/**
+	 * Test read() method with null value
+	 * We expect to have an illegal argument exception
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testReadNullValue() throws DDBSToolkitException {
 		thrown.expect(IllegalArgumentException.class);
 
-		// No object : must return null
 		manager.read(null);
 	}
 
+	/**
+	 * Test read() method
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
-	public void testRead() throws Exception {
+	public void testRead() throws DDBSToolkitException {
 
+		//Test to retrieve an element with no data
 		FilmBase filmToRead = createFilm();
 
 		addReceiverPeerUID(filmToRead);
@@ -319,48 +328,43 @@ public abstract class DataModuleTest {
 
 		Assert.assertNull(manager.read(filmToRead));
 
+		//Add an element
 		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
-		filmToAdd.setFilmName("Test JUnit 5");
+		filmToAdd.setFilmName("Test JUnit 1");
 		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(100));
-		filmToAdd.setCreationDate(new Timestamp(100000));
+		filmToAdd.setFloatField(new Float(100));
+		filmToAdd.setLongField(new Long(1000));
+		filmToAdd.setCreationDate(new Timestamp(10000));
 
 		manager.add(filmToAdd);
 
-		// Get last film
+		//Read the last element
 		FilmBase lastFilm = createFilm();
 		addReceiverPeerUID(lastFilm);
 		filmToRead = manager.read(manager.readLastElement(lastFilm));
 
-		// Check the fields
-		Assert.assertEquals(filmToAdd.getFilmName(), filmToRead.getFilmName());
-		Assert.assertEquals(filmToAdd.getDuration(), filmToRead.getDuration());
-		Assert.assertEquals(filmToAdd.getFloatField(),filmToRead
-				.getFloatField());
-		Assert.assertEquals(filmToAdd.getLongField(), filmToRead.getLongField());
-		Assert.assertEquals(filmToAdd.getCreationDate(),
-				filmToRead.getCreationDate());
+		compareFilmElement(filmToAdd, filmToRead);
 	}
 
 	/**
-	 * Test read element with null value
+	 * Test read() method with null value
+	 * We expect to have an illegal argument exception
 	 * 
-	 * @throws DDBSToolkitException
+	 * @throws DDBSToolkitException DDBS Toolkit Exception
 	 */
 	@Test
 	public void testReadLastElementNullValue() throws DDBSToolkitException {
 		thrown.expect(IllegalArgumentException.class);
 
-		// No object : must return null
 		manager.readLastElement(null);
 	}
 
 	/**
-	 * Test update method with null value
+	 * Test update() method with null value
+	 * We expect to have an illegal argument exception
 	 * 
-	 * @throws DDBSToolkitException
+	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
 	@Test
 	public void testUpdateNullValue() throws DDBSToolkitException {
@@ -370,12 +374,11 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * JUnit tests to test the update function
-	 * 
-	 * @throws Exception
+	 * Test update() method
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	@Test
-	public void testUpdate() throws Exception {
+	public void testUpdate() throws DDBSToolkitException {
 
 		// If there is no primary key, must return false
 		Assert.assertEquals(manager.update(createFilm()), false);
@@ -383,15 +386,15 @@ public abstract class DataModuleTest {
 		// Add a movie
 		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
-		filmToAdd.setFilmName("Test JUnit");
+		filmToAdd.setFilmName("Test JUnit 1");
 		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(30));
+		filmToAdd.setFloatField(new Float(100));
+		filmToAdd.setLongField(new Long(1000));
 		filmToAdd.setCreationDate(new Timestamp(10000));
 
 		manager.add(filmToAdd);
 
-		// Check the last element
+		//Check the last element
 		testReadLastFilmElement(filmToAdd);
 
 		// Modify the last element
@@ -400,8 +403,8 @@ public abstract class DataModuleTest {
 		lastFilmAdded = manager.readLastElement(lastFilmAdded);
 		lastFilmAdded.setFilmName("Test JUnit Updated");
 		lastFilmAdded.setDuration(20);
-		lastFilmAdded.setFloatField(new Float(30));
-		lastFilmAdded.setLongField(new Long(40));
+		lastFilmAdded.setFloatField(new Float(200));
+		lastFilmAdded.setLongField(new Long(2000));
 		lastFilmAdded.setCreationDate(new Timestamp(20000));
 
 		manager.update(lastFilmAdded);
@@ -411,25 +414,23 @@ public abstract class DataModuleTest {
 	}
 
 	/**
-	 * Test delete method with null value
+	 * Test delete() method with null value
 	 * 
-	 * @throws DDBSToolkitException
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	@Test
 	public void testDeleteNullValue() throws DDBSToolkitException {
 		thrown.expect(IllegalArgumentException.class);
 
-		// No object : must return null
 		manager.delete(null);
 	}
 
 	/**
-	 * Test delete method with null value
-	 * 
-	 * @throws Exception
+	 * Test delete() method
+	 * @throws DDBSToolkitException DDBS Toolkit Exception
 	 */
 	@Test
-	public void testDelete() throws Exception {
+	public void testDelete() throws DDBSToolkitException  {
 
 		// If there is no primary key, must return false
 		Assert.assertEquals(manager.delete(createFilm()), false);
@@ -443,8 +444,8 @@ public abstract class DataModuleTest {
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit");
 		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(30));
+		filmToAdd.setFloatField(new Float(100));
+		filmToAdd.setLongField(new Long(1000));
 		filmToAdd.setCreationDate(new Timestamp(10000));
 
 		manager.add(filmToAdd);
@@ -465,6 +466,12 @@ public abstract class DataModuleTest {
 				0);
 	}
 
+	/**
+	 * Test loadArray() method with null value in 1st parameter
+	 * We expect to have an illegal argument exception
+	 * 
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testLoadArrayNullValue1stParameter()
 			throws DDBSToolkitException {
@@ -474,6 +481,12 @@ public abstract class DataModuleTest {
 		manager.loadArray(null, null, null);
 	}
 
+	/**
+	 * Test loadArray() method with null value in 2nd parameter
+	 * We expect to have an illegal argument exception
+	 * 
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testLoadArrayNullValue2ndParameter()
 			throws DDBSToolkitException {
@@ -482,6 +495,12 @@ public abstract class DataModuleTest {
 		manager.loadArray(createFilm(), null, null);
 	}
 
+	/**
+	 * Test loadArray() method with empty value in 2nd parameter
+	 * We expect to have an illegal argument exception
+	 * 
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testLoadArrayEmptyParameter() throws DDBSToolkitException {
 		thrown.expect(IllegalArgumentException.class);
@@ -489,8 +508,12 @@ public abstract class DataModuleTest {
 		manager.loadArray(createFilm(), "", null);
 	}
 
+	/**
+	 * Test loadArray() method
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
-	public void testLoadArray() throws Exception {
+	public void testLoadArray() throws DDBSToolkitException {
 
 		// Add a movie
 		FilmBase filmToAdd = createFilm();
@@ -591,6 +614,10 @@ public abstract class DataModuleTest {
 		return mapFilms;
 	}
 
+	/**
+	 * Test list() method with equal condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionEquals() throws DDBSToolkitException {
 
@@ -628,6 +655,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 	}
 
+	/**
+	 * Test list() method with not equal condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionNotEquals() throws DDBSToolkitException {
 
@@ -672,6 +703,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 	}
 
+	/**
+	 * Test list() method with less than condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionLessThan() throws DDBSToolkitException {
 
@@ -703,6 +738,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 	}
 
+	/**
+	 * Test list() method with greater than condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionGreaterThan() throws DDBSToolkitException {
 
@@ -734,6 +773,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(0));
 	}
 
+	/**
+	 * Test list() method with less than or equal condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionLessThanOrEqual() throws DDBSToolkitException {
 
@@ -769,6 +812,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(1));
 	}
 
+	/**
+	 * Test list() method with greater than or equal condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionGreaterThanOrEqual() throws DDBSToolkitException {
 
@@ -804,8 +851,12 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 	}
 
+	/**
+	 * Test list() method with between condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
-	public void testConditionGreaterBetween() throws DDBSToolkitException {
+	public void testConditionBetween() throws DDBSToolkitException {
 
 		Map<String, FilmBase> mapFilms = createSampleData();
 
@@ -836,6 +887,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 	}
 
+	/**
+	 * Test list() method with not between condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionGreaterNotBetween() throws DDBSToolkitException {
 
@@ -873,6 +928,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 	}
 
+	/**
+	 * Test list() method with like condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionLike() throws DDBSToolkitException {
 
@@ -886,6 +945,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 	}
 
+	/**
+	 * Test list() method with in condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionIn() throws DDBSToolkitException {
 
@@ -923,6 +986,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 	}
 	
+	/**
+	 * Test list() method with not in condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionNotIn() throws DDBSToolkitException {
 
@@ -965,6 +1032,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 	}
 
+	/**
+	 * Test list() method with is null condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionIsNull() throws DDBSToolkitException {
 
@@ -1002,6 +1073,10 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("filmNull"), results.get(0));
 	}
 	
+	/**
+	 * Test list() method with is not null condition
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
 	public void testConditionNotNull() throws DDBSToolkitException {
 
@@ -1049,13 +1124,18 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(2));
 	}
 	
+	/**
+	 * Test executeTransaction() method with add transaction
+	 * Test commit and rollback conditions
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
 	@Test
-	public void testTransactions() throws DDBSToolkitException {
+	public void testTransactionsAdd() throws DDBSToolkitException {
 		
 		manager.setAutoCommit(false);
 		
 		//Test to add an element with commit
-		DDBSTransaction transaction1 = new DDBSTransaction("transaction1");
+		DDBSTransaction transactionAddCommit = new DDBSTransaction("transactionAddCommit");
 		
 		int numberOfElement = 0;
 
@@ -1063,7 +1143,6 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 		
-		// Add the timestamp
 		FilmBase filmToAdd = createFilm();
 		addReceiverPeerUID(filmToAdd);
 		filmToAdd.setFilmName("Test JUnit 5");
@@ -1072,9 +1151,9 @@ public abstract class DataModuleTest {
 		filmToAdd.setLongField(new Long(100));
 		filmToAdd.setCreationDate(new Timestamp(100000));
 
-		Assert.assertTrue(transaction1.add(filmToAdd));
+		Assert.assertTrue(transactionAddCommit.add(filmToAdd));
 		
-		manager.executeTransaction(transaction1);
+		manager.executeTransaction(transactionAddCommit);
 		
 		numberOfElement++;
 		
@@ -1082,18 +1161,18 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 		
-		manager.commit(transaction1);
+		manager.commit(transactionAddCommit);
 		
-		DDBSTransaction transaction2 = new DDBSTransaction("transaction2");
+		DDBSTransaction transactionAddRollback = new DDBSTransaction("transactionAddRollback");
 		
 		Assert.assertEquals(
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 		
 		//Test to add an element with rollback
-		Assert.assertTrue(transaction2.add(filmToAdd));
+		Assert.assertTrue(transactionAddRollback.add(filmToAdd));
 		
-		manager.executeTransaction(transaction2);
+		manager.executeTransaction(transactionAddRollback);
 		
 		numberOfElement++;
 		
@@ -1101,13 +1180,122 @@ public abstract class DataModuleTest {
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
 		
-		manager.rollback(transaction2);
+		manager.rollback(transactionAddRollback);
 		
 		numberOfElement--;
 		
 		Assert.assertEquals(
 				manager.listAllWithQueryString(createFilm(), null, null).size(),
 				numberOfElement);
+	}
+	
+	/**
+	 * Test executeTransaction() method with update transaction
+	 * Test commit and rollback conditions
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
+	@Test
+	public void testTransactionUpdate() throws Exception {
 		
+		FilmBase originalFilm = createFilm();
+		originalFilm.setFilmName("Test JUnit original");
+		originalFilm.setDuration(10);
+		originalFilm.setFloatField(new Float(100));
+		originalFilm.setLongField(new Long(1000));
+		originalFilm.setCreationDate(new Timestamp(10000));
+		
+		manager.add(originalFilm);
+		
+		manager.setAutoCommit(false);
+		
+		//Test to update an element with commit
+		DDBSTransaction transactionUpdateCommit = new DDBSTransaction("transactionUpdateCommit");
+		
+		FilmBase filmToUpdate = manager.readLastElement(createFilm());
+		filmToUpdate.setFilmName("Test JUnit update commit");
+		filmToUpdate.setDuration(20);
+		filmToUpdate.setFloatField(new Float(200));
+		filmToUpdate.setLongField(new Long(2000));
+		filmToUpdate.setCreationDate(new Timestamp(20000));
+		
+		Assert.assertTrue(transactionUpdateCommit.update(filmToUpdate));
+		
+		manager.executeTransaction(transactionUpdateCommit);
+		
+		manager.commit(transactionUpdateCommit);
+		
+		testReadLastFilmElement(filmToUpdate);
+		
+		//Test to update an element with rollback
+		DDBSTransaction transactionUpdateRollback = new DDBSTransaction("transactionUpdateRollback");
+		
+		FilmBase filmTryToUpdate = manager.readLastElement(createFilm());
+		filmTryToUpdate.setFilmName("Test JUnit update rollback");
+		filmTryToUpdate.setDuration(30);
+		filmTryToUpdate.setFloatField(new Float(300));
+		filmTryToUpdate.setLongField(new Long(3000));
+		filmTryToUpdate.setCreationDate(new Timestamp(30000));
+		
+		Assert.assertTrue(transactionUpdateRollback.update(filmTryToUpdate));
+		
+		manager.executeTransaction(transactionUpdateRollback);
+		
+		manager.rollback(transactionUpdateRollback);
+		
+		testReadLastFilmElement(filmToUpdate);
+	}
+	
+	/**
+	 * Test executeTransaction() method with delete transaction
+	 * Test commit and rollback conditions
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
+	@Test
+	public void testTransactionDelete() throws Exception {
+		
+		FilmBase originalFilm1 = createFilm();
+		originalFilm1.setFilmName("Test JUnit original 1");
+		originalFilm1.setDuration(10);
+		originalFilm1.setFloatField(new Float(100));
+		originalFilm1.setLongField(new Long(1000));
+		originalFilm1.setCreationDate(new Timestamp(10000));
+		
+		FilmBase originalFilm2 = createFilm();
+		originalFilm2.setFilmName("Test JUnit original 2");
+		originalFilm2.setDuration(20);
+		originalFilm2.setFloatField(new Float(200));
+		originalFilm2.setLongField(new Long(2000));
+		originalFilm2.setCreationDate(new Timestamp(20000));
+		
+		manager.add(originalFilm1);
+		manager.add(originalFilm2);
+		
+		manager.setAutoCommit(false);
+		
+		//Delete transaction with rollback
+		DDBSTransaction transactionDeleteRollback = new DDBSTransaction("transactionDeleteRollback");
+		
+		FilmBase filmTryToDelete = manager.readLastElement(createFilm());
+		
+		Assert.assertTrue(transactionDeleteRollback.delete(filmTryToDelete));
+		
+		manager.executeTransaction(transactionDeleteRollback);
+		
+		manager.rollback(transactionDeleteRollback);
+		
+		testReadLastFilmElement(originalFilm2);
+		
+		//Delete transaction with commit
+		DDBSTransaction transactionDeleteCommit = new DDBSTransaction("transactionDeleteCommit");
+		
+		FilmBase filmToDelete = manager.readLastElement(createFilm());
+		
+		Assert.assertTrue(transactionDeleteCommit.delete(filmToDelete));
+		
+		manager.executeTransaction(transactionDeleteCommit);
+		
+		manager.commit(transactionDeleteCommit);
+		
+		testReadLastFilmElement(originalFilm1);
 	}
 }
