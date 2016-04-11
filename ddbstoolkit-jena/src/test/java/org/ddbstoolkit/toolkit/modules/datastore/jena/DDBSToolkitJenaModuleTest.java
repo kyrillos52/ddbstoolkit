@@ -1,16 +1,24 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
+import org.ddbstoolkit.toolkit.core.DataModuleTest;
+import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
+import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
+import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Actor;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.model.ActorDatastore;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Book;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Company;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Employee;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Film;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.model.FilmDatastore;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,31 +30,16 @@ import org.junit.rules.ExpectedException;
  * JUnit tests to test Jena module
  * @version 1.0 Creation of the class
  */
-public class DDBSToolkitJenaModuleTest {
-	
-	/**
-	 * Distributed entity manager
-	 */
-	protected DistributableEntityManager manager;
+public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	
 	/**
 	 * Jena Directory path
 	 */
-	private final static String DATASTORE_DIRECTORY = "/Users/Cyril/Desktop/datastore";
+	private final static String DATASTORE_DIRECTORY = "/datastore";
 
 	
 	@Rule
     public ExpectedException thrown = ExpectedException.none();
-	
-	@Before 
-	public void initialiseDatabase() throws ClassNotFoundException, DDBSToolkitException {
-		
-		manager = new DistributedSPARQLManager(DATASTORE_DIRECTORY);
-		
-		manager.open();
-		
-		cleanData();
-	}
 	
 	@After
 	public void closeConnection() throws DDBSToolkitException
@@ -54,16 +47,20 @@ public class DDBSToolkitJenaModuleTest {
 		manager.close();
 	}
     
+	@Override
 	public void instantiateManager() {
 		manager = new DistributedSPARQLManager(DATASTORE_DIRECTORY);
 	}
 	
-	/**
-	 * Clean data inside the data source
-	 * @throws ClassNotFoundException
-	 * @throws DDBSToolkitException
-	 */
-	public void cleanData() throws ClassNotFoundException, DDBSToolkitException {
+	@Before
+	@Override
+	public void setUp() throws Exception {
+
+		instantiateManager();
+		
+		if(!manager.isOpen()) {
+			manager.open();
+		}
 		
 		for(Actor actor : manager.listAllWithQueryString(new Actor(), null, null))
 		{
@@ -82,36 +79,61 @@ public class DDBSToolkitJenaModuleTest {
 	}
 	
 	/**
-     * Test Connection
-     * @throws Exception
-     */
-    @Test
-    public void testIsOpen() throws Exception {
-    	
-    	instantiateManager();
-    	
-        manager.open();
+	 * Create sample data
+	 * 
+	 * @throws DDBSToolkitException
+	 */
+	@Override
+	protected Map<String, FilmBase> createSampleData()
+			throws DDBSToolkitException {
 
-        Assert.assertEquals(manager.isOpen(),true);
+		Map<String, FilmBase> mapFilms = new HashMap<String, FilmBase>();
 
-        manager.close();
+		FilmDatastore film1 = new FilmDatastore();
+		addReceiverPeerUID(film1);
+		film1.setFilm_uri("http://www.cyril-grandjean.co.uk/film/1");
+		film1.setFilmName("Film 1");
+		film1.setDuration(10);
+		film1.setFloatField(new Float(20));
+		film1.setLongField(new Long(30));
+		film1.setCreationDate(new Timestamp(10000));
 
-        Assert.assertEquals(manager.isOpen(),false);
-        
-        manager.open();
-    }
-    
-    /**
-     * Test list all method with null value
-     * @throws DDBSToolkitException
-     */
-    @Test
-    public void testListAllWithNullValue() throws DDBSToolkitException
-    {
-    	thrown.expect(IllegalArgumentException.class);
-    	
-    	manager.listAllWithQueryString(null, null, null);
-    }
+		mapFilms.put("film1", film1);
+		manager.add(film1);
+
+		FilmDatastore film2 = new FilmDatastore();
+		addReceiverPeerUID(film2);
+		film2.setFilm_uri("http://www.cyril-grandjean.co.uk/film/2");
+		film2.setFilmName("Film 2");
+		film2.setDuration(20);
+		film2.setFloatField(new Float(30));
+		film2.setLongField(new Long(40));
+		film2.setCreationDate(new Timestamp(20000));
+
+		mapFilms.put("film2", film2);
+		manager.add(film2);
+
+		FilmDatastore film3 = new FilmDatastore();
+		addReceiverPeerUID(film3);
+		film3.setFilm_uri("http://www.cyril-grandjean.co.uk/film/3");
+		film3.setFilmName("Film 3");
+		film3.setDuration(30);
+		film3.setFloatField(new Float(40));
+		film3.setLongField(new Long(50));
+		film3.setCreationDate(new Timestamp(60000));
+
+		mapFilms.put("film3", film3);
+		manager.add(film3);
+
+		FilmDatastore filmNull = new FilmDatastore();
+		addReceiverPeerUID(filmNull);
+		filmNull.setFilm_uri("http://www.cyril-grandjean.co.uk/film/4");
+
+		mapFilms.put("filmNull", filmNull);
+		manager.add(filmNull);
+
+		return mapFilms;
+	}
 
     /**
      * JUnit tests for the listAll function for MySQL
@@ -138,8 +160,8 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertEquals(myFilm.title, myFilm.title);
         Assert.assertEquals(myFilm.runtime, 98);
 
-        conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en.\\n";
-        conditionQueryString += "FILTER ( lang(?title) =  'en' ).\\n";
+        conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en.";
+        conditionQueryString += "FILTER ( lang(?title) =  'en' ).";
         conditionQueryString += "FILTER ( lang(?summary) = 'en' )";
 
         List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
@@ -152,19 +174,6 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertNotNull(myBook.author);
         Assert.assertNotNull(myBook.genre);
         Assert.assertNotNull(myBook.character);
-    }
-    
-    /**
-     * Test read with null value
-     * @throws DDBSToolkitException
-     */
-    @Test
-    public void testReadNullValue() throws DDBSToolkitException
-    {
-    	thrown.expect(IllegalArgumentException.class);
-    	
-    	//No object : must return null
-        manager.read(null);
     }
 
     /**
@@ -188,25 +197,13 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertEquals(filmExtracted.title, "The Return of the King");
         Assert.assertEquals(filmExtracted.runtime, 98);
     }
-    
-    /**
-     * Test to add a null value
-     * @throws DDBSToolkitException
-     */
-    @Test
-    public void testAddNullValue() throws DDBSToolkitException
-    {
-    	thrown.expect(IllegalArgumentException.class);
- 
-        manager.add(null);
-    }
 
     /**
      * JUnit tests for adding
      * @throws Exception
      */
     @Test
-    public void testAdd() throws Exception {
+    public void testAdd() throws DDBSToolkitException {
 
         Assert.assertEquals(manager.listAllWithQueryString(new Company(), null, null).size(), 0);
 
@@ -282,23 +279,11 @@ public class DDBSToolkitJenaModuleTest {
     }
     
     /**
-     * Test update method with null value
-     * @throws DDBSToolkitException
-     */
-    @Test
-    public void testUpdateNullValue() throws DDBSToolkitException
-    {
-    	thrown.expect(IllegalArgumentException.class);
-    	
-    	manager.update(null);
-    }
-
-    /**
      * JUnit tests to test the update function
      * @throws Exception
      */
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() throws DDBSToolkitException {
 
         //Add a company
         Company companyToAdd = new Company();
@@ -390,28 +375,13 @@ public class DDBSToolkitJenaModuleTest {
         Assert.assertTrue(companyToUpdate.number2[0] == myCompany.number2[0]);
         Assert.assertTrue(companyToUpdate.number2[1] == myCompany.number2[1]);
     }
-    
-    /**
-     * Test delete method with null value
-     * @throws DDBSToolkitException
-     */
-    @Test
-    public void testDeleteNullValue() throws DDBSToolkitException
-    {
-    	thrown.expect(IllegalArgumentException.class);
-    	
-    	//No object : must return null
-    	manager.delete(null);
-    }
 
     /**
      * JUnit tests to test the LoadArray function
      * @throws Exception
      */
     @Test
-    public void testLoadArray() throws Exception {
-
-    	//TODO Fix load array
+    public void testLoadArray() throws DDBSToolkitException {
     	
         //Add a company
         Company companyToAdd = new Company();
@@ -463,7 +433,11 @@ public class DDBSToolkitJenaModuleTest {
         }
 
         manager.delete(companyToAdd);
-
+        manager.close();
+        
+        manager = new DistributedSPARQLManager();
+        manager.open();
+        
         Film filmToRead = new Film();
         filmToRead.film_uri = "http://data.linkedmdb.org/resource/film/1025";
 
@@ -482,5 +456,23 @@ public class DDBSToolkitJenaModuleTest {
             System.out.println(filmExtracted.actor[i].actor_uri+" "+filmExtracted.actor[i].actor_name);
         }
     }
+
+	@Override
+	protected void addReceiverPeerUID(IEntity iEntity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected FilmBase createFilm() {
+		FilmDatastore film = new FilmDatastore();
+		return film;
+	}
+
+	@Override
+	protected ActorBase createActor() {
+		ActorDatastore actor = new ActorDatastore();
+		return actor;
+	}
 
 }

@@ -18,7 +18,7 @@ import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
-import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
+import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassInspector;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSEntity;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlDDBSToolkitSupportedEntity;
@@ -72,9 +72,16 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	protected SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> ddbsEntityManager;
 
 	/**
+	 * Sparql Condition converter
+	 */
+	protected SparqlConditionConverter sparqlConditionConverter;
+	
+	/**
 	 * Default constructor used when using SPARQL to query remote endpoints
 	 */
 	public DistributedSPARQLManager() {
+		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new SparqlClassInspector());
+		this.sparqlConditionConverter = new SparqlConditionConverter(ddbsEntityManager);
 	}
 
 	/**
@@ -84,8 +91,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 *            Path of the Jena data sources folder
 	 */
 	public DistributedSPARQLManager(String datasetPath) {
+		this();
 		this.pathDataset = datasetPath;
-		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new ClassInspector());
 	}
 
 	@Override
@@ -105,7 +112,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public void close() {
 
-		if (pathDataset != null) {
+		if (isOpen && pathDataset != null) {
 			myDataset.close();
 		}
 		isOpen = false;
@@ -577,7 +584,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 				return true;
 			} else {
-				throw new DDBSToolkitException("URI has not been defined");
+				return false;
 			}
 
 		} finally {
@@ -588,8 +595,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
 			OrderBy orderBy) throws DDBSToolkitException {
-		//TODO
-		throw new UnsupportedOperationException();
+		testConnection(object);
+
+		return listAll(object, sparqlConditionConverter.getConditionsString(conditions, object), orderBy, null);
 	}
 
 	@Override

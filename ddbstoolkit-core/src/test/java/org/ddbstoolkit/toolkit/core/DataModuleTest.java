@@ -13,9 +13,7 @@ import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
 import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
  * JUnit tests for all data Modules
@@ -29,9 +27,6 @@ public abstract class DataModuleTest {
 	 * Distributed entity manager
 	 */
 	protected DistributableEntityManager manager;
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	/**
 	 * Instantiate a distributable entity manager
@@ -152,10 +147,8 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testAddNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.add(null);
 	}
 
@@ -276,10 +269,8 @@ public abstract class DataModuleTest {
 	 * We expect to have an illegal argument exception
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testListAllWithNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.listAllWithQueryString(null, null, null);
 	}
 
@@ -306,10 +297,8 @@ public abstract class DataModuleTest {
 	 * We expect to have an illegal argument exception
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testReadNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.read(null);
 	}
 
@@ -353,10 +342,8 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException DDBS Toolkit Exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testReadLastElementNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.readLastElement(null);
 	}
 
@@ -366,10 +353,8 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testUpdateNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.update(null);
 	}
 
@@ -418,10 +403,8 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testDeleteNullValue() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.delete(null);
 	}
 
@@ -472,11 +455,9 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testLoadArrayNullValue1stParameter()
 			throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		// No object : must return null
 		manager.loadArray(null, null, null);
 	}
@@ -487,11 +468,9 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testLoadArrayNullValue2ndParameter()
 			throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.loadArray(createFilm(), null, null);
 	}
 
@@ -501,10 +480,8 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class) 
 	public void testLoadArrayEmptyParameter() throws DDBSToolkitException {
-		thrown.expect(IllegalArgumentException.class);
-
 		manager.loadArray(createFilm(), "", null);
 	}
 
@@ -567,7 +544,7 @@ public abstract class DataModuleTest {
 	 * 
 	 * @throws DDBSToolkitException
 	 */
-	private Map<String, FilmBase> createSampleData()
+	protected Map<String, FilmBase> createSampleData()
 			throws DDBSToolkitException {
 
 		Map<String, FilmBase> mapFilms = new HashMap<String, FilmBase>();

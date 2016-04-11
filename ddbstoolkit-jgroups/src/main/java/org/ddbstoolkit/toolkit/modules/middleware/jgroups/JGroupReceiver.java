@@ -136,6 +136,14 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
                     return myPeer;
                 case LOAD_ARRAY:
                     return entityConverter.enrichWithPeerUID(entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy()));
+                case COMMIT:
+                	entityManager.commit(myCommand.getDDBSTransaction());
+                	break;
+                case ROLLBACK:
+                	entityManager.rollback(myCommand.getDDBSTransaction());
+                	break;
+                case TRANSACTION:
+                	return entityManager.executeTransaction(myCommand.getDDBSTransaction());
                 default:
                     break;
             }

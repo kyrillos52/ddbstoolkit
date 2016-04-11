@@ -32,11 +32,6 @@ public class DDBSTransaction implements Serializable, UpdatableEntityManager {
 	 * Distributable Entity manager
 	 */
 	protected DistributableEntityManager distributableEntityManager;
-	
-	/**
-	 * List of transaction
-	 */
-	protected List<DDBSTransaction> transactions;
 
 	/**
 	 * Transaction
@@ -64,25 +59,6 @@ public class DDBSTransaction implements Serializable, UpdatableEntityManager {
 			transactionCommands = new ArrayList<>();
 		}
 		return transactionCommands;
-	}
-
-	/**
-	 * Get list of included transactions
-	 * @return list of included transactions
-	 */
-	public List<DDBSTransaction> getTransactions() {
-		if(transactions == null) {
-			transactions = new ArrayList<>();
-		}
-		return transactions;
-	}
-	
-	/**
-	 * Set list of included transactions
-	 * @param transactions list of included transactions
-	 */
-	public void setTransactions(List<DDBSTransaction> transactions) {
-		this.transactions = transactions;
 	}
 	
 	/**

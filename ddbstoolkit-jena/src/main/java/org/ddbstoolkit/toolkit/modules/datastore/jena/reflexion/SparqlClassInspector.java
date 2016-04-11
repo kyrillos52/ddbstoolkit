@@ -8,12 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ddbstoolkit.toolkit.core.annotations.EntityName;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
+import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityIDProperty;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.DefaultNamespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Namespace;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Optional;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.URI;
+
+import com.esotericsoftware.reflectasm.MethodAccess;
 
 /**
  * SPARQL Class inspectorde
@@ -59,7 +63,7 @@ public class SparqlClassInspector extends ClassInspector {
         			&& (Modifier.isPublic(field.getModifiers()) || hasGetterAndSetter)
         			) {
         		
-        		DDBSEntityProperty ddbsEntityProperty = new DDBSEntityProperty();
+        		DDBSEntityProperty ddbsEntityProperty = new SparqlClassProperty();
             	updateDDBSEntityProperty(classData, field, ddbsEntityProperty, counterProperties, defaultNamespaceName, defaultNamespaceUrl, hasGetterAndSetter);
             	listProperties.add((T)ddbsEntityProperty);
             	counterProperties++;
@@ -71,7 +75,43 @@ public class SparqlClassInspector extends ClassInspector {
 
 	protected void updateDDBSEntityProperty(Class<?> classData, Field field,
 			DDBSEntityProperty ddbsEntityProperty, int counterProperties, String defaultNamespaceName, String defaultNamespaceUrl, boolean hasGetterAndSetter) {
-		super.updateDDBSEntityProperty(classData, field, ddbsEntityProperty, counterProperties, hasGetterAndSetter);
+		
+		ddbsEntityProperty.setType(field.getType().getName());
+    	ddbsEntityProperty.setName(field.getName());
+    	ddbsEntityProperty.setPropertyName(field.getName());
+    	ddbsEntityProperty.setArray(field.getType().isArray());
+    	if(!hasGetterAndSetter) {
+    		ddbsEntityProperty.setFieldIndex(counterProperties);
+    	} else {
+    		MethodAccess access = MethodAccess.get(classData);
+    		ddbsEntityProperty.setGetterIndex(access.getIndex(retrieveGetterMethodName(field.getName())));
+    		ddbsEntityProperty.setSetterIndex(access.getIndex(retrieveSetterMethodName(field.getName())));
+    	}
+    	
+    	ddbsEntityProperty.setEncapsulated(hasGetterAndSetter);
+    	try {
+			ddbsEntityProperty.setDdbsToolkitSupportedEntity(SparqlDDBSToolkitSupportedEntity.valueOf(field));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			//Do Nothing
+		};
+    	
+    	AnnotatedElement element = (AnnotatedElement) field;
+        Annotation[] propertyAnnotations = element.getAnnotations();
+
+        for(Annotation annotation : propertyAnnotations)
+        {
+            if(annotation instanceof Id)
+            {
+            	DDBSEntityIDProperty ddbsEntityIDProperty = new DDBSEntityIDProperty();
+            	ddbsEntityIDProperty.setAutoIncrement(((Id)annotation).autoincrement());
+            	ddbsEntityProperty.setDdbsEntityIDProperty(ddbsEntityIDProperty);
+            }
+            else if(annotation instanceof EntityName)
+            {
+                EntityName myProperty = (EntityName)annotation;
+                ddbsEntityProperty.setPropertyName(myProperty.name());
+            }
+        }
 		
 		if(ddbsEntityProperty instanceof SparqlClassProperty)
 		{
@@ -79,7 +119,7 @@ public class SparqlClassInspector extends ClassInspector {
 			sparqlClassProperty.setNamespaceName(defaultNamespaceName);
 	        sparqlClassProperty.setNamespaceURL(defaultNamespaceUrl);
 			
-			AnnotatedElement element = (AnnotatedElement) field;
+			element = (AnnotatedElement) field;
 	        Annotation[] propertiesAnnotations = element.getAnnotations();
 	        
 	        for(Annotation annotation : propertiesAnnotations)
