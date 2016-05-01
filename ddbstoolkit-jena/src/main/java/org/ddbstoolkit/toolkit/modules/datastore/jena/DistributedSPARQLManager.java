@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -462,6 +463,15 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 								sparqlClassProperty.getValue(objectToAdd));
 					} else if (sparqlClassProperty
 							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.TIMESTAMP)) {
+
+						if(sparqlClassProperty.getValue(objectToAdd) != null) {
+							addElement(myModel, resourceToAdd, sparqlClassProperty,
+									((Timestamp)sparqlClassProperty.getValue(objectToAdd)).getTime());
+						}
+
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
 							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
 
 						int[] array = (int[]) sparqlClassProperty.getValue(objectToAdd);
@@ -611,61 +621,68 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	public <T extends IEntity> T loadArray(T objectToLoad, String field,
 			OrderBy orderBy) throws DDBSToolkitException {
 
-		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
-				.getDDBSEntity(objectToLoad);
+		if(objectToLoad != null && field != null && !field.isEmpty()) {
+			
+			@SuppressWarnings("unchecked")
+			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
+					.getDDBSEntity(objectToLoad);
 
-		testConnection(objectToLoad);
+			testConnection(objectToLoad);
 
-		SparqlClassProperty linkProperty = sparqlEntity
-				.getDDBSEntityProperty(field);
+			SparqlClassProperty linkProperty = sparqlEntity
+					.getDDBSEntityProperty(field);
 
-		SparqlClassProperty uri = sparqlEntity.getUri();
+			SparqlClassProperty uri = sparqlEntity.getUri();
 
-		IEntity objectLinked;
-		try {
-			objectLinked = (IEntity) Class.forName(
-					linkProperty.getObjectTypeName()).newInstance();
+			IEntity objectLinked;
+			try {
+				objectLinked = (IEntity) Class.forName(
+						linkProperty.getObjectTypeName()).newInstance();
 
-			if (linkProperty != null && uri != null) {
-				
-				String conditionQueryString = "<" + uri.getValue(objectToLoad) + "> "
-						+ linkProperty.getNamespaceName() + ":"
-						+ linkProperty.getPropertyName() + " "
-						+ getObjectVariable(objectLinked);
-				
-				Set<String> additionalHeader = new HashSet<>();
-				additionalHeader.add("prefix " + linkProperty.getNamespaceName()
-					+ ": <" + linkProperty.getNamespaceURL() + ">\n");
+				if (linkProperty != null && uri != null) {
+					
+					String conditionQueryString = "<" + uri.getValue(objectToLoad) + "> "
+							+ linkProperty.getNamespaceName() + ":"
+							+ linkProperty.getPropertyName() + " "
+							+ getObjectVariable(objectLinked);
+					
+					Set<String> additionalHeader = new HashSet<>();
+					additionalHeader.add("prefix " + linkProperty.getNamespaceName()
+						+ ": <" + linkProperty.getNamespaceURL() + ">\n");
 
-				List<IEntity> listObject = listAll(objectLinked, conditionQueryString,
-						orderBy, additionalHeader);
+					List<IEntity> listObject = listAll(objectLinked, conditionQueryString,
+							orderBy, additionalHeader);
 
-				Field f = objectToLoad.getClass().getField(
-						linkProperty.getName());
-				
-				Object arrayObject = Array.newInstance(Class.forName(linkProperty.getObjectTypeName()), listObject.size());
-				
-				int counterArray = 0;
-				for(IEntity iEntity : listObject)
-				{
-					Array.set(arrayObject, counterArray, iEntity);
-					counterArray++;
+					Field f = objectToLoad.getClass().getField(
+							linkProperty.getName());
+					
+					Object arrayObject = Array.newInstance(Class.forName(linkProperty.getObjectTypeName()), listObject.size());
+					
+					int counterArray = 0;
+					for(IEntity iEntity : listObject)
+					{
+						Array.set(arrayObject, counterArray, iEntity);
+						counterArray++;
+					}
+					
+					f.set(objectToLoad, arrayObject);
+				} else {
+					throw new DDBSToolkitException(
+							"Linked field or URI has not been defined");
 				}
-				
-				f.set(objectToLoad, arrayObject);
-			} else {
-				throw new DDBSToolkitException(
-						"Linked field or URI has not been defined");
+
+				return objectToLoad;
+
+			} catch (InstantiationException | IllegalAccessException
+					| ClassNotFoundException | NoSuchFieldException
+					| SecurityException e) {
+				throw new DDBSToolkitException("Error while creating object", e);
 			}
-
-			return objectToLoad;
-
-		} catch (InstantiationException | IllegalAccessException
-				| ClassNotFoundException | NoSuchFieldException
-				| SecurityException e) {
-			throw new DDBSToolkitException("Error while creating object", e);
+		} else {
+			throw new IllegalArgumentException();
 		}
+		
+		
 	}
 
 	/**
@@ -786,270 +803,251 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	protected <T extends IEntity> List<T> conversionResultSet(
 			ResultSet results, T myObject) throws DDBSToolkitException {
 
-		try {
-			
-			Map<String, T> uris = new HashMap<>();
-			
-			T myData = null;
+		Map<String, T> uris = new HashMap<>();
+		
+		T myData = null;
 
-			SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
-					.getDDBSEntity(myObject);
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
+				.getDDBSEntity(myObject);
 
-			SparqlResults sparqlResults = new SparqlResults();
-			
-			Class<?> classElement = Class.forName(sparqlEntity.getFullClassName());
+		SparqlResults sparqlResults = new SparqlResults();
 
-			while (results.hasNext()) {
+		while (results.hasNext()) {
 
-				QuerySolution myResult = results.next();
+			QuerySolution myResult = results.next();
 
-				String uri = myResult.getResource(
-						sparqlEntity.getUri().getName()).toString();
+			String uri = myResult.getResource(
+					sparqlEntity.getUri().getName()).toString();
 
-				if(!uris.containsKey(uri)) {
-					uris.put(uri, (T)classElement.newInstance());
+			if(!uris.containsKey(uri)) {
+				uris.put(uri, (T)sparqlEntity.newInstance());
+			}
+			myData = uris.get(uri);
+
+			for (SparqlClassProperty sparqlClassProperty : sparqlEntity
+					.getEntityProperties()) {
+
+				if (myResult.get(sparqlClassProperty.getName()) != null) {
+
+					if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER)) {
+						sparqlClassProperty.setValue(myData, myResult.getLiteral(
+								sparqlClassProperty.getName())
+								.getInt());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity().equals(
+									SparqlDDBSToolkitSupportedEntity.LONG)) {
+						sparqlClassProperty.setValue(myData, myResult.getLiteral(
+								sparqlClassProperty.getName())
+								.getLong());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity().equals(
+									SparqlDDBSToolkitSupportedEntity.FLOAT)) {
+						
+						sparqlClassProperty.setValue(myData, myResult.getLiteral(
+								sparqlClassProperty.getName())
+								.getFloat());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE)) {
+						sparqlClassProperty.setValue(myData, myResult.getLiteral(
+								sparqlClassProperty.getName())
+								.getDouble());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.TIMESTAMP)) {
+						sparqlClassProperty.setValue(myData, new Timestamp(myResult.getLiteral(
+								sparqlClassProperty.getName())
+								.getLong()));
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
+						String stringResult = myResult.get(
+								sparqlClassProperty.getName()).toString();
+						stringResult = stringResult
+								.replaceAll(
+										"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
+										"");
+						sparqlClassProperty.setValue(myData, stringResult);
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+						sparqlResults.addInt(
+								sparqlClassProperty.getName(),
+								uri,
+								myResult.getLiteral(
+										sparqlClassProperty.getName())
+										.getInt());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+						sparqlResults.addLong(
+								sparqlClassProperty.getName(),
+								uri,
+								myResult.getLiteral(
+										sparqlClassProperty.getName())
+										.getLong());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+						sparqlResults.addFloat(
+								sparqlClassProperty.getName(),
+								uri,
+								myResult.getLiteral(
+										sparqlClassProperty.getName())
+										.getFloat());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+						sparqlResults.addDouble(
+								sparqlClassProperty.getName(),
+								uri,
+								myResult.getLiteral(
+										sparqlClassProperty.getName())
+										.getDouble());
+					} else if (sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+						String stringResult = myResult.get(
+								sparqlClassProperty.getName()).toString();
+						stringResult = stringResult
+								.replaceAll(
+										"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
+										"");
+						sparqlResults.addString(
+								sparqlClassProperty.getName(), uri,
+								stringResult);
+					}
 				}
-				myData = uris.get(uri);
+			}
+		}
+		
+		List<T> resultList = new ArrayList<T>();
+		resultList.addAll(uris.values());
+		
+		if(myData != null)
+		{
+			for (T aData : resultList) {
+				
+				String uri = (String) sparqlEntity.getDDBSEntityProperty(sparqlEntity.getUri().getName()).getValue(aData);
 
 				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
 						.getEntityProperties()) {
-					Field f = myData.getClass().getField(
-							sparqlClassProperty.getName());
-
-					if (myResult.get(sparqlClassProperty.getName()) != null) {
+					
+					if(sparqlClassProperty.isArray() && !sparqlClassProperty
+							.getDdbsToolkitSupportedEntity()
+							.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY))
+					{
 
 						if (sparqlClassProperty
 								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.INTEGER)) {
-							f.set(myData,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getInt());
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity().equals(
-										SparqlDDBSToolkitSupportedEntity.LONG)) {
-							f.set(myData,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getLong());
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity().equals(
-										SparqlDDBSToolkitSupportedEntity.FLOAT)) {
-							f.set(myData,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getFloat());
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE)) {
-							f.set(myData,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getDouble());
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
-							String stringResult = myResult.get(
-									sparqlClassProperty.getName()).toString();
-							stringResult = stringResult
-									.replaceAll(
-											"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
-											"");
-							f.set(myData, stringResult);
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
 								.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-							sparqlResults.addInt(
-									sparqlClassProperty.getName(),
-									uri,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getInt());
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								sparqlClassProperty.setValue(myData, sparqlResults.getIntegerArray(
+										sparqlClassProperty.getName(), uri)
+										.toArray());
+							}
+							else
+							{
+								Set<Integer> integerSet = sparqlResults.getIntegerArray(
+										sparqlClassProperty.getName(), uri);
+								int[]resultInt = new int[integerSet.size()];
+								int counterResult = 0;
+								for(Integer integer : integerSet)
+								{
+									resultInt[counterResult] = integer;
+									counterResult++;
+								}
+								sparqlClassProperty.setValue(myData, resultInt);
+							}
+							
 						} else if (sparqlClassProperty
 								.getDdbsToolkitSupportedEntity()
 								.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
-							sparqlResults.addLong(
-									sparqlClassProperty.getName(),
-									uri,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getLong());
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								sparqlClassProperty.setValue(myData, sparqlResults.getLongArray(
+										sparqlClassProperty.getName(), uri)
+										.toArray(new Long[] {}));
+							}
+							else
+							{
+								Set<Long> longSet = sparqlResults.getLongArray(
+										sparqlClassProperty.getName(), uri);
+								long[]resultLong = new long[longSet.size()];
+								int counterResult = 0;
+								for(Long longObject : longSet)
+								{
+									resultLong[counterResult] = longObject;
+									counterResult++;
+								}
+								sparqlClassProperty.setValue(myData, resultLong);
+							}
 						} else if (sparqlClassProperty
 								.getDdbsToolkitSupportedEntity()
 								.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
-							sparqlResults.addFloat(
-									sparqlClassProperty.getName(),
-									uri,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getFloat());
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								sparqlClassProperty.setValue(myData, sparqlResults.getFloatArray(
+										sparqlClassProperty.getName(), uri)
+										.toArray(new Float[] {}));
+							}
+							else
+							{
+								Set<Float> floatSet = sparqlResults.getFloatArray(
+										sparqlClassProperty.getName(), uri);
+								float[]resultFloat = new float[floatSet.size()];
+								int counterResult = 0;
+								for(Float floatObject : floatSet)
+								{
+									resultFloat[counterResult] = floatObject;
+									counterResult++;
+								}
+								sparqlClassProperty.setValue(myData, resultFloat);
+							}
 						} else if (sparqlClassProperty
 								.getDdbsToolkitSupportedEntity()
 								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
-							sparqlResults.addDouble(
-									sparqlClassProperty.getName(),
-									uri,
-									myResult.getLiteral(
-											sparqlClassProperty.getName())
-											.getDouble());
+							
+							if(!sparqlClassProperty.isPrimitiveArray())
+							{
+								sparqlClassProperty.setValue(myData, sparqlResults.getDoubleArray(
+										sparqlClassProperty.getName(), uri)
+										.toArray(new Double[] {}));
+							}
+							else
+							{
+								Set<Double> doubleSet = sparqlResults.getDoubleArray(
+										sparqlClassProperty.getName(), uri);
+								double[]resultDouble = new double[doubleSet.size()];
+								int counterResult = 0;
+								for(Double doubleObject : resultDouble)
+								{
+									resultDouble[counterResult] = doubleObject;
+									counterResult++;
+								}
+								sparqlClassProperty.setValue(myData, resultDouble);
+							}
 						} else if (sparqlClassProperty
 								.getDdbsToolkitSupportedEntity()
 								.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
-							String stringResult = myResult.get(
-									sparqlClassProperty.getName()).toString();
-							stringResult = stringResult
-									.replaceAll(
-											"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
-											"");
-							sparqlResults.addString(
-									sparqlClassProperty.getName(), uri,
-									stringResult);
+							
+							sparqlClassProperty.setValue(myData, sparqlResults.getStringArray(
+									sparqlClassProperty.getName(), uri)
+									.toArray(new String[0]));
 						}
-					}
-				}
-			}
-			
-			List<T> resultList = new ArrayList<T>();
-			resultList.addAll(uris.values());
-			
-			if(myData != null)
-			{
-				for (T aData : resultList) {
-					String uri = (String) aData.getClass()
-							.getField(sparqlEntity.getUri().getName()).get(aData);
-
-					for (SparqlClassProperty sparqlClassProperty : sparqlEntity
-							.getEntityProperties()) {
 						
-						if(sparqlClassProperty.isArray() && !sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY))
-						{
-							Field f = aData.getClass().getField(
-									sparqlClassProperty.getName());
-
-							if (sparqlClassProperty
-									.getDdbsToolkitSupportedEntity()
-									.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-								if(!sparqlClassProperty.isPrimitiveArray())
-								{
-									f.set(aData,sparqlResults.getIntegerArray(
-											sparqlClassProperty.getName(), uri)
-											.toArray());
-								}
-								else
-								{
-									Set<Integer> integerSet = sparqlResults.getIntegerArray(
-											sparqlClassProperty.getName(), uri);
-									int[]resultInt = new int[integerSet.size()];
-									int counterResult = 0;
-									for(Integer integer : integerSet)
-									{
-										resultInt[counterResult] = integer;
-										counterResult++;
-									}
-									f.set(aData,resultInt);
-								}
-								
-							} else if (sparqlClassProperty
-									.getDdbsToolkitSupportedEntity()
-									.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
-								
-								if(!sparqlClassProperty.isPrimitiveArray())
-								{
-									f.set(aData,sparqlResults.getLongArray(
-											sparqlClassProperty.getName(), uri)
-											.toArray(new Long[] {}));
-								}
-								else
-								{
-									Set<Long> longSet = sparqlResults.getLongArray(
-											sparqlClassProperty.getName(), uri);
-									long[]resultLong = new long[longSet.size()];
-									int counterResult = 0;
-									for(Long longObject : longSet)
-									{
-										resultLong[counterResult] = longObject;
-										counterResult++;
-									}
-									f.set(aData,resultLong);
-								}
-							} else if (sparqlClassProperty
-									.getDdbsToolkitSupportedEntity()
-									.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
-								
-								if(!sparqlClassProperty.isPrimitiveArray())
-								{
-									f.set(aData,sparqlResults.getFloatArray(
-											sparqlClassProperty.getName(), uri)
-											.toArray(new Float[] {}));
-								}
-								else
-								{
-									Set<Float> floatSet = sparqlResults.getFloatArray(
-											sparqlClassProperty.getName(), uri);
-									float[]resultFloat = new float[floatSet.size()];
-									int counterResult = 0;
-									for(Float floatObject : floatSet)
-									{
-										resultFloat[counterResult] = floatObject;
-										counterResult++;
-									}
-									f.set(aData,resultFloat);
-								}
-							} else if (sparqlClassProperty
-									.getDdbsToolkitSupportedEntity()
-									.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
-								
-								if(!sparqlClassProperty.isPrimitiveArray())
-								{
-									f.set(aData,sparqlResults.getDoubleArray(
-											sparqlClassProperty.getName(), uri)
-											.toArray(new Double[] {}));
-								}
-								else
-								{
-									Set<Double> doubleSet = sparqlResults.getDoubleArray(
-											sparqlClassProperty.getName(), uri);
-									double[]resultDouble = new double[doubleSet.size()];
-									int counterResult = 0;
-									for(Double doubleObject : resultDouble)
-									{
-										resultDouble[counterResult] = doubleObject;
-										counterResult++;
-									}
-									f.set(aData,resultDouble);
-								}
-							} else if (sparqlClassProperty
-									.getDdbsToolkitSupportedEntity()
-									.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
-								
-								f.set(aData,sparqlResults.getStringArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new String[0]));
-							}
-							
-							
-						}
+						
 					}
-
 				}
+
 			}
-			return resultList;
-		} catch (InstantiationException ie) {
-			throw new DDBSToolkitException(
-					"Problem during instantiation of the object using reflection",
-					ie);
-		} catch (IllegalAccessException iae) {
-			throw new DDBSToolkitException(
-					"Illegal access exception using reflection", iae);
-		} catch (ClassNotFoundException cnfe) {
-			throw new DDBSToolkitException("Class not found using reflection",
-					cnfe);
-		} catch (NoSuchFieldException nsfe) {
-			throw new DDBSToolkitException(
-					"No such field exception using reflection", nsfe);
 		}
+		return resultList;
 	}
 
 	@Override

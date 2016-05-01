@@ -464,6 +464,14 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	}
 
 	@Override
+	public void testConditionIsNull() throws DDBSToolkitException {
+	}
+
+	@Override
+	public void testConditionNotNull() throws DDBSToolkitException {
+	}
+
+	@Override
 	protected FilmBase createFilm() {
 		FilmDatastore film = new FilmDatastore();
 		return film;

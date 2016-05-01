@@ -869,7 +869,7 @@ public abstract class DataModuleTest {
 	 * @throws DDBSToolkitException DDBS Toolkit exception
 	 */
 	@Test
-	public void testConditionGreaterNotBetween() throws DDBSToolkitException {
+	public void testConditionNotBetween() throws DDBSToolkitException {
 
 		Map<String, FilmBase> mapFilms = createSampleData();
 
