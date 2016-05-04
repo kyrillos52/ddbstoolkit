@@ -15,7 +15,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	/**
 	 * JDBC String
 	 */
-	private final static String JDBC_STRING = "jdbc:mysql://localhost:8889/ddbstoolkit";
+	private final static String JDBC_STRING = "jdbc:mysql://localhost:3306/ddbstoolkit";
 	
 	/**
 	 * JDBC User
@@ -25,7 +25,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	/**
 	 * JDBC Password
 	 */
-	private final static String JDBC_PASSWORD = "root";
+	private final static String JDBC_PASSWORD = "";
 	
 	@Before 
 	public void initialiseDatabase() throws ClassNotFoundException, DDBSToolkitException {

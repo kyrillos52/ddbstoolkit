@@ -59,7 +59,6 @@
         		<version>2.19.1</version>
 			    <configuration>
 			    	<excludes>
-			    		<exclude>**/DDBSToolkitMySQLModuleTest.java</exclude>
 			    		<exclude>**/DDBSToolkitJenaModuleTest.java</exclude>
 			    		<exclude>**/DDBSToolkitSQLSpacesModuleTest.java</exclude>
 			    		<exclude>**/DDBSToolkitJGroupsModuleTest.java</exclude>
