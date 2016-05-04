@@ -38,7 +38,9 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	@After
 	public void closeConnection() throws DDBSToolkitException
 	{
-		manager.close();
+		if(manager.isOpen()) {
+			manager.close();
+		}
 	}
     
 	@Override
