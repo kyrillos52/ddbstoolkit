@@ -78,7 +78,9 @@ public abstract class JDBCConnector {
 	 * @throws SQLException SQL Exception
 	 */
 	public void close() throws SQLException {
-		connector.close();
+		if(connector != null) {
+			connector.close();
+		}
 	}
 
 	/**
