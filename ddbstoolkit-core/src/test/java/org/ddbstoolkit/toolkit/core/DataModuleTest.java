@@ -56,6 +56,21 @@ public abstract class DataModuleTest {
 	 * @return An empty actor
 	 */
 	protected abstract ActorBase createActor();
+	
+	/**
+	 * Create an empty film object
+	 * 
+	 * @return an empty film object
+	 */
+	protected abstract FilmBase createFilm(Integer filmID, String filmName, Integer duration,
+			Timestamp creationDate, Long longField, Float floatField);
+
+	/**
+	 * Create an empty actor
+	 * 
+	 * @return An empty actor
+	 */
+	protected abstract ActorBase createActor(Integer actorId, String actorName, Integer filmId);
 
 	/**
 	 * Clean data inside the data source
@@ -105,7 +120,7 @@ public abstract class DataModuleTest {
 	 * @param referenceObject Reference object
 	 * @param objectToCheck Object to check
 	 */
-	private void compareFilmElement(FilmBase referenceObject,
+	protected void compareFilmElement(FilmBase referenceObject,
 			FilmBase objectToCheck) {
 
 		Assert.assertEquals( objectToCheck.getFilmName(),referenceObject.getFilmName());
@@ -318,13 +333,8 @@ public abstract class DataModuleTest {
 		Assert.assertNull(manager.read(filmToRead));
 
 		//Add an element
-		FilmBase filmToAdd = createFilm();
-		addReceiverPeerUID(filmToAdd);
-		filmToAdd.setFilmName("Test JUnit 1");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(100));
-		filmToAdd.setLongField(new Long(1000));
-		filmToAdd.setCreationDate(new Timestamp(10000));
+		FilmBase filmToAdd = createFilm(1, "Test JUnit 1", 10,
+				new Timestamp(10000), new Long(1000), new Float(100));
 
 		manager.add(filmToAdd);
 
@@ -423,13 +433,9 @@ public abstract class DataModuleTest {
 				0);
 
 		// Add a movie
-		FilmBase filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm(1, "Test JUnit", 10,
+				new Timestamp(10000), new Long(1000), new Float(100));;
 		addReceiverPeerUID(filmToAdd);
-		filmToAdd.setFilmName("Test JUnit");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(100));
-		filmToAdd.setLongField(new Long(1000));
-		filmToAdd.setCreationDate(new Timestamp(10000));
 
 		manager.add(filmToAdd);
 
@@ -493,13 +499,9 @@ public abstract class DataModuleTest {
 	public void testLoadArray() throws DDBSToolkitException {
 
 		// Add a movie
-		FilmBase filmToAdd = createFilm();
+		FilmBase filmToAdd = createFilm(null, "Test JUnit", 10,
+				new Timestamp(10000), new Long(30), new Float(20));
 		addReceiverPeerUID(filmToAdd);
-		filmToAdd.setFilmName("Test JUnit");
-		filmToAdd.setDuration(10);
-		filmToAdd.setFloatField(new Float(20));
-		filmToAdd.setLongField(new Long(30));
-		filmToAdd.setCreationDate(new Timestamp(10000));
 
 		manager.add(filmToAdd);
 
@@ -876,7 +878,7 @@ public abstract class DataModuleTest {
 		Conditions conditionEqualsInteger = Conditions.createConditions().add(
 				Conditions.notBetween("duration", 15, 25));
 		List<FilmBase> results = manager.listAll(createFilm(),
-				conditionEqualsInteger, null);
+				conditionEqualsInteger, OrderBy.get("filmName", OrderByType.ASC));
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
@@ -884,14 +886,14 @@ public abstract class DataModuleTest {
 		Conditions conditionEqualsFloat = Conditions.createConditions().add(
 				Conditions.notBetween("floatField", new Float(25),
 						new Float(35)));
-		results = manager.listAll(createFilm(), conditionEqualsFloat, null);
+		results = manager.listAll(createFilm(), conditionEqualsFloat, OrderBy.get("filmName", OrderByType.ASC));
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
 		Conditions conditionEqualsLong = Conditions.createConditions().add(
 				Conditions.notBetween("longField", new Long(35), new Long(45)));
-		results = manager.listAll(createFilm(), conditionEqualsLong, null);
+		results = manager.listAll(createFilm(), conditionEqualsLong, OrderBy.get("filmName", OrderByType.ASC));
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
@@ -899,7 +901,7 @@ public abstract class DataModuleTest {
 		Conditions conditionEqualsTimestamp = Conditions.createConditions()
 				.add(Conditions.notBetween("creationDate",
 						new Timestamp(15000), new Timestamp(25000)));
-		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
+		results = manager.listAll(createFilm(), conditionEqualsTimestamp, OrderBy.get("filmName", OrderByType.ASC));
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
@@ -1174,12 +1176,8 @@ public abstract class DataModuleTest {
 	@Test
 	public void testTransactionUpdate() throws Exception {
 		
-		FilmBase originalFilm = createFilm();
-		originalFilm.setFilmName("Test JUnit original");
-		originalFilm.setDuration(10);
-		originalFilm.setFloatField(new Float(100));
-		originalFilm.setLongField(new Long(1000));
-		originalFilm.setCreationDate(new Timestamp(10000));
+		FilmBase originalFilm = createFilm(null, "Test JUnit original", 10,
+				new Timestamp(10000), new Long(1000), new Float(100));
 		
 		manager.add(originalFilm);
 		
@@ -1230,19 +1228,11 @@ public abstract class DataModuleTest {
 	@Test
 	public void testTransactionDelete() throws Exception {
 		
-		FilmBase originalFilm1 = createFilm();
-		originalFilm1.setFilmName("Test JUnit original 1");
-		originalFilm1.setDuration(10);
-		originalFilm1.setFloatField(new Float(100));
-		originalFilm1.setLongField(new Long(1000));
-		originalFilm1.setCreationDate(new Timestamp(10000));
+		FilmBase originalFilm1 = createFilm(null, "Test JUnit original 1", 10,
+				new Timestamp(10000), new Long(1000), new Float(100));
 		
-		FilmBase originalFilm2 = createFilm();
-		originalFilm2.setFilmName("Test JUnit original 2");
-		originalFilm2.setDuration(20);
-		originalFilm2.setFloatField(new Float(200));
-		originalFilm2.setLongField(new Long(2000));
-		originalFilm2.setCreationDate(new Timestamp(20000));
+		FilmBase originalFilm2 = createFilm(null, "Test JUnit original 2", 20,
+				new Timestamp(20000), new Long(2000), new Float(200));
 		
 		manager.add(originalFilm1);
 		manager.add(originalFilm2);

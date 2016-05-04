@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	private boolean isAutocommit = true;
 	
 	/**
+	 * Indicates if there is auto-commit
+	 */
+	private boolean isTesting = true;
+	
+	/**
 	 * DDBS Entity manager
 	 */
 	protected SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> ddbsEntityManager;
@@ -81,8 +87,18 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 * Default constructor used when using SPARQL to query remote endpoints
 	 */
 	public DistributedSPARQLManager() {
+		this(false);
 		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new SparqlClassInspector());
 		this.sparqlConditionConverter = new SparqlConditionConverter(ddbsEntityManager);
+	}
+	
+	/**
+	 * Default constructor used when using SPARQL to query remote endpoints
+	 */
+	public DistributedSPARQLManager(boolean isTesting) {
+		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new SparqlClassInspector());
+		this.sparqlConditionConverter = new SparqlConditionConverter(ddbsEntityManager);
+		this.isTesting = isTesting;
 	}
 
 	/**
@@ -92,7 +108,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	 *            Path of the Jena data sources folder
 	 */
 	public DistributedSPARQLManager(String datasetPath) {
-		this();
+		this(false);
 		this.pathDataset = datasetPath;
 	}
 
@@ -104,6 +120,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@Override
 	public void open() throws DDBSToolkitException {
 
+		if(isTesting) {
+			myDataset = TDBFactory.createDataset();
+		}
 		if (pathDataset != null) {
 			myDataset = TDBFactory.createDataset(pathDataset);
 		}
@@ -361,8 +380,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
-				throw new DDBSToolkitException("Read function has returned "
-						+ results.size() + " results");
+				return null;
 			}
 		}
 		else
@@ -404,8 +422,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			if (results.size() == 1) {
 				return results.get(0);
 			} else {
-				throw new DDBSToolkitException("Read function has returned "
-						+ results.size() + " results");
+				return null;
 			}
 		} else {
 			throw new DDBSToolkitException("Read last function has returned "
@@ -803,19 +820,29 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	protected <T extends IEntity> List<T> conversionResultSet(
 			ResultSet results, T myObject) throws DDBSToolkitException {
 
-		Map<String, T> uris = new HashMap<>();
+		Map<String, T> uris = new LinkedHashMap<>();
 		
 		T myData = null;
 
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(myObject);
+		
+		List<T> resultList = new ArrayList<T>();
+		
+		if(sparqlEntity.getUri() == null) {
+			return resultList;
+		}
 
 		SparqlResults sparqlResults = new SparqlResults();
 
 		while (results.hasNext()) {
 
 			QuerySolution myResult = results.next();
-
+			
+			if(myResult.getResource(sparqlEntity.getUri().getName()) == null) {
+				return resultList;
+			}
+			
 			String uri = myResult.getResource(
 					sparqlEntity.getUri().getName()).toString();
 
@@ -923,7 +950,6 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 		}
 		
-		List<T> resultList = new ArrayList<T>();
 		resultList.addAll(uris.values());
 		
 		if(myData != null)

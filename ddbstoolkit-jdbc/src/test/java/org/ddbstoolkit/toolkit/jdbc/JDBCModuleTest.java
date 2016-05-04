@@ -1,5 +1,7 @@
 package org.ddbstoolkit.toolkit.jdbc;
 
+import java.sql.Timestamp;
+
 import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
@@ -23,7 +25,21 @@ public abstract class JDBCModuleTest extends DataModuleTest {
 	protected ActorBase createActor() {
 		return new Actor();
 	}
-	
+
+	@Override
+	protected FilmBase createFilm(Integer filmID, String filmName,
+			Integer duration, Timestamp creationDate, Long longField,
+			Float floatField) {
+		return new Film(filmID, filmName, duration, creationDate, longField, floatField);
+	}
+
+	@Override
+	protected ActorBase createActor(Integer actorId, String actorName,
+			Integer filmId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	@Override
 	protected void addReceiverPeerUID(IEntity iEntity) {
 		//Do nothing

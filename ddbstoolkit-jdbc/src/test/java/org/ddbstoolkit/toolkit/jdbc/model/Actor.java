@@ -21,6 +21,17 @@ public class Actor extends ActorBase {
 
     @EntityName(name="film_id")
     private Integer filmId;
+    
+    public Actor() {
+		super();
+	}
+
+	public Actor(Integer actorId, String actorName, Integer filmId) {
+		super();
+		this.actorId = actorId;
+		this.actorName = actorName;
+		this.filmId = filmId;
+	}
 
 	public Integer getActorId() {
 		return actorId;

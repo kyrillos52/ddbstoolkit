@@ -8,6 +8,7 @@ import org.ddbstoolkit.toolkit.core.conditions.Condition;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionBetweenValue;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionInValues;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionSingleValue;
+import org.ddbstoolkit.toolkit.core.conditions.ConditionType;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionsConverter;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;
@@ -51,37 +52,49 @@ public class SparqlConditionConverter implements ConditionsConverter {
 			
 			while(iteratorConditions.hasNext()) {
 				Condition condition = iteratorConditions.next();
-				
-				String propertyName = entity.getDDBSEntityProperty(condition.getName()).getPropertyName();
-				conditionString.append("?");
-				conditionString.append(propertyName);
-				
+				SparqlClassProperty property = entity.getDDBSEntityProperty(condition.getName());
+				String propertyName = property.getName();
+
 				switch (condition.getConditionType()) {
 					case EQUAL:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" = ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case NOT_EQUAL:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" != ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case LESS_THAN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" < ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case GREATER_THAN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" > ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case LESS_THAN_OR_EQUAL:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" <= ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case GREATER_THAN_OR_EQUAL:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" >= ");
 						conditionString.append(convert(((ConditionSingleValue)condition).getValue()));
 						break;
 					case BETWEEN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" >=  ");
 						conditionString.append(convert(((ConditionBetweenValue)condition).getStartingValue()));
 						conditionString.append(" && ?");
@@ -90,6 +103,8 @@ public class SparqlConditionConverter implements ConditionsConverter {
 						conditionString.append(convert(((ConditionBetweenValue)condition).getEndingValue()));
 						break;
 					case NOT_BETWEEN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" <  ");
 						conditionString.append(convert(((ConditionBetweenValue)condition).getStartingValue()));
 						conditionString.append(" || ?");
@@ -97,10 +112,9 @@ public class SparqlConditionConverter implements ConditionsConverter {
 						conditionString.append(" >  ");
 						conditionString.append(convert(((ConditionBetweenValue)condition).getEndingValue()));
 						break;
-					case LIKE:
-						conditionString.append(" LIKE ?");
-						break;
 					case IN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" IN (");
 						
 						Iterator<? extends Object> iteratorIn = ((ConditionInValues)condition).getValues().iterator();
@@ -119,6 +133,8 @@ public class SparqlConditionConverter implements ConditionsConverter {
 						conditionString.append(")");
 						break;
 					case NOT_IN:
+						conditionString.append("?");
+						conditionString.append(propertyName);
 						conditionString.append(" NOT IN (");
 						
 						Iterator<? extends Object> iteratorNotIn = ((ConditionInValues)condition).getValues().iterator();
@@ -136,9 +152,35 @@ public class SparqlConditionConverter implements ConditionsConverter {
 						
 						conditionString.append(")");
 						break;
+					case LIKE:
+						conditionString.append("regex(?");
+						conditionString.append(propertyName);
+						conditionString.append(", \"");
+						conditionString.append(((ConditionSingleValue)condition).getValue());
+						conditionString.append("\", \"i\")");
+						break;
+					case IS_NULL:
+						conditionString.append("NOT EXISTS { ");
+						conditionString.append(entity.getObjectVariable(object));
+						conditionString.append(" ");
+						conditionString.append(property.getNamespaceName());
+						conditionString.append(":");
+						conditionString.append(property.getPropertyName());
+						conditionString.append(" ?otherValue }");
+						break;
+					case IS_NOT_NULL:
+						conditionString.append("EXISTS { ");
+						conditionString.append(entity.getObjectVariable(object));
+						conditionString.append(" ");
+						conditionString.append(property.getNamespaceName());
+						conditionString.append(":");
+						conditionString.append(property.getPropertyName());
+						conditionString.append(" ?otherValue }");
+						break;
 					default:
 						break;
 					}
+				
 				
 				if(iteratorConditions.hasNext()) {
 					conditionString.append(" && ");

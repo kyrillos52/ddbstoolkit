@@ -31,6 +31,18 @@ public class ActorDatastore extends ActorBase {
     
 	@URI
     private String actor_uri;
+	
+	 public ActorDatastore() {
+		super();
+	}
+
+	public ActorDatastore(Integer actorId, String actorName, Integer filmId) {
+		super();
+		this.actor_uri = "http://www.cyril-grandjean.co.uk/actor/"+actorId;
+		this.actorId = actorId;
+		this.actorName = actorName;
+		this.filmId = filmId;
+	}
 
 	public Integer getActorId() {
 		return actorId;

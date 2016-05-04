@@ -23,6 +23,17 @@ public class ActorBase extends DistributedEntity {
     @EntityName(name="film_id")
     private Integer filmId;
 	
+	public ActorBase() {
+		super();
+	}
+
+	public ActorBase(Integer actorId, String actorName, Integer filmId) {
+		super();
+		this.actorId = actorId;
+		this.actorName = actorName;
+		this.filmId = filmId;
+	}
+
 	/**
 	 * 
 	 */

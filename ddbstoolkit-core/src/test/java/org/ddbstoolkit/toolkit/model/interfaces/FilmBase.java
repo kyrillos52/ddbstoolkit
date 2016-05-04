@@ -35,6 +35,21 @@ public class FilmBase extends DistributedEntity {
     private Float floatField;
 
     private ActorBase[] actors;
+    
+	public FilmBase() {
+		super();
+	}
+
+	public FilmBase(Integer filmID, String filmName, Integer duration,
+			Timestamp creationDate, Long longField, Float floatField) {
+		super();
+		this.filmID = filmID;
+		this.filmName = filmName;
+		this.duration = duration;
+		this.creationDate = creationDate;
+		this.longField = longField;
+		this.floatField = floatField;
+	}
 
 	public Integer getFilmID() {
 		return filmID;

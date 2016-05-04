@@ -35,7 +35,22 @@ public class Film extends FilmBase {
     private Float floatField;
 
     private ActorBase[] actors;
+    
+    public Film() {
+		super();
+	}
 
+	public Film(Integer filmID, String filmName, Integer duration,
+			Timestamp creationDate, Long longField, Float floatField) {
+		super();
+		this.filmID = filmID;
+		this.filmName = filmName;
+		this.duration = duration;
+		this.creationDate = creationDate;
+		this.longField = longField;
+		this.floatField = floatField;
+	}
+    
 	public Integer getFilmID() {
 		return filmID;
 	}

@@ -46,6 +46,22 @@ public class FilmDatastore extends FilmBase {
     
     @URI
     private String film_uri;
+    
+    public FilmDatastore() {
+		super();
+	}
+
+	public FilmDatastore(Integer filmID, String filmName, Integer duration,
+			Timestamp creationDate, Long longField, Float floatField) {
+		super();
+		this.film_uri = "http://www.cyril-grandjean.co.uk/film/"+filmID;
+		this.filmID = filmID;
+		this.filmName = filmName;
+		this.duration = duration;
+		this.creationDate = creationDate;
+		this.longField = longField;
+		this.floatField = floatField;
+	}
 
 	public Integer getFilmID() {
 		return filmID;

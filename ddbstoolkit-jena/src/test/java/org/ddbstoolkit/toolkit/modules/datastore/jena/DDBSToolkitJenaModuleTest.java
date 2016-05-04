@@ -7,12 +7,12 @@ import java.util.Map;
 
 import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
 import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
 import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Actor;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.ActorDatastore;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Book;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Company;
@@ -32,12 +32,6 @@ import org.junit.rules.ExpectedException;
  */
 public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	
-	/**
-	 * Jena Directory path
-	 */
-	private final static String DATASTORE_DIRECTORY = "/datastore";
-
-	
 	@Rule
     public ExpectedException thrown = ExpectedException.none();
 	
@@ -49,32 +43,25 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
     
 	@Override
 	public void instantiateManager() {
-		manager = new DistributedSPARQLManager(DATASTORE_DIRECTORY);
+		manager = new DistributedSPARQLManager(true);
 	}
 	
 	@Before
 	@Override
 	public void setUp() throws Exception {
-
+		
 		instantiateManager();
 		
 		if(!manager.isOpen()) {
 			manager.open();
 		}
-		
-		for(Actor actor : manager.listAllWithQueryString(new Actor(), null, null))
-		{
-			manager.delete(actor);
-		}
-		
-		for(Company company : manager.listAllWithQueryString(new Company(), null, null))
-		{
-			manager.delete(company);
-		}
-		
-		for(Employee employee : manager.listAllWithQueryString(new Employee(), null, null))
-		{
-			manager.delete(employee);
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+
+		if(manager.isOpen()) {
+			manager.close();
 		}
 	}
 	
@@ -134,69 +121,6 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 
 		return mapFilms;
 	}
-
-    /**
-     * JUnit tests for the listAll function for MySQL
-     * @throws Exception
-     */
-    @Test
-    public void testListAllRemoteEndPoint() throws Exception {
-
-        //Test with existing remote SPARQL endpoint
-        manager = new DistributedSPARQLManager();
-        manager.open();
-
-        String conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'";
-        
-        List<Film> listEntity = manager.listAllWithQueryString(new Film(), conditionQueryString, null);
-
-        //There is only one element
-        Assert.assertEquals(listEntity.size(), 1);
-
-        Film myFilm = listEntity.get(0);
-
-        Assert.assertEquals(myFilm.filmid, 1025);
-        Assert.assertEquals(myFilm.film_uri, "http://data.linkedmdb.org/resource/film/1025");
-        Assert.assertEquals(myFilm.title, myFilm.title);
-        Assert.assertEquals(myFilm.runtime, 98);
-
-        conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en.";
-        conditionQueryString += "FILTER ( lang(?title) =  'en' ).";
-        conditionQueryString += "FILTER ( lang(?summary) = 'en' )";
-
-        List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
-
-        Book myBook = listBook.get(0);
-        myBook = manager.loadArray(myBook, "author", OrderBy.get("name", OrderByType.ASC));
-        myBook = manager.loadArray(myBook, "genre", null);
-        myBook = manager.loadArray(myBook, "character", null);
-        
-        Assert.assertNotNull(myBook.author);
-        Assert.assertNotNull(myBook.genre);
-        Assert.assertNotNull(myBook.character);
-    }
-
-    /**
-     * JUnit test to test the Read function
-     * @throws Exception
-     */
-    @Test
-    public void testReadRemoteEndpoint() throws Exception {
-
-        //Test with a remote SPARQL Endpoint
-        DistributedSPARQLManager manager = new DistributedSPARQLManager();
-        manager.open();
-
-        Film filmToRead = new Film();
-        filmToRead.film_uri = "http://data.linkedmdb.org/resource/film/1025";
-
-        Film filmExtracted = manager.read(filmToRead);
-
-        Assert.assertEquals(filmExtracted.filmid, 1025);
-        Assert.assertEquals(filmExtracted.film_uri, "http://data.linkedmdb.org/resource/film/1025");
-        Assert.assertEquals(filmExtracted.title, "The Return of the King");
-        Assert.assertEquals(filmExtracted.runtime, 98);
-    }
 
     /**
      * JUnit tests for adding
@@ -462,13 +386,18 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Test
+	public void testConditionLike() throws DDBSToolkitException {
 
-	@Override
-	public void testConditionIsNull() throws DDBSToolkitException {
-	}
+		Map<String, FilmBase> mapFilms = createSampleData();
 
-	@Override
-	public void testConditionNotNull() throws DDBSToolkitException {
+		Conditions conditionEqualsInteger = Conditions.createConditions().add(
+				Conditions.like("filmName", "%2%"));
+		List<FilmBase> results = manager.listAll(createFilm(),
+				conditionEqualsInteger, null);
+		Assert.assertEquals(results.size(), 1);
+		compareFilmElement(mapFilms.get("film2"), results.get(0));
 	}
 
 	@Override
@@ -481,6 +410,22 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	protected ActorBase createActor() {
 		ActorDatastore actor = new ActorDatastore();
 		return actor;
+	}
+
+	@Override
+	protected FilmBase createFilm(Integer filmID, String filmName,
+			Integer duration, Timestamp creationDate, Long longField,
+			Float floatField) {
+		return new FilmDatastore(filmID, filmName,
+				duration, creationDate, longField,
+				floatField);
+	}
+
+	@Override
+	protected ActorBase createActor(Integer actorId, String actorName,
+			Integer filmId) {
+		return new ActorDatastore(actorId, actorName,
+				filmId);
 	}
 
 }
