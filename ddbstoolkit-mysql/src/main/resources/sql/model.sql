@@ -22,8 +22,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `Actor` (
   `actor_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `actor_name` varchar(45) NOT NULL,
-  `film_ID` int(10) unsigned NOT NULL,
+  `actor_name` varchar(45) NULL,
+  `film_ID` int(10) unsigned NULL,
   PRIMARY KEY (`actor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
@@ -35,10 +35,10 @@ CREATE TABLE `Actor` (
 
 CREATE TABLE `Film` (
   `film_ID` int(11) NOT NULL AUTO_INCREMENT,
-  `film_name` varchar(45) NOT NULL,
-  `duration` int(11) NOT NULL,
-  `creationDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `longField` bigint(20) NOT NULL,
-  `floatField` float NOT NULL,
+  `film_name` varchar(45) NULL,
+  `duration` int(11) NULL,
+  `creationDate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `longField` bigint(20) NULL,
+  `floatField` float NULL,
   PRIMARY KEY (`film_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
