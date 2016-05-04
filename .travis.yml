@@ -3,10 +3,9 @@ jdk:
 - oraclejdk7
 services:
   - mysql
-before_script:
+before_install:
   - mysql -e 'create database ddbstoolkit;'
   - mysql --user=root --password= ddbstoolkit < ./ddbstoolkit-mysql/src/main/resources/sql/model.sql
-before_install:
   - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B
   -V
