@@ -1,5 +1,11 @@
 package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DDBSTransaction;
@@ -8,6 +14,7 @@ import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -15,15 +22,15 @@ import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
-import org.jgroups.*;
+import org.jgroups.Address;
+import org.jgroups.Channel;
+import org.jgroups.JChannel;
+import org.jgroups.Message;
+import org.jgroups.ReceiverAdapter;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestOptions;
 import org.jgroups.blocks.ResponseMode;
 import org.jgroups.util.RspList;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Class to send commands using JGroups technology
@@ -99,8 +106,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
         List<Peer> listPeer = new ArrayList<Peer>();
 
         //Merge all the results on the same ArrayList
-        if(rsp_list.getResults().size() > 0)
-        {
+        if(rsp_list.getResults().size() > 0) {
             for (Peer peer : rsp_list.getResults()) {
                 listPeer.add(peer);
             }
@@ -168,15 +174,14 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 	@Override
 	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
 		
-		try
-    	{
+		try {
             DDBSCommand command = new DDBSCommand();
             command.setAction(DDBSAction.IS_AUTOCOMMIT);
+            command.setIsAutocommit(isAutoCommit);
 
             dispatcher.castMessage(null,
                     new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
 	}
@@ -209,11 +214,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
 			OrderBy orderBy) throws DDBSToolkitException {
 		
-		try
-    	{
+		try {
+			
     		//Connection must be established
-            if(isOpen == true && object != null)
-            {
+            if(isOpen && object != null) {
             	DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
             	
                 DistributedEntity myEntity = (DistributedEntity) object;
@@ -225,8 +229,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setOrderBy(orderBy);
 
                 RspList<List<T>> rsp_list;
-                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty())
-                {
+                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty()) {
                     Address peerToSend = getAddressPeer(myEntity.getPeerUid() );
                     ArrayList<Address> toSend = new ArrayList<Address>();
                     toSend.add(peerToSend);
@@ -234,9 +237,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                     rsp_list = dispatcher.castMessage(toSend,
                             new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                     command.setDestination(new Peer(myEntity.getPeerUid(),null) );
-                }
-                else
-                {
+                } else {
                     rsp_list = dispatcher.castMessage(null,
                             new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                 }
@@ -244,34 +245,26 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 List<T> listEntity = new ArrayList<T>();
 
                 //Merge all the results on the same ArrayList
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     for (List<T> list : rsp_list.getResults()) {
                         listEntity.addAll(list);
                     }
                 }
 
-                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null)
-                {
+                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null) {
                     Collections.sort(listEntity, new ObjectComparator(ddbsEntity, orderBy));
                 }
 
-
                 return listEntity;
-            }
-            else
-            {
-            	if(!isOpen())
-				{
+            } else {
+            	
+            	if(!isOpen()) {
 					throw new DDBSToolkitException("The database connection is not opened");
-				}
-				else
-				{
+				} else {
 					throw new DDBSToolkitException("The object passed in parameter is null");
 				}
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
 	}
@@ -287,11 +280,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
+    		
     		//Connection must be established
-            if(isOpen == true && object != null)
-            {
+            if(isOpen && object != null) {
+            	
             	DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
             	
                 DistributedEntity myEntity = (DistributedEntity) object;
@@ -303,8 +296,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setOrderBy(orderBy);
 
                 RspList<List<T>> rsp_list;
-                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty())
-                {
+                if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty()) {
                     Address peerToSend = getAddressPeer(myEntity.getPeerUid() );
                     ArrayList<Address> toSend = new ArrayList<Address>();
                     toSend.add(peerToSend);
@@ -312,9 +304,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                     rsp_list = dispatcher.castMessage(toSend,
                             new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                     command.setDestination(new Peer(myEntity.getPeerUid(),null) );
-                }
-                else
-                {
+                } else {
                     rsp_list = dispatcher.castMessage(null,
                             new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                 }
@@ -322,34 +312,25 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 List<T> listEntity = new ArrayList<T>();
 
                 //Merge all the results on the same ArrayList
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     for (List<T> list : rsp_list.getResults()) {
                         listEntity.addAll(list);
                     }
                 }
 
-                if((myEntity.getPeerUid() == null || myEntity.getPeerUid() .isEmpty()) && orderBy != null)
-                {
+                if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null) {
                     Collections.sort(listEntity, new ObjectComparator(ddbsEntity, orderBy));
                 }
 
-
                 return listEntity;
-            }
-            else
-            {
-            	if(!isOpen())
-				{
+            } else {
+            	if(!isOpen()) {
 					throw new DDBSToolkitException("The database connection is not opened");
-				}
-				else
-				{
+				} else {
 					throw new DDBSToolkitException("The object passed in parameter is null");
 				}
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
@@ -363,12 +344,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.getPeerUid()  != null)
-            {
+            if(isOpen && object != null && myDistributedEntity.getPeerUid()  != null) {
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.READ);
                 command.setObject(object);
@@ -384,26 +363,19 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                 T myEntity = null;
 
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;
-            }
-            else
-            {
-            	if(!isOpen())
-				{
+            } else {
+            	if(!isOpen()) {
 					throw new DDBSToolkitException("The database connection is not opened");
-				}
-				else
-				{
+				} else {
 					throw new DDBSToolkitException("The object passed in parameter is null");
 				}
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
@@ -417,12 +389,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.getPeerUid()  != null)
-            {
+            if(isOpen && object != null && myDistributedEntity.getPeerUid()  != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.READ_LAST_ELEMENT);
@@ -439,26 +409,19 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                 T myEntity = null;
 
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;
-            }
-            else
-            {
-            	if(!isOpen())
-				{
+            } else {
+            	if(!isOpen()) {
 					throw new DDBSToolkitException("The database connection is not opened");
-				}
-				else
-				{
+				} else {
 					throw new DDBSToolkitException("The object passed in parameter is null");
 				}
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
@@ -472,12 +435,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToAdd;
 
-            if(isOpen == true && objectToAdd != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToAdd != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.ADD);
@@ -500,13 +461,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 }
 
                 return result;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
@@ -520,13 +478,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public boolean update(IEntity objectToUpdate) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
             //Connection must be established
-            if(isOpen == true && objectToUpdate != null && myDistributedEntity.getPeerUid()  != null)
-            {
+            if(isOpen && objectToUpdate != null && myDistributedEntity.getPeerUid()  != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.UPDATE);
@@ -549,13 +505,10 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 }
 
                 return result;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
@@ -569,13 +522,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public boolean delete(IEntity objectToDelete) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
 
             //Connection must be established
-            if(isOpen == true && objectToDelete != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToDelete != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.DELETE);
@@ -592,15 +543,12 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                 boolean result = false;
 
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     result = rsp_list.getResults().get(0);
                 }
 
                 return result;
-            }
-            else
-            {
+            } else {
                 return false;
             }
     	}
@@ -612,13 +560,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
     @Override
     public boolean createEntity(IEntity objectToCreate) throws DDBSToolkitException {
         
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToCreate;
 
             //Connection must be established
-            if(isOpen == true && objectToCreate != null && myDistributedEntity.getPeerUid()  != null)
-            {
+            if(isOpen && objectToCreate != null && myDistributedEntity.getPeerUid()  != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.CREATE_ENTITY);
@@ -635,15 +581,12 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                 boolean result = false;
 
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     result = rsp_list.getResults().get(0);
                 }
 
                 return result;
-            }
-            else
-            {
+            } else {
                 return false;
             }
     	}
@@ -662,13 +605,11 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
      */
     @Override
     public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
 
             //Connection must be established
-            if(isOpen == true && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty())
-            {
+            if(isOpen && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty()) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.LOAD_ARRAY);
@@ -687,35 +628,29 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 
                 T myEntity = null;
 
-                if(rsp_list.getResults().size() > 0)
-                {
+                if(rsp_list.getResults().size() > 0) {
                     myEntity = rsp_list.getResults().get(0);
                 }
 
                 return myEntity;
-            }
-            else
-            {
+            } else {
                 return null;
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }
 
 	@Override
 	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
-		try
-    	{
+		try {
             DDBSCommand command = new DDBSCommand();
             command.setAction(DDBSAction.COMMIT);
             command.setDDBSTransaction(transaction);
 
             dispatcher.castMessage(null,
                     new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}		
 		
@@ -724,16 +659,15 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 	@Override
 	public void rollback(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		try
-    	{
-            DDBSCommand command = new DDBSCommand();
+		try {
+            
+			DDBSCommand command = new DDBSCommand();
             command.setAction(DDBSAction.ROLLBACK);
             command.setDDBSTransaction(transaction);
 
             dispatcher.castMessage(null,
                     new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
 		
@@ -743,6 +677,53 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 	public DDBSTransaction executeTransaction(DDBSTransaction transaction)
 			throws DDBSToolkitException {
 		
+		if(transaction.getTransactionCommands() != null && !transaction.getTransactionCommands().isEmpty()) {
+			
+			Map<String, DDBSTransaction> transactionsPerPeerId = new HashMap<>();
+			for(TransactionCommand transactionCommand : transaction.getTransactionCommands()) {
+				
+				if(transactionCommand.getEntity() instanceof DistributedEntity) {
+						
+					DistributedEntity entity = (DistributedEntity)transactionCommand.getEntity();
+					
+					if(!transactionsPerPeerId.containsKey(entity.getPeerUid())) {
+						transactionsPerPeerId.put(entity.getPeerUid(), new DDBSTransaction(transaction.getTransactionId()));
+					}
+					
+					transactionsPerPeerId.get(entity).getTransactionCommands().add(transactionCommand);
+				}
+			}
+			
+			//Connection must be established
+            if(isOpen) {
+
+            	for(String peerId :transactionsPerPeerId.keySet()) {
+            		
+                    DDBSCommand command = new DDBSCommand();
+                    command.setAction(DDBSAction.TRANSACTION);
+                    command.setDDBSTransaction(transactionsPerPeerId.get(peerId));
+
+                    Address peerToSend = getAddressPeer(peerId);
+
+                    ArrayList<Address> toSend = new ArrayList<Address>();
+                    toSend.add(peerToSend);
+
+					try {
+						RspList<DDBSTransaction> rspList = dispatcher.castMessage(toSend,
+						        new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
+						
+						if (rspList.getResults().size() != 1) {
+							throw new DDBSToolkitException("Error while receive the response. Received "+rspList.getResults()+" reply instead of 1");
+						}
+						
+					} catch (Exception e) {
+						throw new DDBSToolkitException("Error while sending the message ", e);
+					}
+            	}
+
+                return transaction;
+            }
+		}
 		return null;
 	}
 }

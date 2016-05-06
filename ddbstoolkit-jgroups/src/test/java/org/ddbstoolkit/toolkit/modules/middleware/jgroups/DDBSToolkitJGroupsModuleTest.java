@@ -15,16 +15,11 @@ import org.ddbstoolkit.toolkit.modules.datastore.sqlite.SQLiteConnector;
  * @version 1.0 Creation of the class
  */
 public class DDBSToolkitJGroupsModuleTest extends MiddlewareModuleTest {
-
-	/**
-	 * SQLite Directory path String
-	 */
-	private final static String SQLITE_DIRECTORY = "/Users/Cyril/Desktop/";
 	
 	/**
 	 * SQLLite Database file
 	 */
-	private final static String SQLITE_DATABASE = "ddbstoolkit.db";
+	private final static String SQLITE_DATABASE = ":memory:";
 	
 	/**
 	 * Cluster name
@@ -44,7 +39,7 @@ public class DDBSToolkitJGroupsModuleTest extends MiddlewareModuleTest {
 	@Override
 	public void instantiateReceiverAndSenderInterface() throws Exception {
 		
-		receiverInterface = new JGroupReceiver(new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DIRECTORY, SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
+		receiverInterface = new JGroupReceiver(new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
 		
 		senderInterface = new JGroupSender(CLUSTER_NAME, SENDER_NAME);
 		

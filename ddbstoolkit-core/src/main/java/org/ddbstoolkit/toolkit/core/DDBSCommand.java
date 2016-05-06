@@ -56,6 +56,11 @@ public class DDBSCommand implements Serializable {
      * A transaction to execute
      */
     private DDBSTransaction ddbsTransaction;
+    
+    /**
+     * Is Auto commit in transaction
+     */
+    private Boolean isAutocommit;
 
     /**
      * Get the action of a command
@@ -183,6 +188,22 @@ public class DDBSCommand implements Serializable {
 	 */
 	public void setDDBSTransaction(DDBSTransaction ddbsTransaction) {
 		this.ddbsTransaction = ddbsTransaction;
+	}
+	
+	/**
+	 * Indicates if is using auto commit transaction
+	 * @return Boolean indicating if is using autocommit transaction
+	 */
+	public Boolean getIsAutocommit() {
+		return isAutocommit;
+	}
+
+	/**
+	 * Indicates if it has to use auto commit transaction
+	 * @param isAutocommit Boolean indicating if is using autocommit transaction
+	 */
+	public void setIsAutocommit(Boolean isAutocommit) {
+		this.isAutocommit = isAutocommit;
 	}
 
 	@Override

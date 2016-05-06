@@ -16,6 +16,7 @@ import java.util.Set;
 import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.IEntity;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -334,7 +335,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		}
 		// Use of local datastore
 		else {
-			myDataset.begin(ReadWrite.READ);
+			
+			if(!myDataset.isInTransaction()) {
+				myDataset.begin(ReadWrite.READ);
+			}
 
 			try (QueryExecution qe = QueryExecutionFactory.create(query,
 					myDataset.getDefaultModel())) {
@@ -343,7 +347,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				return conversionResultSet(results, object);
 
 			} finally {
-				myDataset.end();
+				if(isAutocommit) {
+					myDataset.end();
+				}
 			}
 
 		}
@@ -413,13 +419,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 		if (sparqlIdProperties.size() == 1) {
 			SparqlClassProperty sparqlIdProperty = sparqlIdProperties.get(0);
-			
-			String conditionQueryString = "?element " + sparqlIdProperty.getNamespaceName()
-			+ ":" + sparqlIdProperty.getPropertyName() + " ?entity_id";
 
-			List<T> results = listAllWithQueryString(object, conditionQueryString,
-					OrderBy.get("entity_id", OrderByType.DESC));
-			if (results.size() == 1) {
+			List<T> results = listAllWithQueryString(object, null,
+					OrderBy.get(sparqlIdProperty.getName(), OrderByType.DESC));
+			if (results.size() >= 1) {
 				return results.get(0);
 			} else {
 				return null;
@@ -439,8 +442,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(objectToAdd);
 
-		// Start a writing transaction
-		myDataset.begin(ReadWrite.WRITE);
+		if(isAutocommit || !myDataset.isInTransaction()) {
+			// Start a writing transaction
+			myDataset.begin(ReadWrite.WRITE);
+		}
 
 		// Get the model
 		Model myModel = myDataset.getDefaultModel();
@@ -568,7 +573,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			throw new DDBSToolkitException("An exception has occured", ex);
 		
 		} finally {
-			myDataset.end();
+			if(isAutocommit) {
+				myDataset.end();
+			}
 		}
 	}
 
@@ -589,8 +596,10 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
 				.getDDBSEntity(objectToDelete);
 
-		// Start a writing transaction
-		myDataset.begin(ReadWrite.WRITE);
+		if(isAutocommit || !myDataset.isInTransaction()) {
+			// Start a writing transaction
+			myDataset.begin(ReadWrite.WRITE);
+		}
 
 		try {
 
@@ -615,7 +624,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 
 		} finally {
-			myDataset.end();
+			if(isAutocommit) {
+				myDataset.end();
+			}
 		}
 	}
 	
@@ -1078,21 +1089,44 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 	@Override
 	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
-		// TODO Auto-generated method stub
-		
+		myDataset.commit();
+		myDataset.end();
 	}
 
 	@Override
 	public void rollback(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
-		
+		myDataset.abort();
+		myDataset.end();
 	}
 
 	@Override
 	public DDBSTransaction executeTransaction(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		if(myDataset.isInTransaction()) {
+			myDataset.end();
+		}
+		
+		// Start a writing transaction
+		myDataset.begin(ReadWrite.WRITE);
+		
+		for(TransactionCommand transactionCommand : transaction.getTransactionCommands()) {
+			switch (transactionCommand.getDataAction()) {
+			case ADD:
+				add(transactionCommand.getEntity());
+				break;
+			case UPDATE:
+				update(transactionCommand.getEntity());
+				break;
+			case DELETE:
+				delete(transactionCommand.getEntity());
+				break;
+			default:
+				break;
+			}
+		}
+		
+		return transaction;
 	}
 }

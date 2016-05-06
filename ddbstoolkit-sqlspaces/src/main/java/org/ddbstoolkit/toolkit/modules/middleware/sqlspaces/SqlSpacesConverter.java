@@ -27,13 +27,11 @@ public class SqlSpacesConverter {
      * @throws Exception Exception
      * @return Tuple object
      */
-    public static Tuple getTuple(DDBSCommand myCommand, int timeout) throws Exception
-    {
+    public static Tuple getTuple(DDBSCommand myCommand, int timeout) throws Exception {
 
         String conditionString = "";
         
-        if(myCommand.getFieldToLoad() == null)
-        {
+        if(myCommand.getFieldToLoad() == null) {
             myCommand.setFieldToLoad("");
         }
 
@@ -47,8 +45,7 @@ public class SqlSpacesConverter {
      * @param myCommand DDBS Command
      * @return DDBS Command
      */
-    public static DDBSCommand getObject(Tuple myCommand)
-    {
+    public static DDBSCommand getObject(Tuple myCommand) {
 
         DDBSCommand myObjectCommand = new DDBSCommand();
         myObjectCommand.setAction((DDBSAction) myCommand.getField(0).getValue());

@@ -9,6 +9,8 @@ import info.collide.sqlspaces.commons.Tuple;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.text.AbstractDocument.BranchElement;
+
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
@@ -127,25 +129,21 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 
         //Set an unique identifier
         Tuple[] listPeers = spacePeers.readAll(template);
-        if(listPeers.length == 0)
-        {
+        if(listPeers.length == 0) {
             myPeer.setUid(String.valueOf(Math.abs(generator.nextInt())));
-        }
-        else
-        {
+        } else {
+        	
             boolean uidAttributed = false;
 
-            while(!uidAttributed)
-            {
+            while(!uidAttributed) {
+            	
                 int uid = Math.abs(generator.nextInt());
 
                 boolean idExist = false;
-                for(int i = 0; i < listPeers.length; i++)
-                {
-                    String encodedValue = (String) listPeers[i].getField(0).getValue();
+                for(int counterPeer = 0; counterPeer < listPeers.length; counterPeer++) {
+                    String encodedValue = (String) listPeers[counterPeer].getField(0).getValue();
                     Peer myPeer = (Peer)SqlSpacesConverter.fromString(encodedValue);
-                    if(String.valueOf(uid).equals(myPeer.getUid()))
-                    {
+                    if(String.valueOf(uid).equals(myPeer.getUid()))  {
                         idExist = true;
                     }
                 }
@@ -171,8 +169,8 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         DDBSCommand myCommand = SqlSpacesConverter.getObject(afterTuple);
 
         //If the command is for the receiver
-        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid()))
-        {
+        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid())) {
+        	
             TupleSpace resultSpace = null;
 
             try {
@@ -191,7 +189,6 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                         
                         if(myCommand.getConditions() != null) {
                         	results = entityManager.listAll(myCommand.getObject(), myCommand.getConditions(), myCommand.getOrderBy());
-
                         } else {
                         	results = entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
                         }
@@ -229,6 +226,15 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                         IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
                         resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
                         break;
+                    case COMMIT:
+                    	entityManager.commit(myCommand.getDDBSTransaction());
+                    	break;
+                    case ROLLBACK:
+                    	entityManager.rollback(myCommand.getDDBSTransaction());
+                    	break;
+                    case TRANSACTION:
+                    	resultSpace.write(new Tuple(SqlSpacesConverter.toString(entityManager.executeTransaction(myCommand.getDDBSTransaction()))));
+                    	break;
                     default:
                         break;
                 }

@@ -8,7 +8,6 @@ import org.ddbstoolkit.toolkit.core.conditions.Condition;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionBetweenValue;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionInValues;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionSingleValue;
-import org.ddbstoolkit.toolkit.core.conditions.ConditionType;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.conditions.ConditionsConverter;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlClassProperty;

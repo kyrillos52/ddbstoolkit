@@ -1,13 +1,11 @@
 package org.ddbstoolkit.toolkit.modules.datastore.jena;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.ddbstoolkit.toolkit.core.DDBSTransaction;
 import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.IEntity;
-import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
 import org.ddbstoolkit.toolkit.core.orderby.OrderByType;
@@ -63,63 +61,6 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 		if(manager.isOpen()) {
 			manager.close();
 		}
-	}
-	
-	/**
-	 * Create sample data
-	 * 
-	 * @throws DDBSToolkitException
-	 */
-	@Override
-	protected Map<String, FilmBase> createSampleData()
-			throws DDBSToolkitException {
-
-		Map<String, FilmBase> mapFilms = new HashMap<String, FilmBase>();
-
-		FilmDatastore film1 = new FilmDatastore();
-		addReceiverPeerUID(film1);
-		film1.setFilm_uri("http://www.cyril-grandjean.co.uk/film/1");
-		film1.setFilmName("Film 1");
-		film1.setDuration(10);
-		film1.setFloatField(new Float(20));
-		film1.setLongField(new Long(30));
-		film1.setCreationDate(new Timestamp(10000));
-
-		mapFilms.put("film1", film1);
-		manager.add(film1);
-
-		FilmDatastore film2 = new FilmDatastore();
-		addReceiverPeerUID(film2);
-		film2.setFilm_uri("http://www.cyril-grandjean.co.uk/film/2");
-		film2.setFilmName("Film 2");
-		film2.setDuration(20);
-		film2.setFloatField(new Float(30));
-		film2.setLongField(new Long(40));
-		film2.setCreationDate(new Timestamp(20000));
-
-		mapFilms.put("film2", film2);
-		manager.add(film2);
-
-		FilmDatastore film3 = new FilmDatastore();
-		addReceiverPeerUID(film3);
-		film3.setFilm_uri("http://www.cyril-grandjean.co.uk/film/3");
-		film3.setFilmName("Film 3");
-		film3.setDuration(30);
-		film3.setFloatField(new Float(40));
-		film3.setLongField(new Long(50));
-		film3.setCreationDate(new Timestamp(60000));
-
-		mapFilms.put("film3", film3);
-		manager.add(film3);
-
-		FilmDatastore filmNull = new FilmDatastore();
-		addReceiverPeerUID(filmNull);
-		filmNull.setFilm_uri("http://www.cyril-grandjean.co.uk/film/4");
-
-		mapFilms.put("filmNull", filmNull);
-		manager.add(filmNull);
-
-		return mapFilms;
 	}
 
     /**
@@ -386,19 +327,6 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Test
-	public void testConditionLike() throws DDBSToolkitException {
-
-		Map<String, FilmBase> mapFilms = createSampleData();
-
-		Conditions conditionEqualsInteger = Conditions.createConditions().add(
-				Conditions.like("filmName", "%2%"));
-		List<FilmBase> results = manager.listAll(createFilm(),
-				conditionEqualsInteger, null);
-		Assert.assertEquals(results.size(), 1);
-		compareFilmElement(mapFilms.get("film2"), results.get(0));
-	}
 
 	@Override
 	protected FilmBase createFilm() {
@@ -427,5 +355,178 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 		return new ActorDatastore(actorId, actorName,
 				filmId);
 	}
+
+	@Override
+	protected String getLikeExpression() {
+		return "2";
+	}
+	
+	/**
+	 * Test executeTransaction() method with add transaction
+	 * Test commit and rollback conditions
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
+	@Override
+	@Test
+	public void testTransactionsAdd() throws DDBSToolkitException {
+		
+		manager.setAutoCommit(false);
+		
+		//Test to add an element with commit
+		DDBSTransaction transactionAddCommit = new DDBSTransaction("transactionAddCommit");
+		
+		int numberOfElement = 0;
+
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		FilmBase filmToAdd = createFilm(1, "Test JUnit 5", 10,
+				new Timestamp(100000), new Long(100), new Float(20));
+		addReceiverPeerUID(filmToAdd);
+		
+		Assert.assertTrue(transactionAddCommit.add(filmToAdd));
+		
+		manager.executeTransaction(transactionAddCommit);
+		
+		numberOfElement++;
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		manager.commit(transactionAddCommit);
+		
+		DDBSTransaction transactionAddRollback = new DDBSTransaction("transactionAddRollback");
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		//Test to add an element with rollback
+		Assert.assertTrue(transactionAddRollback.add(filmToAdd));
+		
+		manager.executeTransaction(transactionAddRollback);
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+		
+		manager.rollback(transactionAddRollback);
+		
+		Assert.assertEquals(
+				manager.listAllWithQueryString(createFilm(), null, null).size(),
+				numberOfElement);
+	}
+	
+	/**
+	 * Test executeTransaction() method with delete transaction
+	 * Test commit and rollback conditions
+	 * @throws DDBSToolkitException DDBS Toolkit exception
+	 */
+	@Override
+	@Test
+	public void testTransactionDelete() throws Exception {
+		
+		FilmBase originalFilm1 = createFilm(1, "Test JUnit original 1", 10,
+				new Timestamp(10000), new Long(1000), new Float(100));
+		
+		FilmBase originalFilm2 = createFilm(2, "Test JUnit original 2", 20,
+				new Timestamp(20000), new Long(2000), new Float(200));
+		
+		manager.add(originalFilm1);
+		manager.add(originalFilm2);
+		
+		manager.setAutoCommit(false);
+		
+		//Delete transaction with rollback
+		DDBSTransaction transactionDeleteRollback = new DDBSTransaction("transactionDeleteRollback");
+		
+		FilmBase filmTryToDelete = manager.readLastElement(createFilm());
+		
+		Assert.assertTrue(transactionDeleteRollback.delete(filmTryToDelete));
+		
+		manager.executeTransaction(transactionDeleteRollback);
+		
+		manager.rollback(transactionDeleteRollback);
+		
+		testReadLastFilmElement(originalFilm2);
+		
+		//Delete transaction with commit
+		DDBSTransaction transactionDeleteCommit = new DDBSTransaction("transactionDeleteCommit");
+		
+		FilmBase filmToDelete = manager.readLastElement(createFilm());
+		
+		Assert.assertTrue(transactionDeleteCommit.delete(filmToDelete));
+		
+		manager.executeTransaction(transactionDeleteCommit);
+		
+		manager.commit(transactionDeleteCommit);
+		
+		testReadLastFilmElement(originalFilm1);
+	}
+	
+	/**
+	* JUnit tests for the listAll function for MySQL
+	* @throws Exception
+	*/
+	@Test
+	public void testListAllRemoteEndPoint() throws Exception {
+		
+		//Test with existing remote SPARQL endpoint
+		manager = new DistributedSPARQLManager();
+		manager.open();
+		
+		String conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Film())+" dc:title 'The Return of the King'";
+
+		List<Film> listEntity = manager.listAllWithQueryString(new Film(), conditionQueryString, null);
+		
+		//There is only one element
+		Assert.assertEquals(listEntity.size(), 1);
+		
+		Film myFilm = listEntity.get(0);
+	
+		Assert.assertEquals(myFilm.filmid, 1025);
+		Assert.assertEquals(myFilm.film_uri, "http://data.linkedmdb.org/resource/film/1025");
+		Assert.assertEquals(myFilm.title, myFilm.title);
+		Assert.assertEquals(myFilm.runtime, 98);
+		
+        conditionQueryString = ((DistributedSPARQLManager)manager).getObjectVariable(new Book())+" fb:type.object.name 'The Fellowship of the Ring'@en.";
+        conditionQueryString += "FILTER ( lang(?title) =  'en' ).";
+        conditionQueryString += "FILTER ( lang(?summary) = 'en' )";
+
+        List<Book> listBook = manager.listAllWithQueryString(new Book(), conditionQueryString, null);
+
+        Book myBook = listBook.get(0);
+        myBook = manager.loadArray(myBook, "author", OrderBy.get("name", OrderByType.ASC));
+        myBook = manager.loadArray(myBook, "genre", null);
+        myBook = manager.loadArray(myBook, "character", null);
+        
+        Assert.assertNotNull(myBook.author);
+        Assert.assertNotNull(myBook.genre);
+        Assert.assertNotNull(myBook.character);
+    }
+	
+    /**
+     * JUnit test to test the Read function
+     * @throws Exception
+     */
+    @Test
+    public void testReadRemoteEndpoint() throws Exception {
+
+        //Test with a remote SPARQL Endpoint
+        DistributedSPARQLManager manager = new DistributedSPARQLManager();
+        manager.open();
+
+        Film filmToRead = new Film();
+        filmToRead.film_uri = "http://data.linkedmdb.org/resource/film/1025";
+
+        Film filmExtracted = manager.read(filmToRead);
+
+        Assert.assertEquals(filmExtracted.filmid, 1025);
+        Assert.assertEquals(filmExtracted.film_uri, "http://data.linkedmdb.org/resource/film/1025");
+        Assert.assertEquals(filmExtracted.title, "The Return of the King");
+        Assert.assertEquals(filmExtracted.runtime, 98);
+    }
 
 }

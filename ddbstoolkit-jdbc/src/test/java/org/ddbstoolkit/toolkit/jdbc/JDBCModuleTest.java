@@ -36,12 +36,24 @@ public abstract class JDBCModuleTest extends DataModuleTest {
 	@Override
 	protected ActorBase createActor(Integer actorId, String actorName,
 			Integer filmId) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Actor(actorId, actorName, filmId);
 	}
 
 	@Override
 	protected void addReceiverPeerUID(IEntity iEntity) {
 		//Do nothing
 	}
+
+	@Override
+	public void instantiateManager() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected String getLikeExpression() {
+		return "%2%";
+	}
+	
+	
 }

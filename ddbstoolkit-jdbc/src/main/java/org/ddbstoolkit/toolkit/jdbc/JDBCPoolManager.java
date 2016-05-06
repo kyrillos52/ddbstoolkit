@@ -24,9 +24,8 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 	 */
 	protected JDBCConnectionPool connectionPool;
 
-	public JDBCPoolManager(JDBCConnector jdbcConnector,
-			JDBCConnectionPool connectionPool) {
-		super(jdbcConnector);
+	public JDBCPoolManager(JDBCConnectionPool connectionPool) {
+		super(null);
 		this.connectionPool = connectionPool;
 	}
 

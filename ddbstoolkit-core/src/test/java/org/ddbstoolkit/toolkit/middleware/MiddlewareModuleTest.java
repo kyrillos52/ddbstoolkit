@@ -115,6 +115,11 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	public void testIsOpen() throws Exception {
 		//TODO Nothing
 	}
+
+	@Override
+	protected String getLikeExpression() {
+		return "%2%";
+	}
 	
 	
 }

@@ -8,7 +8,9 @@ import info.collide.sqlspaces.commons.TupleSpaceException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ddbstoolkit.toolkit.core.DDBSAction;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
@@ -18,6 +20,7 @@ import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.ObjectComparator;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.TransactionCommand;
 import org.ddbstoolkit.toolkit.core.conditions.Conditions;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.core.orderby.OrderBy;
@@ -141,15 +144,13 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public void close() throws DDBSToolkitException{
 
-    	try
-    	{
+    	try {
     		spacePeers.disconnect();
 
             commandPeers.disconnect();
 
             isOpen = false;
-    	}
-    	catch (TupleSpaceException e) {
+    	} catch (TupleSpaceException e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		} 
     }
@@ -158,11 +159,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
 	public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 	   
-    	try
-    	{
+    	try {
+    		
 	        //Connection must be established
-	        if(isOpen == true && object != null)
-	        {
+	        if(isOpen && object != null) {
 	            DistributedEntity myEntity = (DistributedEntity) object;
 	            
 	            DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
@@ -171,12 +171,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	            command.setAction(DDBSAction.LIST_ALL);
 	            command.setConditionQueryString(conditionQueryString);
 	
-	            if(myEntity.getPeerUid() != null && !myEntity.getPeerUid().isEmpty())
-	            {
-	                command.setDestination(new Peer(myEntity.getPeerUid(),null));
-	            }
-	            else
-	            {
+	            if(myEntity.getPeerUid() != null && !myEntity.getPeerUid().isEmpty()) {
+	                command.setDestination(new Peer(myEntity.getPeerUid(), null));
+	            } else {
 	                command.setDestination(Peer.ALL);
 	            }
 	            command.setOrderBy(orderBy);
@@ -195,8 +192,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	            long endTime = System.currentTimeMillis() + timeout;
 	
 	            //Wait for the answers
-	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0)
-	            {
+	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0) {
 	                ackSpace.waitToTake(template,(endTime - System.currentTimeMillis()));
 	
 	                numberOfPeers--;
@@ -208,33 +204,27 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	
 	            Tuple[] list = resultSpace.takeAll(template);
 	
-	            ArrayList<T> returnList = new ArrayList<T>();
+	            List<T> returnList = new ArrayList<T>();
 	
-	            for(int i = 0; i < list.length; i++)
-	            {
-	                Tuple myTuple = list[i];
+	            for(int counterTuple = 0; counterTuple < list.length; counterTuple++) {
+	                Tuple myTuple = list[counterTuple];
 	                String encodedValue = (String) myTuple.getField(0).getValue();
 	                returnList.add((T) SqlSpacesConverter.fromString(encodedValue));
 	            }
 	
-	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null)
-	            {
+	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null) {
 	                Collections.sort(returnList, new ObjectComparator(ddbsEntity, orderBy));
 	            }
 	
 	            resultSpace.disconnect();
 	
 	            return returnList;
-	        }
-	        else
-	        {
+	        } else {
 	            return null;
 	        }
-    	}
-    	catch (TupleSpaceException e) {
+    	} catch (TupleSpaceException e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
-		} 
-    	catch (Exception e) {
+		} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		} 
     }
@@ -243,12 +233,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && object != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.READ);
@@ -264,13 +252,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
                 resultSpace.disconnect();
 
                 return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
-            }
-            else
-            {
+            } else {
                 return null;
             }
-    	}
-    	catch (TupleSpaceException e) {
+    	} catch (TupleSpaceException e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		} catch (IOException e) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", e);
@@ -285,12 +270,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
-            if(isOpen == true && object != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && object != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.READ_LAST_ELEMENT);
@@ -306,9 +289,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
                 resultSpace.disconnect();
 
                 return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
-            }
-            else
-            {
+            } else {
                 return null;
             }
     	}
@@ -327,12 +308,11 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
+    		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToAdd;
 
-            if(isOpen == true && objectToAdd != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToAdd != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.ADD);
@@ -348,20 +328,16 @@ public class SqlSpacesSender implements DistributableSenderInterface {
                 resultSpace.disconnect();
 
                 return (Boolean) result.getField(0).getValue();
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
 		} catch (ClassNotFoundException cnfe) {
 			throw new DDBSToolkitException("Class not found exception", cnfe);
-		}
-    	catch (Exception e) {
+		} catch (Exception e) {
     		throw new DDBSToolkitException("Error executing the middleware request", e);
     	}
     }
@@ -369,27 +345,22 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean update(IEntity objectToUpdate) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToUpdate);
     		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToUpdate;
 
             //Connection must be established
-            if(isOpen == true && objectToUpdate != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToUpdate != null && myDistributedEntity.getPeerUid() != null) {
 
                 //List of primary keys
             	List<DDBSEntityProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToUpdate;
 
-                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null)
-                {
+                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null) {
                     return false;
-                }
-                else
-                {
+                } else {
 
                     DDBSCommand command = new DDBSCommand();
                     command.setAction(DDBSAction.UPDATE);
@@ -406,13 +377,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                     return (Boolean) result.getField(0).getValue();
                 }
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
@@ -427,27 +395,23 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean delete(IEntity objectToDelete) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
+    		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
     		
     		DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToDelete);
 
             //Connection must be established
-            if(isOpen == true && objectToDelete != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToDelete != null && myDistributedEntity.getPeerUid() != null) {
 
                 //Check the primary key
                 List<DDBSEntityProperty> listPrimaryKeys = ddbsEntity.getEntityIDProperties();
 
                 DistributedEntity myEntity = (DistributedEntity) objectToDelete;
 
-                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null)
-                {
+                if(listPrimaryKeys.isEmpty() || myEntity.getPeerUid() == null) {
                     return false;
-                }
-                else
-                {
+                } else {
 
                     DDBSCommand command = new DDBSCommand();
                     command.setAction(DDBSAction.DELETE);
@@ -464,13 +428,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                     return (Boolean) result.getField(0).getValue();
                 }
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
@@ -485,12 +446,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean createEntity(IEntity objectToCreate) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToCreate;
 
-            if(isOpen == true && objectToCreate != null && myDistributedEntity.getPeerUid() != null)
-            {
+            if(isOpen && objectToCreate != null && myDistributedEntity.getPeerUid() != null) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.CREATE_ENTITY);
@@ -506,20 +465,16 @@ public class SqlSpacesSender implements DistributableSenderInterface {
                 resultSpace.disconnect();
 
                 return (Boolean) result.getField(0).getValue();
-            }
-            else
-            {
+            } else {
                 return false;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
 		} catch (ClassNotFoundException cnfe) {
 			throw new DDBSToolkitException("Class not found exception", cnfe);
-		}
-    	catch (Exception e) {
+		} catch (Exception e) {
     		throw new DDBSToolkitException("Error executing the middleware request", e);
     	}
     }
@@ -528,13 +483,11 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {
 
-    	try
-    	{
+    	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
 
             //Connection must be established
-            if(isOpen == true && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty())
-            {
+            if(isOpen && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty()) {
 
                 DDBSCommand command = new DDBSCommand();
                 command.setAction(DDBSAction.LOAD_ARRAY);
@@ -552,13 +505,10 @@ public class SqlSpacesSender implements DistributableSenderInterface {
                 resultSpace.disconnect();
 
                 return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
-            }
-            else
-            {
+            } else {
                 return null;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
@@ -577,10 +527,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
         Tuple[] list = spacePeers.readAll(template);
 
-        ArrayList<Peer> listPeers = new ArrayList<Peer>();
-        for(int i = 0; i < list.length; i++)
-        {
-            String peerString = (String)list[i].getField(0).getValue();
+        List<Peer> listPeers = new ArrayList<Peer>();
+        for(int counterList = 0; counterList < list.length; counterList++) {
+            String peerString = (String)list[counterList].getField(0).getValue();
             listPeers.add((Peer) SqlSpacesConverter.fromString(peerString));
         }
         return listPeers;
@@ -589,33 +538,268 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
 	public <T extends IEntity> List<T> listAll(T object, Conditions conditions,
 			OrderBy orderBy) throws DDBSToolkitException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		try {
+    		
+	        //Connection must be established
+	        if(isOpen && object != null) {
+	            DistributedEntity myEntity = (DistributedEntity) object;
+	            
+	            DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(object);
+	
+	            DDBSCommand command = new DDBSCommand();
+	            command.setAction(DDBSAction.LIST_ALL);
+	            command.setConditions(conditions);
+	
+	            if(myEntity.getPeerUid() != null && !myEntity.getPeerUid().isEmpty()) {
+	                command.setDestination(new Peer(myEntity.getPeerUid(), null));
+	            } else {
+	                command.setDestination(Peer.ALL);
+	            }
+	            command.setOrderBy(orderBy);
+	            command.setObject(object);
+	
+	            //Get the number of peers
+	            int numberOfPeers = getListPeers().size();
+	
+	            TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+	
+	            //Space to receive ACK
+	            TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+id);
+	
+	            Tuple template = new Tuple(String.class);
+	
+	            long endTime = System.currentTimeMillis() + timeout;
+	
+	            //Wait for the answers
+	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0) {
+	                ackSpace.waitToTake(template,(endTime - System.currentTimeMillis()));
+	
+	                numberOfPeers--;
+	            }
+	
+	            ackSpace.disconnect();
+	
+	            TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+	
+	            Tuple[] list = resultSpace.takeAll(template);
+	
+	            List<T> returnList = new ArrayList<T>();
+	
+	            for(int counterTuple = 0; counterTuple < list.length; counterTuple++) {
+	                Tuple myTuple = list[counterTuple];
+	                String encodedValue = (String) myTuple.getField(0).getValue();
+	                returnList.add((T) SqlSpacesConverter.fromString(encodedValue));
+	            }
+	
+	            if((myEntity.getPeerUid() == null || myEntity.getPeerUid().isEmpty()) && orderBy != null) {
+	                Collections.sort(returnList, new ObjectComparator(ddbsEntity, orderBy));
+	            }
+	
+	            resultSpace.disconnect();
+	
+	            return returnList;
+	        } else {
+	            return null;
+	        }
+    	} catch (TupleSpaceException e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		} catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
 	}
 
 	@Override
 	public void setAutoCommit(boolean isAutoCommit) throws DDBSToolkitException {
-		// TODO Auto-generated method stub
+		
+		try {
+    		
+	        //Connection must be established
+	        if(isOpen) {
+	
+	            DDBSCommand command = new DDBSCommand();
+	            command.setAction(DDBSAction.IS_AUTOCOMMIT);
+	            command.setIsAutocommit(isAutoCommit);
+	            command.setDestination(Peer.ALL);
+	
+	            //Get the number of peers
+	            int numberOfPeers = getListPeers().size();
+	
+	            TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+	
+	            //Space to receive ACK
+	            TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+id);
+	
+	            Tuple template = new Tuple(String.class);
+	
+	            long endTime = System.currentTimeMillis() + timeout;
+	
+	            //Wait for the answers
+	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0) {
+	                ackSpace.waitToTake(template,(endTime - System.currentTimeMillis()));
+	
+	                numberOfPeers--;
+	            }
+	
+	            ackSpace.disconnect();
+	
+	            TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+	
+	            resultSpace.takeAll(template);
+	
+	            resultSpace.disconnect();
+	        }
+    	} catch (TupleSpaceException e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		} catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
 		
 	}
 
 	@Override
 	public void commit(DDBSTransaction transaction) throws DDBSToolkitException {
-		// TODO Auto-generated method stub
 		
+		try {
+    		
+	        //Connection must be established
+	        if(isOpen) {
+	
+	            DDBSCommand command = new DDBSCommand();
+	            command.setAction(DDBSAction.COMMIT);
+	            command.setDDBSTransaction(transaction);
+	            command.setDestination(Peer.ALL);
+	
+	            //Get the number of peers
+	            int numberOfPeers = getListPeers().size();
+	
+	            TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+	
+	            //Space to receive ACK
+	            TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+id);
+	
+	            Tuple template = new Tuple(String.class);
+	
+	            long endTime = System.currentTimeMillis() + timeout;
+	
+	            //Wait for the answers
+	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0) {
+	                ackSpace.waitToTake(template,(endTime - System.currentTimeMillis()));
+	
+	                numberOfPeers--;
+	            }
+	
+	            ackSpace.disconnect();
+	
+	            TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+	
+	            resultSpace.takeAll(template);
+	
+	            resultSpace.disconnect();
+	        }
+    	} catch (TupleSpaceException e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		} catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
 	}
 
 	@Override
 	public void rollback(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
+		
+		try {
+    		
+	        //Connection must be established
+	        if(isOpen) {
+	
+	            DDBSCommand command = new DDBSCommand();
+	            command.setAction(DDBSAction.ROLLBACK);
+	            command.setDDBSTransaction(transaction);
+	            command.setDestination(Peer.ALL);
+	
+	            //Get the number of peers
+	            int numberOfPeers = getListPeers().size();
+	
+	            TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+	
+	            //Space to receive ACK
+	            TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+id);
+	
+	            Tuple template = new Tuple(String.class);
+	
+	            long endTime = System.currentTimeMillis() + timeout;
+	
+	            //Wait for the answers
+	            while((endTime - System.currentTimeMillis() > 0) && numberOfPeers > 0) {
+	                ackSpace.waitToTake(template,(endTime - System.currentTimeMillis()));
+	
+	                numberOfPeers--;
+	            }
+	
+	            ackSpace.disconnect();
+	
+	            TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+	        	
+	            resultSpace.takeAll(template);
+	
+	            resultSpace.disconnect();
+	        }
+    	} catch (TupleSpaceException e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		} catch (Exception e) {
+			throw new DDBSToolkitException("Error executing the middleware request", e);
+		}
 		
 	}
 
 	@Override
 	public DDBSTransaction executeTransaction(DDBSTransaction transaction)
 			throws DDBSToolkitException {
-		// TODO Auto-generated method stub
+		
+		if(transaction.getTransactionCommands() != null && !transaction.getTransactionCommands().isEmpty()) {
+			
+			Map<String, DDBSTransaction> transactionsPerPeerId = new HashMap<>();
+			for(TransactionCommand transactionCommand : transaction.getTransactionCommands()) {
+				
+				if(transactionCommand.getEntity() instanceof DistributedEntity) {
+						
+					DistributedEntity entity = (DistributedEntity)transactionCommand.getEntity();
+					
+					if(!transactionsPerPeerId.containsKey(entity.getPeerUid())) {
+						transactionsPerPeerId.put(entity.getPeerUid(), new DDBSTransaction(transaction.getTransactionId()));
+					}
+					
+					transactionsPerPeerId.get(entity).getTransactionCommands().add(transactionCommand);
+				}
+			}
+			
+			//Connection must be established
+            if(isOpen) {
+
+            	for(String peerId :transactionsPerPeerId.keySet()) {
+            		
+            		try {
+            			DDBSCommand command = new DDBSCommand();
+                        command.setAction(DDBSAction.TRANSACTION);
+                        command.setDDBSTransaction(transactionsPerPeerId.get(peerId));
+
+                        TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+
+                        TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+                        Tuple template = new Tuple(DDBSTransaction.class);
+                        Tuple result = resultSpace.waitToTake(template);
+
+                        resultSpace.disconnect();
+                        
+                        return transaction;
+            		} catch(Exception e) {
+            			throw new DDBSToolkitException("Error while executing the transaction", e);
+            		}
+                    
+            	}
+            }
+		}
 		return null;
 	}
 }

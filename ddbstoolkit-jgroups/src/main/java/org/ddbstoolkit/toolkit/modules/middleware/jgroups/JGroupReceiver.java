@@ -87,7 +87,6 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
      */
     @Override
     public void stop() throws Exception {
-
         channel.close();
     }
 
@@ -150,8 +149,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
 
         } catch (Exception e) {
             throw e;
-        }
-        finally{
+        } finally{
             entityManager.close();
         }
 

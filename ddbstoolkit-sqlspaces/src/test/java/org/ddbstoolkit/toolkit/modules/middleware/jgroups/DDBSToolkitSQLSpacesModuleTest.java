@@ -1,5 +1,6 @@
 package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 import java.sql.Timestamp;
+
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
 import org.ddbstoolkit.toolkit.middleware.MiddlewareModuleTest;
@@ -15,16 +16,11 @@ import org.ddbstoolkit.toolkit.modules.middleware.sqlspaces.SqlSpacesSender;
  * @version 1.0 Creation of the class
  */
 public class DDBSToolkitSQLSpacesModuleTest extends MiddlewareModuleTest {
-
-	/**
-	 * SQLite Directory path String
-	 */
-	private final static String SQLITE_DIRECTORY = "/Users/Cyril/Desktop/";
 	
 	/**
 	 * SQLLite Database file
 	 */
-	private final static String SQLITE_DATABASE = "ddbstoolkit.db";
+	private final static String SQLITE_DATABASE = ":memory:";
 	
 	/**
 	 * Cluster name
@@ -44,7 +40,7 @@ public class DDBSToolkitSQLSpacesModuleTest extends MiddlewareModuleTest {
 	@Override
 	public void instantiateReceiverAndSenderInterface() throws Exception {
 		
-		receiverInterface = new SqlSpacesReceiver(new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DIRECTORY, SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
+		receiverInterface = new SqlSpacesReceiver(new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
 		
 		senderInterface = new SqlSpacesSender(CLUSTER_NAME, SENDER_NAME);
 		

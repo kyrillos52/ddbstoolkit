@@ -48,8 +48,7 @@ public class DDBSToolkitListener implements Runnable {
 		try {
 			receiverInterface.start();
 			
-			while(keepListening)
-			{
+			while(keepListening) {
 				Thread.sleep(WAIT_TIME);
 			}
 			
