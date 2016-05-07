@@ -52,7 +52,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     /**
      * Maximum timeout
      */
-    private int timeout = 10000;
+    private int timeout = 1000;
 
     /**
      * Name of the cluster

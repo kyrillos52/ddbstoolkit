@@ -35,7 +35,7 @@ public class SqlSpacesConverter {
             myCommand.setFieldToLoad("");
         }
 
-        Tuple myTuple = new Tuple(myCommand.getAction(), SqlSpacesConverter.toString(myCommand.getObject()), conditionString, myCommand.getDestination(), myCommand.getOrderBy(), myCommand.getFieldToLoad());
+        Tuple myTuple = new Tuple(SqlSpacesConverter.toString(myCommand.getAction()), SqlSpacesConverter.toString(myCommand.getObject()), conditionString, SqlSpacesConverter.toString(myCommand.getDestination()), SqlSpacesConverter.toString(myCommand.getOrderBy()), myCommand.getFieldToLoad());
         myTuple.setExpiration(timeout);
         return myTuple;
     }
@@ -44,20 +44,18 @@ public class SqlSpacesConverter {
      * Convert the tuple object into a command object
      * @param myCommand DDBS Command
      * @return DDBS Command
+     * @throws IOException 
+     * @throws ClassNotFoundException 
      */
-    public static DDBSCommand getObject(Tuple myCommand) {
+    public static DDBSCommand getObject(Tuple myCommand) throws ClassNotFoundException, IOException {
 
         DDBSCommand myObjectCommand = new DDBSCommand();
-        myObjectCommand.setAction((DDBSAction) myCommand.getField(0).getValue());
-        try {
-            myObjectCommand.setObject((IEntity)SqlSpacesConverter.fromString((String)myCommand.getField(1).getValue()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        myObjectCommand.setAction((DDBSAction) SqlSpacesConverter.fromString((String)myCommand.getField(0).getValue()));
+        myObjectCommand.setObject((IEntity)SqlSpacesConverter.fromString((String)myCommand.getField(1).getValue()));
         myObjectCommand.setConditionQueryString((String) myCommand.getField(2).getValue());
-        myObjectCommand.setConditions((Conditions)myCommand.getField(3).getValue());
-        myObjectCommand.setDestination((Peer) myCommand.getField(4).getValue());
-        myObjectCommand.setOrderBy((OrderBy) myCommand.getField(5).getValue());
+        myObjectCommand.setConditions((Conditions)SqlSpacesConverter.fromString((String)myCommand.getField(3).getValue()));
+        myObjectCommand.setDestination((Peer) SqlSpacesConverter.fromString((String)myCommand.getField(4).getValue()));
+        myObjectCommand.setOrderBy((OrderBy) SqlSpacesConverter.fromString((String)myCommand.getField(5).getValue()));
         myObjectCommand.setFieldToLoad((String) myCommand.getField(6).getValue());
         return myObjectCommand;
     }

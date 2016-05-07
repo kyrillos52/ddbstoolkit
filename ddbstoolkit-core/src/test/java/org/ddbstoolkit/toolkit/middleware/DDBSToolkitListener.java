@@ -22,7 +22,7 @@ public class DDBSToolkitListener implements Runnable {
 	/**
 	 * Wait time
 	 */
-	private final int WAIT_TIME = 1000;
+	private final int WAIT_TIME = 100;
 
 	/**
 	 * DDBSToolkit lister constructor

@@ -451,7 +451,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 toSend.add(peerToSend);
 
                 RspList<Boolean> rsp_list = dispatcher.castMessage(toSend,
-                        new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
+                        new Message(null, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 boolean result = false;
 

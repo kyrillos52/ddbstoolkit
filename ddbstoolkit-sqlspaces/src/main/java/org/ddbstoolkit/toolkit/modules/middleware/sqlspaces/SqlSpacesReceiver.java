@@ -1,15 +1,8 @@
 package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 
-import info.collide.sqlspaces.client.TupleSpace;
-import info.collide.sqlspaces.commons.TupleSpaceException;
-import info.collide.sqlspaces.otm.ObjectTupleSpace;
-import info.collide.sqlspaces.commons.Callback;
-import info.collide.sqlspaces.commons.Tuple;
-
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-
-import javax.swing.text.AbstractDocument.BranchElement;
 
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
@@ -17,6 +10,12 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
+
+import info.collide.sqlspaces.client.TupleSpace;
+import info.collide.sqlspaces.commons.Callback;
+import info.collide.sqlspaces.commons.Tuple;
+import info.collide.sqlspaces.commons.TupleSpaceException;
+import info.collide.sqlspaces.otm.ObjectTupleSpace;
 
 /**
  * SQLSpaces receiver
@@ -166,97 +165,105 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
     @Override
     public void call(Command c, int seq, Tuple afterTuple, Tuple beforeTuple) {
 
-        DDBSCommand myCommand = SqlSpacesConverter.getObject(afterTuple);
+        DDBSCommand myCommand;
+		try {
+			myCommand = SqlSpacesConverter.getObject(afterTuple);
+			
+			 //If the command is for the receiver
+	        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid())) {
+	        	
+	            TupleSpace resultSpace = null;
 
-        //If the command is for the receiver
-        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid())) {
-        	
-            TupleSpace resultSpace = null;
+	            try {
 
-            try {
+	                //System.out.println("Open connection");
+	                entityManager.open();
 
-                //System.out.println("Open connection");
-                entityManager.open();
+	                //Write the results into the appropriate space
+	                resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+afterTuple.getTupleID());
 
-                //Write the results into the appropriate space
-                resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+afterTuple.getTupleID());
+	                switch (myCommand.getAction()) {
+	                    case LIST_ALL:
+	                    	
+	                    	//Get the list of entities
+	                        List<? extends IEntity> results;
+	                        
+	                        if(myCommand.getConditions() != null) {
+	                        	results = entityManager.listAll(myCommand.getObject(), myCommand.getConditions(), myCommand.getOrderBy());
+	                        } else {
+	                        	results = entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
+	                        }
 
-                switch (myCommand.getAction()) {
-                    case LIST_ALL:
-                    	
-                    	//Get the list of entities
-                        List<? extends IEntity> results;
-                        
-                        if(myCommand.getConditions() != null) {
-                        	results = entityManager.listAll(myCommand.getObject(), myCommand.getConditions(), myCommand.getOrderBy());
-                        } else {
-                        	results = entityManager.listAllWithQueryString(myCommand.getObject(), myCommand.getConditionQueryString(), myCommand.getOrderBy());
-                        }
+	                        for (IEntity iEntity : results) {
+	                            resultSpace.write(new Tuple(SqlSpacesConverter.toString(iEntity)));
+	                        }
 
-                        for (IEntity iEntity : results) {
-                            resultSpace.write(new Tuple(SqlSpacesConverter.toString(iEntity)));
-                        }
+	                        TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+afterTuple.getTupleID());
+	                        ackSpace.write(new Tuple(myPeer.getUid()));
+	                        ackSpace.disconnect();
 
-                        TupleSpace ackSpace = new TupleSpace(ipAddressServer, port, clusterName+"-ack-"+afterTuple.getTupleID());
-                        ackSpace.write(new Tuple(myPeer.getUid()));
-                        ackSpace.disconnect();
+	                        break;
+	                    case READ:
+	                        IEntity entity = entityConverter.enrichWithPeerUID(entityManager.read(myCommand.getObject()));
+	                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(entity)));
+	                        break;
+	                    case READ_LAST_ELEMENT:
+	                        IEntity lastEntity = entityConverter.enrichWithPeerUID(entityManager.readLastElement(myCommand.getObject()));
+	                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(lastEntity)));
+	                        break;
+	                    case ADD:
+	                        boolean resultAdd = entityManager.add(myCommand.getObject());
+	                        resultSpace.write(new Tuple(resultAdd));
+	                        break;
+	                    case UPDATE:
+	                        boolean resultUpdate = entityManager.update(myCommand.getObject());
+	                        resultSpace.write(new Tuple(resultUpdate));
+	                        break;
+	                    case DELETE:
+	                        boolean resultdelete = entityManager.delete(myCommand.getObject());
+	                        resultSpace.write(new Tuple(resultdelete));
+	                        break;
+	                    case LOAD_ARRAY:
+	                        IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
+	                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
+	                        break;
+	                    case COMMIT:
+	                    	entityManager.commit(myCommand.getDDBSTransaction());
+	                    	break;
+	                    case ROLLBACK:
+	                    	entityManager.rollback(myCommand.getDDBSTransaction());
+	                    	break;
+	                    case TRANSACTION:
+	                    	resultSpace.write(new Tuple(SqlSpacesConverter.toString(entityManager.executeTransaction(myCommand.getDDBSTransaction()))));
+	                    	break;
+	                    default:
+	                        break;
+	                }
 
-                        break;
-                    case READ:
-                        IEntity entity = entityConverter.enrichWithPeerUID(entityManager.read(myCommand.getObject()));
-                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(entity)));
-                        break;
-                    case READ_LAST_ELEMENT:
-                        IEntity lastEntity = entityConverter.enrichWithPeerUID(entityManager.readLastElement(myCommand.getObject()));
-                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(lastEntity)));
-                        break;
-                    case ADD:
-                        boolean resultAdd = entityManager.add(myCommand.getObject());
-                        resultSpace.write(new Tuple(resultAdd));
-                        break;
-                    case UPDATE:
-                        boolean resultUpdate = entityManager.update(myCommand.getObject());
-                        resultSpace.write(new Tuple(resultUpdate));
-                        break;
-                    case DELETE:
-                        boolean resultdelete = entityManager.delete(myCommand.getObject());
-                        resultSpace.write(new Tuple(resultdelete));
-                        break;
-                    case LOAD_ARRAY:
-                        IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
-                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
-                        break;
-                    case COMMIT:
-                    	entityManager.commit(myCommand.getDDBSTransaction());
-                    	break;
-                    case ROLLBACK:
-                    	entityManager.rollback(myCommand.getDDBSTransaction());
-                    	break;
-                    case TRANSACTION:
-                    	resultSpace.write(new Tuple(SqlSpacesConverter.toString(entityManager.executeTransaction(myCommand.getDDBSTransaction()))));
-                    	break;
-                    default:
-                        break;
-                }
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	            finally{
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            finally{
+	                try {
+	                    entityManager.close();
+	                } catch (Exception e) {
+	                    e.printStackTrace();
+	                }
 
-                try {
-                    entityManager.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+	                try {
+	                    resultSpace.disconnect();
+	                } catch (TupleSpaceException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+		} catch (ClassNotFoundException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
-                try {
-                    resultSpace.disconnect();
-                } catch (TupleSpaceException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+       
     }
 
     @Override

@@ -65,12 +65,13 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 		}
 	}
 	
+	
+	
 	/**
 	 * Instantiate and start a new listener thread
 	 * @param receiverInterface receiver interface
 	 * @throws Exception
 	 */
-	@Before
 	public void instantiateAndStartDistributableReceiverInterface() throws Exception
 	{
 		instantiateReceiverAndSenderInterface();
@@ -95,7 +96,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
 	@Override
 	public void instantiateManager() throws Exception {
-		instantiateReceiverAndSenderInterface();
+		instantiateAndStartDistributableReceiverInterface();
 	}
 	
 	@After
@@ -103,8 +104,8 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	{
 		try {
 			ddbsToolkitListener.setKeepListening(false);
-			senderInterface.close();
 			receiverInterface.stop();
+			senderInterface.close();
 		} catch(Exception e) {
 			throw new DDBSToolkitException("Error closing the connexion", e);
 		}
