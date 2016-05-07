@@ -95,6 +95,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	
 	/**
 	 * Default constructor used when using SPARQL to query remote endpoints
+	 * @param isTesting Is in testing mode
 	 */
 	public DistributedSPARQLManager(boolean isTesting) {
 		this.ddbsEntityManager = new SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>>(new SparqlClassInspector());

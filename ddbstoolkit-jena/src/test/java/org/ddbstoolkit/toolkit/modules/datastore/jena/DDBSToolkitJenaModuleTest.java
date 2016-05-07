@@ -65,7 +65,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 
     /**
      * JUnit tests for adding
-     * @throws Exception
+     * @throws DDBSToolkitException Toolkit exception
      */
     @Test
     public void testAdd() throws DDBSToolkitException {
@@ -145,7 +145,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
     
     /**
      * JUnit tests to test the update function
-     * @throws Exception
+     * @throws DDBSToolkitException Toolkit exception
      */
     @Test
     public void testUpdate() throws DDBSToolkitException {
@@ -246,11 +246,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
     public void testLoadArray() throws DDBSToolkitException {
     	//TODO To fix
     }
-
-    /**
-     * JUnit tests to test the LoadArray function
-     * @throws Exception
-     */
+    
     /*
     @Test
     public void testLoadArray() throws DDBSToolkitException {
@@ -475,7 +471,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	
 	/**
 	* JUnit tests for the listAll function for MySQL
-	* @throws Exception
+	* @throws Exception Exception thrown
 	*/
 	@Test
 	public void testListAllRemoteEndPoint() throws Exception {
@@ -516,7 +512,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	
     /**
      * JUnit test to test the Read function
-     * @throws Exception
+     * @throws Exception Exception thrown
      */
     @Test
     public void testReadRemoteEndpoint() throws Exception {

@@ -55,7 +55,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
 	/**
 	 * Add receiver peer uid
-	 * @param distributedEntity Distributed Entity
+	 * @param iEntity Entity
 	 */
 	@Override
 	protected void addReceiverPeerUID(IEntity iEntity)
@@ -69,8 +69,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
 	/**
 	 * Instantiate and start a new listener thread
-	 * @param receiverInterface receiver interface
-	 * @throws Exception
+	 * @throws Exception throw an error
 	 */
 	public void instantiateAndStartDistributableReceiverInterface() throws Exception
 	{

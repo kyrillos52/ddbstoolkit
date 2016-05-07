@@ -31,15 +31,14 @@ public abstract class DataModuleTest {
 	/**
 	 * Instantiate a distributable entity manager
 	 * 
-	 * @throws Exception
+	 * @throws Exception throw an exception
 	 */
 	public abstract void instantiateManager() throws Exception;
 
 	/**
 	 * Add receiver peer uid
 	 * 
-	 * @param distributedEntity
-	 *            Distributed Entity
+	 * @param iEntity Entity
 	 */
 	protected abstract void addReceiverPeerUID(IEntity iEntity);
 
@@ -65,7 +64,12 @@ public abstract class DataModuleTest {
 	
 	/**
 	 * Create an empty film object
-	 * 
+	 * @param filmID Film Id
+	 * @param filmName Film name
+	 * @param duration Duration
+	 * @param creationDate Creation date
+	 * @param longField Long field
+	 * @param floatField Float field
 	 * @return an empty film object
 	 */
 	protected abstract FilmBase createFilm(Integer filmID, String filmName, Integer duration,
@@ -73,7 +77,9 @@ public abstract class DataModuleTest {
 
 	/**
 	 * Create an empty actor
-	 * 
+	 * @param actorId Actor Id
+	 * @param actorName Actor name
+	 * @param filmId Film id
 	 * @return An empty actor
 	 */
 	protected abstract ActorBase createActor(Integer actorId, String actorName, Integer filmId);
@@ -81,8 +87,7 @@ public abstract class DataModuleTest {
 	/**
 	 * Clean data inside the data source
 	 * 
-	 * @throws ClassNotFoundException
-	 * @throws DDBSToolkitException
+	 * @throws Exception Exception thrown
 	 */
 	@Before
 	public void setUp() throws Exception {
@@ -166,7 +171,7 @@ public abstract class DataModuleTest {
 	 * Test the add() method with a null value
 	 * We should throw an illegal argument exception
 	 * 
-	 * @throws DDBSToolkitException
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	@Test(expected = IllegalArgumentException.class) 
 	public void testAddNullValue() throws DDBSToolkitException {
@@ -550,7 +555,8 @@ public abstract class DataModuleTest {
 	/**
 	 * Create sample data
 	 * 
-	 * @throws DDBSToolkitException
+	 * @throws DDBSToolkitException Toolkit exception
+	 * @return Map of data
 	 */
 	protected Map<String, FilmBase> createSampleData()
 			throws DDBSToolkitException {

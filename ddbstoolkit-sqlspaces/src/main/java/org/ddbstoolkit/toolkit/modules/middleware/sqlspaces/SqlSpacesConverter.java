@@ -44,8 +44,8 @@ public class SqlSpacesConverter {
      * Convert the tuple object into a command object
      * @param myCommand DDBS Command
      * @return DDBS Command
-     * @throws IOException 
-     * @throws ClassNotFoundException 
+     * @throws IOException Input exception
+     * @throws ClassNotFoundException Class not found
      */
     public static DDBSCommand getObject(Tuple myCommand) throws ClassNotFoundException, IOException {
 
