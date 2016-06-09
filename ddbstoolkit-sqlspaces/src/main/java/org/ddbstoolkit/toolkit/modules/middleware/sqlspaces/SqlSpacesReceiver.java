@@ -158,7 +158,8 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         spacePeers.write(new Tuple(SqlSpacesConverter.toString(myPeer)));
 
         commandPeers = new TupleSpace(ipAddressServer, port, clusterName+"-commands");
-        Tuple tmp = new Tuple(Integer.class, String.class, String.class, String.class, String.class, String.class);
+        
+        Tuple tmp = new Tuple(String.class);
         registrationNumber = commandPeers.eventRegister(Command.WRITE, tmp, this, false);
     }
 
@@ -170,7 +171,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 			myCommand = SqlSpacesConverter.getObject(afterTuple);
 			
 			 //If the command is for the receiver
-	        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().equals(myPeer.getUid())) {
+	        if(myCommand.getDestination().equals(Peer.ALL) || myCommand.getDestination().getUid().equals(myPeer.getUid())) {
 	        	
 	            TupleSpace resultSpace = null;
 
@@ -235,6 +236,9 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 	                    	break;
 	                    case TRANSACTION:
 	                    	resultSpace.write(new Tuple(SqlSpacesConverter.toString(entityManager.executeTransaction(myCommand.getDDBSTransaction()))));
+	                    	break;
+	                    case CREATE_ENTITY:
+	                    	resultSpace.write(new Tuple(entityManager.createEntity(myCommand.getObject())));
 	                    	break;
 	                    default:
 	                        break;

@@ -70,6 +70,19 @@ public class Peer implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+	@Override
+	public int hashCode() {
+		return uid.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Peer) {
+			return uid.equals(((Peer)obj).getUid());
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {

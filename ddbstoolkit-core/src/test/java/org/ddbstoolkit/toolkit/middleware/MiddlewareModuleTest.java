@@ -1,5 +1,7 @@
 package org.ddbstoolkit.toolkit.middleware;
 
+import java.util.List;
+
 import org.ddbstoolkit.toolkit.core.DataModuleTest;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributableSenderInterface;
@@ -7,9 +9,10 @@ import org.ddbstoolkit.toolkit.core.DistributedEntity;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
+import org.ddbstoolkit.toolkit.model.interfaces.ActorBase;
+import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
@@ -84,11 +87,22 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 		
 		senderInterface.open();
 		
-		Assert.assertEquals(senderInterface.getListPeers().size(), 1);
-		 
-		receiverPeer = senderInterface.getListPeers().get(0);
+		List<Peer> peers = senderInterface.getListPeers();
+		
+		Assert.assertEquals(peers.size(), 1);
+		
+		ActorBase actor = createActor();
+		actor.setPeerUid(Peer.ALL.getUid());
+		
+		FilmBase film = createFilm();
+		film.setPeerUid(Peer.ALL.getUid());
+		
+		senderInterface.createEntity(actor);
+		senderInterface.createEntity(film);
 		
 		manager = senderInterface;
+		
+		receiverPeer = peers.get(0);
 	}
 	
 	public abstract void instantiateReceiverAndSenderInterface() throws Exception;

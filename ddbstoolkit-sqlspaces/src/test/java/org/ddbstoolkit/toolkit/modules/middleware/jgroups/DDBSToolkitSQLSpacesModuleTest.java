@@ -1,6 +1,7 @@
 package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 import java.sql.Timestamp;
 
+import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
 import org.ddbstoolkit.toolkit.middleware.MiddlewareModuleTest;
@@ -39,8 +40,8 @@ public class DDBSToolkitSQLSpacesModuleTest extends MiddlewareModuleTest {
 	
 	@Override
 	public void instantiateReceiverAndSenderInterface() throws Exception {
-		
-		receiverInterface = new SqlSpacesReceiver(new DistributedSQLiteTableManager(new SQLiteConnector(SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
+				
+		receiverInterface = new SqlSpacesReceiver(new DistributedSQLiteTableManagerTest(new SQLiteConnector(SQLITE_DATABASE)), CLUSTER_NAME, RECEIVER_NAME);
 		
 		senderInterface = new SqlSpacesSender(CLUSTER_NAME, SENDER_NAME);
 		
