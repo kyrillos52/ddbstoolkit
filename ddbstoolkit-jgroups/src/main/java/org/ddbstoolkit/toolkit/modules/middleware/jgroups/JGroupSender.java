@@ -176,7 +176,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
 		
 		try {
             DDBSCommand command = new DDBSCommand();
-            command.setAction(DDBSAction.IS_AUTOCOMMIT);
+            command.setAction(DDBSAction.SET_AUTOCOMMIT);
             command.setIsAutocommit(isAutoCommit);
 
             dispatcher.castMessage(null,
