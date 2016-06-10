@@ -59,11 +59,22 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	/**
 	 * Add receiver peer uid
 	 * @param iEntity Entity
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	@Override
-	protected void addReceiverPeerUID(IEntity iEntity)
+	protected void addReceiverPeerUID(IEntity iEntity) throws DDBSToolkitException
 	{
 		if(iEntity instanceof DistributedEntity) {
+			if(receiverPeer == null) {
+				List<Peer> peers;
+				try {
+					peers = senderInterface.getListPeers();
+					receiverPeer = peers.get(0);
+				} catch (Exception e) {
+					throw new DDBSToolkitException("error",e);
+				}
+				
+			}
 			((DistributedEntity)iEntity).setPeerUid(receiverPeer.getUid());
 		}
 	}

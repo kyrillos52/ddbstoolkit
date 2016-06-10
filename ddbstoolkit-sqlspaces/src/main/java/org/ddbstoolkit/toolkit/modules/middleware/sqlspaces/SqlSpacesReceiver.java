@@ -10,6 +10,7 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 
 import info.collide.sqlspaces.client.TupleSpace;
 import info.collide.sqlspaces.commons.Callback;
@@ -228,6 +229,9 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 	                        IEntity loadedEntity = entityManager.loadArray(myCommand.getObject(), myCommand.getFieldToLoad(), myCommand.getOrderBy());
 	                        resultSpace.write(new Tuple(SqlSpacesConverter.toString(loadedEntity)));
 	                        break;
+	                    case SET_AUTOCOMMIT:
+	                    	entityManager.setAutoCommit(myCommand.getIsAutocommit());
+	                        break;                
 	                    case COMMIT:
 	                    	entityManager.commit(myCommand.getDDBSTransaction());
 	                    	break;

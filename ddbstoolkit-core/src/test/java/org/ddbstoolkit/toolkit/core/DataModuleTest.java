@@ -39,22 +39,25 @@ public abstract class DataModuleTest {
 	 * Add receiver peer uid
 	 * 
 	 * @param iEntity Entity
+	 * @throws DDBSToolkitException Exception error while adding peer UID information
 	 */
-	protected abstract void addReceiverPeerUID(IEntity iEntity);
+	protected abstract void addReceiverPeerUID(IEntity iEntity) throws DDBSToolkitException;
 
 	/**
 	 * Create an empty film object
 	 * 
 	 * @return an empty film object
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
-	protected abstract FilmBase createFilm();
+	protected abstract FilmBase createFilm() throws DDBSToolkitException;
 
 	/**
 	 * Create an empty actor
 	 * 
 	 * @return An empty actor
+	 * @throws DDBSToolkitException  Toolkit exception
 	 */
-	protected abstract ActorBase createActor();
+	protected abstract ActorBase createActor() throws DDBSToolkitException;
 	
 	/**
 	 * Get the string expression that match contains "2" in the film name
@@ -71,9 +74,10 @@ public abstract class DataModuleTest {
 	 * @param longField Long field
 	 * @param floatField Float field
 	 * @return an empty film object
+	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	protected abstract FilmBase createFilm(Integer filmID, String filmName, Integer duration,
-			Timestamp creationDate, Long longField, Float floatField);
+			Timestamp creationDate, Long longField, Float floatField) throws DDBSToolkitException;
 
 	/**
 	 * Create an empty actor
@@ -81,8 +85,9 @@ public abstract class DataModuleTest {
 	 * @param actorName Actor name
 	 * @param filmId Film id
 	 * @return An empty actor
+	 * @throws DDBSToolkitException  Toolkit exception
 	 */
-	protected abstract ActorBase createActor(Integer actorId, String actorName, Integer filmId);
+	protected abstract ActorBase createActor(Integer actorId, String actorName, Integer filmId) throws DDBSToolkitException;
 
 	/**
 	 * Clean data inside the data source

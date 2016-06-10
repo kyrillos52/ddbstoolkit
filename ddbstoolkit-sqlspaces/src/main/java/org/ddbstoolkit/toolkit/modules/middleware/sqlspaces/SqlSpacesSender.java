@@ -1,10 +1,5 @@
 package org.ddbstoolkit.toolkit.modules.middleware.sqlspaces;
 
-import info.collide.sqlspaces.client.TupleSpace;
-import info.collide.sqlspaces.commons.Tuple;
-import info.collide.sqlspaces.commons.TupleID;
-import info.collide.sqlspaces.commons.TupleSpaceException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +23,11 @@ import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityManager;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
+
+import info.collide.sqlspaces.client.TupleSpace;
+import info.collide.sqlspaces.commons.Tuple;
+import info.collide.sqlspaces.commons.TupleID;
+import info.collide.sqlspaces.commons.TupleSpaceException;
 
 /**
  * Class to send commands using SQLSpaces
@@ -159,6 +159,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
 	public <T extends IEntity> List<T> listAllWithQueryString(T object, String conditionQueryString, OrderBy orderBy) throws DDBSToolkitException {
 	   
+    	testConnection(object);
+    	
     	try {
     		
 	        //Connection must be established
@@ -233,6 +235,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T read(T object) throws DDBSToolkitException {
 
+    	testConnection(object);
+    	
     	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
@@ -270,6 +274,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T readLastElement(T object) throws DDBSToolkitException {
 
+    	testConnection(object);
+    	
     	try {
     		DistributedEntity myDistributedEntity = (DistributedEntity) object;
 
@@ -308,6 +314,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean add(IEntity objectToAdd) throws DDBSToolkitException {
 
+    	testConnection(objectToAdd);
+    	
     	try {
     		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToAdd;
@@ -344,7 +352,9 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
     @Override
     public boolean update(IEntity objectToUpdate) throws DDBSToolkitException {
-
+    	
+    	testConnection(objectToUpdate);
+    	
     	try {
     		DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToUpdate);
     		
@@ -395,6 +405,8 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     @Override
     public boolean delete(IEntity objectToDelete) throws DDBSToolkitException {
 
+    	testConnection(objectToDelete);
+    	
     	try {
     		
     		DistributedEntity myDistributedEntity = (DistributedEntity) objectToDelete;
@@ -483,41 +495,43 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	@Override
     public <T extends IEntity> T loadArray(T objectToLoad, String field, OrderBy orderBy) throws DDBSToolkitException {
 
-    	try {
-    		DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
+    	testConnection(objectToLoad);
+    	
+    	DistributedEntity myDistributedEntity = (DistributedEntity) objectToLoad;
+    	
+    	if(myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty()) {
+    
+			try {
 
-            //Connection must be established
-            if(isOpen && objectToLoad != null && myDistributedEntity.getPeerUid() != null && field != null && !field.isEmpty()) {
-
-                DDBSCommand command = new DDBSCommand();
-                command.setAction(DDBSAction.LOAD_ARRAY);
-                command.setDestination(new Peer(myDistributedEntity.getPeerUid(),null));
-                command.setObject(objectToLoad);
-                command.setFieldToLoad(field);
-                command.setOrderBy(orderBy);
-
-                TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
-
-                TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
-                Tuple template = new Tuple(String.class);
-                Tuple result = resultSpace.waitToTake(template);
-
-                resultSpace.disconnect();
-
-                return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
-            } else {
-                return null;
-            }
-    	} catch (TupleSpaceException tse) {
-			throw new DDBSToolkitException("Error executing the middleware request", tse);
-		} catch (IOException ioe) {
-			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
-		} catch (ClassNotFoundException cnfe) {
-			throw new DDBSToolkitException("Class not found exception", cnfe);
-		}
-    	catch (Exception e) {
-    		throw new DDBSToolkitException("Error executing the middleware request", e);
-    	}
+	            DDBSCommand command = new DDBSCommand();
+	            command.setAction(DDBSAction.LOAD_ARRAY);
+	            command.setDestination(new Peer(myDistributedEntity.getPeerUid(),null));
+	            command.setObject(objectToLoad);
+	            command.setFieldToLoad(field);
+	            command.setOrderBy(orderBy);
+	
+	            TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
+	
+	            TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
+	            Tuple template = new Tuple(String.class);
+	            Tuple result = resultSpace.waitToTake(template);
+	
+	            resultSpace.disconnect();
+	
+	            return (T) SqlSpacesConverter.fromString((String) result.getField(0).getValue());
+		   
+			} catch (TupleSpaceException tse) {
+				throw new DDBSToolkitException("Error executing the middleware request", tse);
+			} catch (IOException ioe) {
+				throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
+			} catch (ClassNotFoundException cnfe) {
+				throw new DDBSToolkitException("Class not found exception", cnfe);
+			} catch (Exception e) {
+				throw new DDBSToolkitException("Error executing the middleware request", e);
+			}
+    	} else {
+        	throw new IllegalArgumentException("Error in the parameters");
+        }
     }
 
     @Override
@@ -618,7 +632,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 	        if(isOpen) {
 	
 	            DDBSCommand command = new DDBSCommand();
-	            command.setAction(DDBSAction.IS_AUTOCOMMIT);
+	            command.setAction(DDBSAction.SET_AUTOCOMMIT);
 	            command.setIsAutocommit(isAutoCommit);
 	            command.setDestination(Peer.ALL);
 	
@@ -770,7 +784,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 						transactionsPerPeerId.put(entity.getPeerUid(), new DDBSTransaction(transaction.getTransactionId()));
 					}
 					
-					transactionsPerPeerId.get(entity).getTransactionCommands().add(transactionCommand);
+					transactionsPerPeerId.get(entity.getPeerUid()).getTransactionCommands().add(transactionCommand);
 				}
 			}
 			
@@ -782,12 +796,13 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             		try {
             			DDBSCommand command = new DDBSCommand();
                         command.setAction(DDBSAction.TRANSACTION);
+                        command.setDestination(new Peer(peerId, ""));
                         command.setDDBSTransaction(transactionsPerPeerId.get(peerId));
 
                         TupleID id = commandPeers.write(SqlSpacesConverter.getTuple(command, timeout));
 
                         TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
-                        Tuple template = new Tuple(DDBSTransaction.class);
+                        Tuple template = new Tuple(String.class);
                         Tuple result = resultSpace.waitToTake(template);
 
                         resultSpace.disconnect();
@@ -801,5 +816,23 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             }
 		}
 		return null;
+	}
+	
+	/**
+	 * Test middleware connection
+	 * 
+	 * @throws DDBSToolkitException
+	 */
+	private <T extends IEntity> void testConnection(T object)
+			throws DDBSToolkitException {
+		if (!isOpen()) {
+			throw new DDBSToolkitException(
+					"The database connection is not opened");
+		}
+		if (object == null) {
+			throw new IllegalArgumentException(
+					"The object passed in parameter is null");
+		}
+
 	}
 }

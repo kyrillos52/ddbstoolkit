@@ -31,7 +31,7 @@ public class DDBSTransaction implements Serializable, UpdatableEntityManager {
 	/**
 	 * Distributable Entity manager
 	 */
-	protected DistributableEntityManager distributableEntityManager;
+	protected transient DistributableEntityManager distributableEntityManager;
 
 	/**
 	 * Transaction
