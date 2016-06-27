@@ -62,17 +62,17 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     /**
      * TupleSpace for peers
      */
-    TupleSpace spacePeers;
+    private TupleSpace spacePeers;
 
     /**
      * TupleSpace for commands
      */
-    TupleSpace commandPeers;
+    private TupleSpace commandPeers;
 
     /**
      * Ip address of the server
      */
-    String ipAddressServer;
+    private String ipAddressServer;
 
     /**
      * Port of the server

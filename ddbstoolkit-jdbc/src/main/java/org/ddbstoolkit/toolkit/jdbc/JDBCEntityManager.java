@@ -587,7 +587,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,
-								sqlDeleteString.toString());
+								sqlDeleteString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToDelete);

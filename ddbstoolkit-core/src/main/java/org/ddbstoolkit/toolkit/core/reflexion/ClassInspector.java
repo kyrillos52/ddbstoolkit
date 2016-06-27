@@ -136,7 +136,7 @@ public class ClassInspector {
 			ddbsEntityProperty.setDdbsToolkitSupportedEntity(DDBSToolkitSupportedEntity.valueOf(field));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			//Do Nothing
-		};
+		}
     	
     	AnnotatedElement element = (AnnotatedElement) field;
         Annotation[] propertyAnnotations = element.getAnnotations();
