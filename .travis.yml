@@ -3,6 +3,9 @@ jdk:
 - oraclejdk7
 services:
   - mysql
+addons:
+    code_climate:
+        repo_token: 95a12cbbe44ff8aa72641407ab5f814b2ebf3b5af4fe4ef62cb7f37ce4620398
 before_install:
   - mysql -e 'create database ddbstoolkit;'
   - mysql --user=root --password= ddbstoolkit < ./ddbstoolkit-mysql/src/main/resources/sql/model.sql
