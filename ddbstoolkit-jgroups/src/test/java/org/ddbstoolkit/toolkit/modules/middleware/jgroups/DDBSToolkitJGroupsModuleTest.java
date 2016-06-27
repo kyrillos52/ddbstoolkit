@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.modules.middleware.jgroups;
 
 import java.sql.Timestamp;
 
+import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.ddbstoolkit.toolkit.jdbc.model.Actor;
 import org.ddbstoolkit.toolkit.jdbc.model.Film;
 import org.ddbstoolkit.toolkit.middleware.MiddlewareModuleTest;
@@ -46,29 +47,37 @@ public class DDBSToolkitJGroupsModuleTest extends MiddlewareModuleTest {
 	}
 
 	@Override
-	protected FilmBase createFilm() {
-		return new Film();
+	protected FilmBase createFilm() throws DDBSToolkitException {
+		FilmBase film = new Film();
+		addReceiverPeerUID(film);
+		return film;
 	}
 
 	@Override
-	protected ActorBase createActor() {
-		return new Actor();
+	protected ActorBase createActor() throws DDBSToolkitException {
+		ActorBase actor = new Actor();
+		addReceiverPeerUID(actor);
+		return actor;
 	}
 
 	@Override
 	protected FilmBase createFilm(Integer filmID, String filmName,
 			Integer duration, Timestamp creationDate, Long longField,
-			Float floatField) {
-		return new Film(filmID, filmName,
+			Float floatField) throws DDBSToolkitException {
+		FilmBase film = new Film(filmID, filmName,
 				duration, creationDate, longField,
 				floatField);
+		addReceiverPeerUID(film);
+		return film;
 	}
 
 	@Override
 	protected ActorBase createActor(Integer actorId, String actorName,
-			Integer filmId) {
-		return new Actor(actorId, actorName,
+			Integer filmId) throws DDBSToolkitException {
+		ActorBase actor = new Actor(actorId, actorName,
 				filmId);
+		addReceiverPeerUID(actor);
+		return actor;
 	}
 
 }
