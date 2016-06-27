@@ -336,13 +336,13 @@ public class ObjectComparatorTest {
 	public void testStringField() {
 		
 		EntityTest entity1 = new EntityTest();
-		entity1.stringField = new String("8");
+		entity1.stringField = "8";
 		
 		EntityTest entity2 = new EntityTest();
-		entity2.stringField = new String("2");
+		entity2.stringField = "2";
 		
 		EntityTest entity3 = new EntityTest();
-		entity3.stringField = new String("6");
+		entity3.stringField = "6";
 		
 		EntityTest entityNoValue = new EntityTest();
 		

@@ -10,7 +10,6 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.Peer;
-import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 
 import info.collide.sqlspaces.client.TupleSpace;
 import info.collide.sqlspaces.commons.Callback;
@@ -31,42 +30,37 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
     /**
      * Name of the cluster
      */
-    String clusterName;
+    private String clusterName;
 
     /**
      * TableManager involved
      */
-    DistributableEntityManager entityManager;
+    private DistributableEntityManager entityManager;
 
     /**
      * Peer
      */
-    Peer myPeer;
+    private Peer myPeer;
 
     /**
      * TupleSpace for peers
      */
-    TupleSpace spacePeers;
+    private TupleSpace spacePeers;
 
     /**
      * TupleSpace for commands
      */
-    TupleSpace commandPeers;
+    private TupleSpace commandPeers;
 
     /**
      * Ip address of the server
      */
-    String ipAddressServer = "127.0.0.1";
+    private String ipAddressServer = "127.0.0.1";
 
     /**
      * Port of the server
      */
     private int port = 2525;
-
-    /**
-     * Registration number
-     */
-    private int registrationNumber;
     
     /**
      * Distributed entity converter
@@ -161,7 +155,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         commandPeers = new TupleSpace(ipAddressServer, port, clusterName+"-commands");
         
         Tuple tmp = new Tuple(String.class);
-        registrationNumber = commandPeers.eventRegister(Command.WRITE, tmp, this, false);
+        commandPeers.eventRegister(Command.WRITE, tmp, this, false);
     }
 
     @Override

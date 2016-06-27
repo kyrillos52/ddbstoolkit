@@ -56,11 +56,7 @@ public abstract class JDBCConnector {
 	 * @throws SQLException SQL Exception
 	 */
 	public boolean isOpen() throws SQLException {
-		if (connector == null || connector.isClosed()) {
-			return false;
-		} else {
-			return true;
-		}
+		return connector != null && !connector.isClosed();
 	}
 
 	/**

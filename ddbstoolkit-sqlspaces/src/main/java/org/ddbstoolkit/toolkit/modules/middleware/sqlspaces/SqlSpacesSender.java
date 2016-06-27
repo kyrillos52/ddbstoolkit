@@ -803,7 +803,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 
                         TupleSpace resultSpace = new TupleSpace(ipAddressServer, port, clusterName+"-results-"+id);
                         Tuple template = new Tuple(String.class);
-                        Tuple result = resultSpace.waitToTake(template);
+                        resultSpace.waitToTake(template);
 
                         resultSpace.disconnect();
                         

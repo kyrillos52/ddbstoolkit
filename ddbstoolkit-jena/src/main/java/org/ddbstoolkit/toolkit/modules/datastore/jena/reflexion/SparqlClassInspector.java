@@ -93,7 +93,7 @@ public class SparqlClassInspector extends ClassInspector {
 			ddbsEntityProperty.setDdbsToolkitSupportedEntity(SparqlDDBSToolkitSupportedEntity.valueOf(field));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			//Do Nothing
-		};
+		}
     	
     	AnnotatedElement element = (AnnotatedElement) field;
         Annotation[] propertyAnnotations = element.getAnnotations();

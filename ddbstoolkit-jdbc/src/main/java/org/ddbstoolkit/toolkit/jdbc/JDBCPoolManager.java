@@ -189,7 +189,7 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 
 				preparedRequest = jdbcPreparedStatementManager
 						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,
-								sqlDeleteString.toString());
+								sqlDeleteString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToDelete);

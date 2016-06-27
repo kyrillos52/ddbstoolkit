@@ -242,7 +242,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			String listAllQuery = getSelectQueryString(object, jdbcConditionConverter.getConditionsString(conditions, object), orderBy);
 			
-			PreparedStatement preparedRequest = jdbcConnector.prepareStatement(listAllQuery.toString());
+			PreparedStatement preparedRequest = jdbcConnector.prepareStatement(listAllQuery);
 			
 			jdbcConditionConverter.prepareStatement(preparedRequest, conditions, ddbsEntity);
 			

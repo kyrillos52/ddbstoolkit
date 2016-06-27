@@ -282,14 +282,7 @@ public class DDBSEntityProperty {
 		if(obj instanceof DDBSEntityProperty)
 		{
 			DDBSEntityProperty classProperty = (DDBSEntityProperty)obj;
-			if(classProperty.getPropertyName().equals(this.name))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return classProperty.getPropertyName().equals(this.name);
 		}
 		return false;
 	}

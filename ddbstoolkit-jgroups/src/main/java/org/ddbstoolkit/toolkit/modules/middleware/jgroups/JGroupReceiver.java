@@ -19,32 +19,32 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
     /**
      * JGroups channel
      */
-    JChannel channel;
+    private JChannel channel;
 
     /**
      * Name of the cluster
      */
-    String clusterName;
+    private String clusterName;
 
     /**
      * TableManager involved
      */
-    DistributableEntityManager entityManager;
+    private DistributableEntityManager entityManager;
 
     /**
      * Manage synchronous connexion
      */
-    MessageDispatcher msgDispatcher;
+    private MessageDispatcher msgDispatcher;
 
     /**
      * Current peer of the receiver
      */
-    Peer myPeer;
+    private Peer myPeer;
     
     /**
      * Distributed entity converter
      */
-    DistributedEntityConverter entityConverter;
+    private DistributedEntityConverter entityConverter;
 
     @Override
     public Peer getMyPeer() {
