@@ -2,5 +2,5 @@
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
 	openssl aes-256-cbc -K $encrypted_a53a042b3b62_key -iv $encrypted_a53a042b3b62_iv -in cd/codesigning.asc.enc -out cd/codesigning.asc -d
 	gpg --fast-import cd/codesigning.asc
-	gpg --keyserver hkp://keyserver.ubuntu.com --send-keys ${env.GPG_KEY_NAME}
+	gpg --keyserver hkp://keyserver.ubuntu.com --send-keys $encrypted_a53a042b3b62_key
 fi
