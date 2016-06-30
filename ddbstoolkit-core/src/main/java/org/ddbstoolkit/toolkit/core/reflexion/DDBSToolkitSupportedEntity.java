@@ -27,8 +27,7 @@ public class DDBSToolkitSupportedEntity {
 	public static final DDBSToolkitSupportedEntity IENTITY_ARRAY = new DDBSToolkitSupportedEntity(
 			new String[] {});
 
-	public static final DDBSToolkitSupportedEntity[] SUPPORTED_ENTITIES = {
-			INTEGER, LONG, FLOAT, DOUBLE, STRING, TIMESTAMP, IENTITY_ARRAY };
+	public static final DDBSToolkitSupportedEntity[] SUPPORTED_ENTITIES = { INTEGER, LONG, FLOAT, DOUBLE, STRING, TIMESTAMP, IENTITY_ARRAY };
 
 	protected String[] types;
 
@@ -63,8 +62,7 @@ public class DDBSToolkitSupportedEntity {
 				
 				Object object = Class.forName(className).newInstance();
 				
-				if(object instanceof IEntity)
-				{
+				if(object instanceof IEntity) {
 					return IENTITY_ARRAY;
 				}
 				

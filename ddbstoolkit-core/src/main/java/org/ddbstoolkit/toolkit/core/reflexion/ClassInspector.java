@@ -33,14 +33,12 @@ public class ClassInspector {
      * @return list of properties
      */
 	@SuppressWarnings("unchecked")
-	public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData)
-    {		
+	public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData) {		
         Field[] fields = classData.getDeclaredFields();
 
         List<T> listProperties = new ArrayList<>();
         int counterProperties = 0;
-        for(Field field : fields)
-        {
+        for(Field field : fields) {
         	boolean hasGetterAndSetter = hasGetterAndSetter(classData, field.getName());
         	
         	if(!field.getName().equals(PEER_UID_PROPERTY_NAME) && !Modifier.isStatic(field.getModifiers())
@@ -141,16 +139,12 @@ public class ClassInspector {
     	AnnotatedElement element = (AnnotatedElement) field;
         Annotation[] propertyAnnotations = element.getAnnotations();
 
-        for(Annotation annotation : propertyAnnotations)
-        {
-            if(annotation instanceof Id)
-            {
+        for(Annotation annotation : propertyAnnotations) {
+            if(annotation instanceof Id) {
             	DDBSEntityIDProperty ddbsEntityIDProperty = new DDBSEntityIDProperty();
             	ddbsEntityIDProperty.setAutoIncrement(((Id)annotation).autoincrement());
             	ddbsEntityProperty.setDdbsEntityIDProperty(ddbsEntityIDProperty);
-            }
-            else if(annotation instanceof EntityName)
-            {
+            } else if(annotation instanceof EntityName) {
                 EntityName myProperty = (EntityName)annotation;
                 ddbsEntityProperty.setPropertyName(myProperty.name());
             }

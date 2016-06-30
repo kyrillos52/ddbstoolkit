@@ -8,6 +8,11 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
  * @version 1.0 Class creation
  */
 public class DDBSToolkitListener implements Runnable {
+	
+	/**
+	 * Wait time
+	 */
+	private static final int WAIT_TIME = 100;
 
 	/**
 	 * Distributed receiver interface
@@ -18,11 +23,6 @@ public class DDBSToolkitListener implements Runnable {
 	 * Indicates if we are continuing to listen
 	 */
 	private boolean keepListening = true;
-	
-	/**
-	 * Wait time
-	 */
-	private static final int WAIT_TIME = 100;
 
 	/**
 	 * DDBSToolkit lister constructor

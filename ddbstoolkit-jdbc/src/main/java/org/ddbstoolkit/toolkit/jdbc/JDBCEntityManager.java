@@ -93,7 +93,6 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		} catch (SQLException e) {
 			throw new DDBSToolkitException("Error during opening SQL connection",e);
 		}
-		jdbcPreparedStatementManager = null;
 	}
 
 	@Override
@@ -189,8 +188,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		
 		listAllQuery.append("SELECT ");
 
-		Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity
-				.getSupportedPrimaryTypeEntityProperties().iterator();
+		Iterator<DDBSEntityProperty> iteratorProperties = ddbsEntity.getSupportedPrimaryTypeEntityProperties().iterator();
 		while (iteratorProperties.hasNext()) {
 			listAllQuery.append(iteratorProperties.next().getPropertyName());
 
@@ -312,15 +310,13 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				
 				String sqlReadString = getSelectQueryString(object, sqlReadWhereString.toString(), null);
 
-				preparedRequest = jdbcPreparedStatementManager
-						.setJDBCPreparedStatements(ddbsEntity,
-								PreparedStatementType.READ, sqlReadString);
+				preparedRequest = jdbcPreparedStatementManager.setJDBCPreparedStatements(ddbsEntity,
+						PreparedStatementType.READ, sqlReadString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), object);
 
-			ResultSet results = jdbcConnector
-					.queryPreparedStatement(preparedRequest);
+			ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest);
 
 			List<T> resultList = conversionResultSet(results, object);
 			if (resultList.size() > 0) {
@@ -356,19 +352,16 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				} else {
 					StringBuilder sqlReadWhereString = new StringBuilder();
 
-					sqlReadWhereString.append(ddbsIdProperties.get(0)
-							.getPropertyName());
+					sqlReadWhereString.append(ddbsIdProperties.get(0).getPropertyName());
 					sqlReadWhereString.append(" = (SELECT MAX(");
-					sqlReadWhereString.append(ddbsIdProperties.get(0)
-							.getPropertyName());
+					sqlReadWhereString.append(ddbsIdProperties.get(0).getPropertyName());
 					sqlReadWhereString.append(") FROM ");
 					sqlReadWhereString.append(ddbsEntity.getDatastoreEntityName());
 					sqlReadWhereString.append(')');
 					
 					String sqlReadLastElementString = getSelectQueryString(object, sqlReadWhereString.toString(), null);
 
-					preparedRequest = jdbcPreparedStatementManager
-							.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ_LAST_ELEMENT,
+					preparedRequest = jdbcPreparedStatementManager.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.READ_LAST_ELEMENT,
 									sqlReadLastElementString);
 				}
 			}
@@ -535,8 +528,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 		sqlDeleteString.append(ddbsEntity.getDatastoreEntityName());
 		sqlDeleteString.append(" WHERE ");
 
-		Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity
-				.getEntityIDProperties().iterator();
+		Iterator<DDBSEntityProperty> iteratorIDProperties = ddbsEntity.getEntityIDProperties().iterator();
 
 		while (iteratorIDProperties.hasNext()) {
 
@@ -589,7 +581,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			List<DDBSEntityProperty> idProperties = ddbsEntity.getEntityIDProperties();
 
-			if (idProperties.size() > 0) {
+			if (!idProperties.isEmpty()) {
 				
 				StringBuilder conditionQueryString = new StringBuilder();
 				
@@ -607,8 +599,7 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 					}
 				}
 
-				DDBSEntityProperty propertyName = ddbsEntity
-						.getDDBSEntityProperty(field);
+				DDBSEntityProperty propertyName = ddbsEntity.getDDBSEntityProperty(field);
 
 				if (propertyName != null) {
 					try {

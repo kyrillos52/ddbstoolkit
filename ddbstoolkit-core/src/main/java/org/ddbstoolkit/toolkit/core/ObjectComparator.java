@@ -18,12 +18,12 @@ public class ObjectComparator implements Comparator<IEntity> {
     /**
      * Field to compare
      */
-	private DDBSEntityProperty ddbsEntityProperty;
+	private final DDBSEntityProperty ddbsEntityProperty;
 
     /**
      * Order to use
      */
-    private OrderBy orderBy;
+    private final OrderBy orderBy;
 
     /**
      * Constructor
@@ -77,16 +77,11 @@ public class ObjectComparator implements Comparator<IEntity> {
         		
         		Timestamp myTime1 = (Timestamp)valueEntity1;
                 Timestamp myTime2 = (Timestamp)valueEntity2;
-                if(myTime1.getTime() == myTime2.getTime())
-                {
+                if(myTime1.getTime() == myTime2.getTime()) {
                     compareInt = 0;
-                }
-                else if(myTime1.getTime() > myTime2.getTime())
-                {
+                } else if(myTime1.getTime() > myTime2.getTime()) {
                     compareInt = 1;
-                }
-                else
-                {
+                } else {
                     compareInt = -1;
                 }
         	} 
@@ -94,13 +89,10 @@ public class ObjectComparator implements Comparator<IEntity> {
         
 
         //If ascendant order, compare normally
-        if(orderBy.getType().equals(OrderByType.ASC))
-        {
+        if(orderBy.getType().equals(OrderByType.ASC)) {
             return compareInt;
-        }
-        //Otherwise, return the contrary
-        else
-        {
+        } else {
+        	//Otherwise, return the contrary
             return -compareInt;
         }
     }

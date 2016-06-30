@@ -12,8 +12,7 @@ public class SparqlDDBSToolkitSupportedEntityTest implements IEntity {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private class TestClass
-	{
+	private class TestClass {
 		@SuppressWarnings("unused")
 		public int intValue;
 		
@@ -73,8 +72,7 @@ public class SparqlDDBSToolkitSupportedEntityTest implements IEntity {
 	}
 	
 	@Test
-	public void testDDBSToolkitSupportedEntity() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-	{
+	public void testDDBSToolkitSupportedEntity() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("intValue")).equals(SparqlDDBSToolkitSupportedEntity.INTEGER));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("integerValue")).equals(SparqlDDBSToolkitSupportedEntity.INTEGER));
 		Assert.assertTrue(SparqlDDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("longValue")).equals(SparqlDDBSToolkitSupportedEntity.LONG));

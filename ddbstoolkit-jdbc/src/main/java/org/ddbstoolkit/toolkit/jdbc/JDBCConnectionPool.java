@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.ddbstoolkit.toolkit.core.DDBSTransaction;
-import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
 
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;

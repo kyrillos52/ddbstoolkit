@@ -14,7 +14,6 @@ import org.ddbstoolkit.toolkit.model.interfaces.FilmBase;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.ActorDatastore;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Book;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Company;
-import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Employee;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.Film;
 import org.ddbstoolkit.toolkit.modules.datastore.jena.model.FilmDatastore;
 import org.junit.After;
@@ -34,8 +33,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
     public ExpectedException thrown = ExpectedException.none();
 	
 	@After
-	public void closeConnection() throws DDBSToolkitException
-	{
+	public void closeConnection() throws DDBSToolkitException {
 		manager.close();
 	}
     

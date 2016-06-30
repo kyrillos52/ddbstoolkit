@@ -17,12 +17,12 @@ public class TransactionCommand implements Serializable {
 	/**
 	 * Data manipulation action
 	 */
-	private TransactionAction dataAction;
+	private final TransactionAction dataAction;
 	
 	/**
 	 * Entity
 	 */
-	private IEntity entity;
+	private final IEntity entity;
 	
 	/**
 	 * Constructor

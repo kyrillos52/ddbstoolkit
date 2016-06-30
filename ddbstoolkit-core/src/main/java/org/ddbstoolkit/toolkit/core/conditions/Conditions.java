@@ -20,7 +20,7 @@ public class Conditions implements Serializable {
 	/**
 	 * List of conditions
 	 */
-	private List<Condition> conditions;
+	private final List<Condition> conditions;
 
 	private Conditions(List<Condition> conditions) {
 		super();

@@ -68,8 +68,7 @@ public class DDBSEntityProperty {
      * Get object type name
      * @return Object type name
      */
-    public String getObjectTypeName()
-    {
+    public String getObjectTypeName() {
     	return type.substring(2, type.length()-1);
     }
     

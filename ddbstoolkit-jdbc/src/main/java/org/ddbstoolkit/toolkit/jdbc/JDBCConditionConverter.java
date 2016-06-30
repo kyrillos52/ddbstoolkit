@@ -26,7 +26,7 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  */
 public class JDBCConditionConverter implements ConditionsConverter {
 	
-	private DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> entityManager;
+	private final DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> entityManager;
 	
 	/**
 	 * JDBC Condition converter

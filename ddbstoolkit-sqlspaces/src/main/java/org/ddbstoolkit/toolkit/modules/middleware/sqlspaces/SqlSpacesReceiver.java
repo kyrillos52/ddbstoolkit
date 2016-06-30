@@ -66,16 +66,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
      * Distributed entity converter
      */
     private DistributedEntityConverter entityConverter;
-
-    @Override
-    public void setEntityManager(DistributableEntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    public Peer getMyPeer() {
-        return myPeer;
-    }
-
+    
     /**
      * Create a SqlSpaces Receiver using localhost server
      * @param entityManager Entity manager that will receive commands
@@ -105,6 +96,15 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
         this(entityManager, clusterName, peerName);
         this.port = port;
         this.ipAddressServer = ipAddress;
+    }
+
+    @Override
+    public void setEntityManager(DistributableEntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public Peer getMyPeer() {
+        return myPeer;
     }
 
     /**
@@ -141,8 +141,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
                         idExist = true;
                     }
                 }
-                if(!idExist)
-                {
+                if(!idExist) {
                     myPeer.setUid(String.valueOf(uid));
                     uidAttributed = true;
                 }
@@ -244,8 +243,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 
 	            } catch (Exception e) {
 	                e.printStackTrace();
-	            }
-	            finally{
+	            } finally {
 
 	                try {
 	                    entityManager.close();

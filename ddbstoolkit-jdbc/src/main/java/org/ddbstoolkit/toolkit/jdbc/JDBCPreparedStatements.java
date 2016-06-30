@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
-
 /**
  * JDBC Prepared Statements
  * @author Cyril Grandjean
@@ -16,7 +14,7 @@ public class JDBCPreparedStatements {
 	/**
 	 * Prepared statements
 	 */
-	private Map<PreparedStatementType, PreparedStatement> preparedStatements = new HashMap<PreparedStatementType, PreparedStatement>(PreparedStatementType.values().length);
+	private final Map<PreparedStatementType, PreparedStatement> preparedStatements = new HashMap<PreparedStatementType, PreparedStatement>(PreparedStatementType.values().length);
 	
 	/**
 	 * Get Prepared statement
@@ -24,8 +22,7 @@ public class JDBCPreparedStatements {
 	 * @param type prepared statement type
 	 * @return the prepared statement or null
 	 */
-	public PreparedStatement getPreparedStatement(PreparedStatementType type)
-	{
+	public PreparedStatement getPreparedStatement(PreparedStatementType type) {
 		return preparedStatements.get(type);
 	}
 	
@@ -34,8 +31,7 @@ public class JDBCPreparedStatements {
 	 * @param type prepared statement type
 	 * @param preparedStatement Prepared statement
 	 */
-	public void setPreparedStatement(PreparedStatementType type, PreparedStatement preparedStatement)
-	{
+	public void setPreparedStatement(PreparedStatementType type, PreparedStatement preparedStatement) {
 		preparedStatements.put(type, preparedStatement);
 	}
 }

@@ -19,7 +19,7 @@ public class Employee extends DistributedEntity {
     public String employee_uri;
 
     @Id
-    private int employee_id;
+    public int employee_id;
 
     @Namespace(name="foaf",url="http://xmlns.com/foaf/0.1/")
     public String name;

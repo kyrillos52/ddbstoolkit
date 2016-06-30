@@ -142,8 +142,7 @@ public abstract class DataModuleTest {
 		Assert.assertEquals( objectToCheck.getFilmName(),referenceObject.getFilmName());
 		Assert.assertEquals(objectToCheck.getDuration(),
 				referenceObject.getDuration());
-		Assert.assertEquals(objectToCheck.getFloatField(), referenceObject
-				.getFloatField());
+		Assert.assertEquals(objectToCheck.getFloatField(), referenceObject.getFloatField());
 		Assert.assertEquals(objectToCheck.getLongField(),
 				referenceObject.getLongField());
 		Assert.assertEquals(objectToCheck.getCreationDate(),referenceObject.getCreationDate());
@@ -632,8 +631,7 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.eq("creationDate", new Timestamp(20000)));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(Conditions.eq("creationDate", new Timestamp(20000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -648,16 +646,16 @@ public abstract class DataModuleTest {
 
 		Map<String, FilmBase> mapFilms = createSampleData();
 
-		Conditions conditionNotEqualsString = Conditions.createConditions()
-				.add(Conditions.ne("filmName", "Film 2"));
+		Conditions conditionNotEqualsString = Conditions.createConditions().add(
+				Conditions.ne("filmName", "Film 2"));
 		List<FilmBase> results = manager.listAll(createFilm(),
 				conditionNotEqualsString, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
-		Conditions conditionNotEqualsInteger = Conditions.createConditions()
-				.add(Conditions.ne("duration", 20));
+		Conditions conditionNotEqualsInteger = Conditions.createConditions().add(
+				Conditions.ne("duration", 20));
 		results = manager
 				.listAll(createFilm(), conditionNotEqualsInteger, null);
 		Assert.assertEquals(results.size(), 2);
@@ -678,8 +676,8 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
-		Conditions conditionNotEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.ne("creationDate", new Timestamp(20000)));
+		Conditions conditionNotEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.ne("creationDate", new Timestamp(20000)));
 		results = manager.listAll(createFilm(), conditionNotEqualsTimestamp,
 				null);
 		Assert.assertEquals(results.size(), 2);
@@ -715,8 +713,8 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.lt("creationDate", new Timestamp(20000)));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.lt("creationDate", new Timestamp(20000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -750,8 +748,8 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film3"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.gt("creationDate", new Timestamp(20000)));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.gt("creationDate", new Timestamp(20000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film3"), results.get(0));
@@ -788,8 +786,8 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film2"), results.get(1));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.le("creationDate", new Timestamp(20000)));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.le("creationDate", new Timestamp(20000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -863,8 +861,8 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.between("creationDate", new Timestamp(15000),
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.between("creationDate", new Timestamp(15000),
 						new Timestamp(25000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
@@ -903,8 +901,8 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.notBetween("creationDate",
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.notBetween("creationDate",
 						new Timestamp(15000), new Timestamp(25000)));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, OrderBy.get("filmName", OrderByType.ASC));
 		Assert.assertEquals(results.size(), 2);
@@ -958,13 +956,13 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 
 		Conditions conditionEqualsLong = Conditions.createConditions().add(
-				Conditions.in("longField", new Long[]{40l}));
+				Conditions.in("longField", new Long[]{40L}));
 		results = manager.listAll(createFilm(), conditionEqualsLong, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.in("creationDate", new Timestamp[] { new Timestamp(20000)}));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.in("creationDate", new Timestamp[] { new Timestamp(20000)}));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("film2"), results.get(0));
@@ -1002,14 +1000,14 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
 		Conditions conditionEqualsLong = Conditions.createConditions().add(
-				Conditions.notIn("longField", new Long[]{40l}));
+				Conditions.notIn("longField", new Long[]{40L}));
 		results = manager.listAll(createFilm(), conditionEqualsLong, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
 		compareFilmElement(mapFilms.get("film3"), results.get(1));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.notIn("creationDate", new Timestamp[] { new Timestamp(20000)}));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.notIn("creationDate", new Timestamp[] { new Timestamp(20000)}));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 2);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));
@@ -1050,8 +1048,8 @@ public abstract class DataModuleTest {
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("filmNull"), results.get(0));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.isNull("creationDate"));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.isNull("creationDate"));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 1);
 		compareFilmElement(mapFilms.get("filmNull"), results.get(0));
@@ -1099,8 +1097,8 @@ public abstract class DataModuleTest {
 		compareFilmElement(mapFilms.get("film2"), results.get(1));
 		compareFilmElement(mapFilms.get("film3"), results.get(2));
 
-		Conditions conditionEqualsTimestamp = Conditions.createConditions()
-				.add(Conditions.isNotNull("creationDate"));
+		Conditions conditionEqualsTimestamp = Conditions.createConditions().add(
+				Conditions.isNotNull("creationDate"));
 		results = manager.listAll(createFilm(), conditionEqualsTimestamp, null);
 		Assert.assertEquals(results.size(), 3);
 		compareFilmElement(mapFilms.get("film1"), results.get(0));

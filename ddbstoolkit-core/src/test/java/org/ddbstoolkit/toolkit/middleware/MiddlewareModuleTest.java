@@ -23,25 +23,8 @@ import org.junit.rules.ExpectedException;
  */
 public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
-	/**
-	 * Wait time
-	 */
-	private final int WAIT_TIME = 1000;
-	
-	/**
-	 * Distributed sender interface
-	 */
-	protected DistributableSenderInterface senderInterface;
-	
-	/**
-	 * Runnable for the listener
-	 */
-	private DDBSToolkitListener ddbsToolkitListener;
-	
-	/**
-	 * Distributed receiver interface
-	 */
-	protected DistributableReceiverInterface receiverInterface;
+	@Rule
+    public ExpectedException thrown = ExpectedException.none();
 	
 	/**
 	 * Receiver peer
@@ -53,8 +36,25 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	 */
 	protected Thread receiverThread;
 	
-	@Rule
-    public ExpectedException thrown = ExpectedException.none();
+	/**
+	 * Distributed sender interface
+	 */
+	protected DistributableSenderInterface senderInterface;
+	
+	/**
+	 * Distributed receiver interface
+	 */
+	protected DistributableReceiverInterface receiverInterface;
+	
+	/**
+	 * Wait time
+	 */
+	private static final int WAIT_TIME = 1000;
+	
+	/**
+	 * Runnable for the listener
+	 */
+	private DDBSToolkitListener ddbsToolkitListener;
 	
 	/**
 	 * Add receiver peer uid
@@ -62,8 +62,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	 * @throws DDBSToolkitException Toolkit exception
 	 */
 	@Override
-	protected void addReceiverPeerUID(IEntity iEntity) throws DDBSToolkitException
-	{
+	protected void addReceiverPeerUID(IEntity iEntity) throws DDBSToolkitException {
 		if(iEntity instanceof DistributedEntity) {
 			if(receiverPeer == null) {
 				List<Peer> peers;

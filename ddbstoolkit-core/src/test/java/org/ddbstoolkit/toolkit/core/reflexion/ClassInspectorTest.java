@@ -13,9 +13,13 @@ import org.junit.Test;
  */
 public class ClassInspectorTest {
 	
+    /**
+	 * ID Property : null if the field is not an id
+	 */
+	protected DDBSEntityIDProperty ddbsEntityIDProperty;
+	
 	@Test
-	public void testClassInpector()
-	{
+	public void testClassInpector() {
 		EntityTest entityTest = new EntityTest();
 		entityTest.intField = 1;
 		entityTest.integerField = 2;
@@ -63,8 +67,8 @@ public class ClassInspectorTest {
 		 */
 		Assert.assertEquals(ddbsEntity.getEntityProperties().get(0).getValue(entityTest), 1);
 		Assert.assertEquals(ddbsEntity.getEntityProperties().get(1).getValue(entityTest), 2);
-		Assert.assertEquals(ddbsEntity.getEntityProperties().get(2).getValue(entityTest), 3l);
-		Assert.assertEquals(ddbsEntity.getEntityProperties().get(3).getValue(entityTest), 4l);
+		Assert.assertEquals(ddbsEntity.getEntityProperties().get(2).getValue(entityTest), 3L);
+		Assert.assertEquals(ddbsEntity.getEntityProperties().get(3).getValue(entityTest), 4L);
 		Assert.assertEquals(ddbsEntity.getEntityProperties().get(4).getValue(entityTest), 5f);
 		Assert.assertEquals(ddbsEntity.getEntityProperties().get(5).getValue(entityTest), 6f);
 		Assert.assertEquals(ddbsEntity.getEntityProperties().get(6).getValue(entityTest), 7d);
@@ -122,12 +126,6 @@ public class ClassInspectorTest {
 		checkDDBSEntityProperty(ddbsEntity.getEntityNonIDProperties().get(6), false, "doubleObjectField", "doubleObjectField", "java.lang.Double", DDBSToolkitSupportedEntity.DOUBLE,7, null);
 		checkDDBSEntityProperty(ddbsEntity.getEntityNonIDProperties().get(7), false, "stringField", "stringField", "java.lang.String", DDBSToolkitSupportedEntity.STRING, 8, null);
 	}
-	
-	
-    /**
-	 * ID Property : null if the field is not an id
-	 */
-	protected DDBSEntityIDProperty ddbsEntityIDProperty;
 	
 	private void checkDDBSEntityProperty(DDBSEntityProperty ddbsEntityProperty, boolean isArray, String name, String propertyName, String type, DDBSToolkitSupportedEntity ddbsToolkitSupportedEntity, int fieldIndex, DDBSEntityIDProperty ddbsEntityIDProperty) {
 		Assert.assertEquals(ddbsEntityProperty.isArray(), isArray);

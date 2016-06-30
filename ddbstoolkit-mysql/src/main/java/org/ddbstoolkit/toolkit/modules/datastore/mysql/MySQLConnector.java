@@ -1,6 +1,8 @@
 package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
 
@@ -26,6 +28,8 @@ public class MySQLConnector extends JDBCConnector {
      */
     private String password;
     
+    private static final String MYSQL_DRIVER = "org.gjt.mm.mysql.Driver";
+    
     /**
 	 * JDBC Constructor
 	 * @param connector Connector
@@ -46,9 +50,8 @@ public class MySQLConnector extends JDBCConnector {
         this.url = url;
         this.login = login;
         this.password = password;
-
-        final String driver = "org.gjt.mm.mysql.Driver";
-        Class.forName(driver);
+        
+        Class.forName(MYSQL_DRIVER);
     }
 
     /**
@@ -56,8 +59,7 @@ public class MySQLConnector extends JDBCConnector {
      * @throws SQLException SQL Exception
      */
     @Override
-    public void open() throws SQLException
-    {
+    public void open() throws SQLException {
         connector = DriverManager.getConnection(url,login,password);
     }
 }

@@ -9,6 +9,8 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
  * @version 1.0: Creation of the class
  */
 public class SQLiteConnector extends JDBCConnector {
+	
+	private static final String SQLITE_DRIVER = "org.sqlite.JDBC";
 
 	 /**
 	 * JDBC Constructor
@@ -25,9 +27,7 @@ public class SQLiteConnector extends JDBCConnector {
      */
     public SQLiteConnector(String name) throws ClassNotFoundException {
         super("jdbc:sqlite:"+name);
-
-        final String driver = "org.sqlite.JDBC";
-        Class.forName(driver);
+        Class.forName(SQLITE_DRIVER);
     }
 
 

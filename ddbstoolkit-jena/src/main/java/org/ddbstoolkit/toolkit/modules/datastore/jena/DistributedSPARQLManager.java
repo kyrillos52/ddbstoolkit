@@ -227,8 +227,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		sparqlSelect.append("SELECT ");
 		sparqlSelect.append(subject);
 
-		Iterator<SparqlClassProperty> iteratorProperties = sparqlClassProperties
-				.iterator();
+		Iterator<SparqlClassProperty> iteratorProperties = sparqlClassProperties.iterator();
 
 		// Create the prefixes
 		while (iteratorProperties.hasNext()) {
@@ -310,8 +309,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(object);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
-				.getDDBSEntity(object);
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager.getDDBSEntity(object);
 
 		Query query = QueryFactory.create(getSparqlRequest(object,
 				conditionQueryString, orderBy, sparqlEntity, additionalHeaders));
@@ -488,8 +486,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						}
 					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
 
-						float[] array = (float[]) sparqlClassProperty
-								.getValue(objectToAdd);
+						float[] array = (float[]) sparqlClassProperty.getValue(objectToAdd);
 
 						if (array != null) {
 							for (float elementToAdd : array) {
@@ -558,8 +555,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(objectToDelete);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
-				.getDDBSEntity(objectToDelete);
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager.getDDBSEntity(objectToDelete);
 
 		if(isAutocommit || !myDataset.isInTransaction()) {
 			// Start a writing transaction
@@ -826,6 +822,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				if (myResult.get(sparqlClassProperty.getName()) != null) {
 
 					if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.INTEGER)) {
+						
 						sparqlClassProperty.setValue(myData, myResult.getLiteral(sparqlClassProperty.getName()).getInt());
 					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.LONG)) {
 						sparqlClassProperty.setValue(myData, myResult.getLiteral(sparqlClassProperty.getName()).getLong());
@@ -837,59 +834,20 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						sparqlClassProperty.setValue(myData, new Timestamp(myResult.getLiteral(sparqlClassProperty.getName()).getLong()));
 					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
 						String stringResult = myResult.get(sparqlClassProperty.getName()).toString();
-						stringResult = stringResult
-								.replaceAll(
-										"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
-										"");
+						stringResult = stringResult.replaceAll("\\^\\^http://www.w3.org/2001/XMLSchema#string$","");
 						sparqlClassProperty.setValue(myData, stringResult);
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-						sparqlResults.addInt(
-								sparqlClassProperty.getName(),
-								uri,
-								myResult.getLiteral(
-										sparqlClassProperty.getName())
-										.getInt());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
-						sparqlResults.addLong(
-								sparqlClassProperty.getName(),
-								uri,
-								myResult.getLiteral(
-										sparqlClassProperty.getName())
-										.getLong());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
-						sparqlResults.addFloat(
-								sparqlClassProperty.getName(),
-								uri,
-								myResult.getLiteral(
-										sparqlClassProperty.getName())
-										.getFloat());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
-						sparqlResults.addDouble(
-								sparqlClassProperty.getName(),
-								uri,
-								myResult.getLiteral(
-										sparqlClassProperty.getName())
-										.getDouble());
-					} else if (sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
-						String stringResult = myResult.get(
-								sparqlClassProperty.getName()).toString();
-						stringResult = stringResult
-								.replaceAll(
-										"\\^\\^http://www.w3.org/2001/XMLSchema#string$",
-										"");
-						sparqlResults.addString(
-								sparqlClassProperty.getName(), uri,
-								stringResult);
+					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+						sparqlResults.addInt(sparqlClassProperty.getName(),uri,myResult.getLiteral(sparqlClassProperty.getName()).getInt());
+					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+						sparqlResults.addLong(sparqlClassProperty.getName(),uri,myResult.getLiteral(sparqlClassProperty.getName()).getLong());
+					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+						sparqlResults.addFloat(sparqlClassProperty.getName(),uri,myResult.getLiteral(sparqlClassProperty.getName()).getFloat());
+					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+						sparqlResults.addDouble(sparqlClassProperty.getName(),uri,myResult.getLiteral(sparqlClassProperty.getName()).getDouble());
+					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+						String stringResult = myResult.get(sparqlClassProperty.getName()).toString();
+						stringResult = stringResult.replaceAll("\\^\\^http://www.w3.org/2001/XMLSchema#string$","");
+						sparqlResults.addString(sparqlClassProperty.getName(), uri,stringResult);
 					}
 				}
 			}
@@ -902,18 +860,13 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 				
 				String uri = (String) sparqlEntity.getDDBSEntityProperty(sparqlEntity.getUri().getName()).getValue(aData);
 
-				for (SparqlClassProperty sparqlClassProperty : sparqlEntity
-						.getEntityProperties()) {
+				for (SparqlClassProperty sparqlClassProperty : sparqlEntity.getEntityProperties()) {
 					
-					if(sparqlClassProperty.isArray() && !sparqlClassProperty
-							.getDdbsToolkitSupportedEntity()
-							.equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
+					if(sparqlClassProperty.isArray() 
+							&& !sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 
-						if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
-							if(!sparqlClassProperty.isPrimitiveArray())
-							{
+						if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
+							if(!sparqlClassProperty.isPrimitiveArray()) {
 								sparqlClassProperty.setValue(myData, sparqlResults.getIntegerArray(
 										sparqlClassProperty.getName(), uri)
 										.toArray());
@@ -929,37 +882,27 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 								sparqlClassProperty.setValue(myData, resultInt);
 							}
 							
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
+						} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY)) {
 							
 							if(!sparqlClassProperty.isPrimitiveArray()) {
-								sparqlClassProperty.setValue(myData, sparqlResults.getLongArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Long[] {}));
+								sparqlClassProperty.setValue(myData, sparqlResults.getLongArray(sparqlClassProperty.getName(), uri).toArray(new Long[] {}));
 							} else {
 								Set<Long> longSet = sparqlResults.getLongArray(
 										sparqlClassProperty.getName(), uri);
 								long[]resultLong = new long[longSet.size()];
 								int counterResult = 0;
-								for(Long longObject : longSet)
-								{
+								for(Long longObject : longSet) {
 									resultLong[counterResult] = longObject;
 									counterResult++;
 								}
 								sparqlClassProperty.setValue(myData, resultLong);
 							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
+						} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY)) {
 							
 							if(!sparqlClassProperty.isPrimitiveArray()) {
-								sparqlClassProperty.setValue(myData, sparqlResults.getFloatArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Float[] {}));
+								sparqlClassProperty.setValue(myData, sparqlResults.getFloatArray(sparqlClassProperty.getName(), uri).toArray(new Float[] {}));
 							} else {
-								Set<Float> floatSet = sparqlResults.getFloatArray(
-										sparqlClassProperty.getName(), uri);
+								Set<Float> floatSet = sparqlResults.getFloatArray(sparqlClassProperty.getName(), uri);
 								float[]resultFloat = new float[floatSet.size()];
 								int counterResult = 0;
 								for(Float floatObject : floatSet) {
@@ -973,28 +916,20 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
 							
 							if(!sparqlClassProperty.isPrimitiveArray()) {
-								sparqlClassProperty.setValue(myData, sparqlResults.getDoubleArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray(new Double[] {}));
+								sparqlClassProperty.setValue(myData, sparqlResults.getDoubleArray(sparqlClassProperty.getName(), uri).toArray(new Double[] {}));
 							} else {
-								Set<Double> doubleSet = sparqlResults.getDoubleArray(
-										sparqlClassProperty.getName(), uri);
+								Set<Double> doubleSet = sparqlResults.getDoubleArray(sparqlClassProperty.getName(), uri);
 								double[]resultDouble = new double[doubleSet.size()];
 								int counterResult = 0;
-								for(Double doubleObject : resultDouble)
-								{
+								for(Double doubleObject : resultDouble) {
 									resultDouble[counterResult] = doubleObject;
 									counterResult++;
 								}
 								sparqlClassProperty.setValue(myData, resultDouble);
 							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
+						} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
 							
-							sparqlClassProperty.setValue(myData, sparqlResults.getStringArray(
-									sparqlClassProperty.getName(), uri)
-									.toArray(new String[0]));
+							sparqlClassProperty.setValue(myData, sparqlResults.getStringArray(sparqlClassProperty.getName(), uri).toArray(new String[0]));
 						}
 						
 						

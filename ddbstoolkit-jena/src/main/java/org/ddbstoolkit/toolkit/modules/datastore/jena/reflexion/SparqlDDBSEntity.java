@@ -23,8 +23,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * @param entityObject Entity object
 	 * @return service url or null
 	 */
-	public String getServiceUrl(IEntity entityObject)
-	{
+	public String getServiceUrl(IEntity entityObject) {
 		Annotation[] annotations = entityObject.getClass().getAnnotations();
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof Service) {
@@ -40,8 +39,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 	 * @param entityObject Entity object
 	 * @return Default namespace
 	 */
-	public String getDefaultNamespace(IEntity entityObject)
-	{
+	public String getDefaultNamespace(IEntity entityObject) {
 		Annotation[] classAnnotations = entityObject.getClass().getAnnotations();
 
 		for (Annotation annotation : classAnnotations) {
@@ -72,10 +70,6 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 		return listIDProperties;
 	}
 	
-	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {	
-		super(iEntity.getClass(), classInspector);
-	}
-	
 	/**
 	 * Get DDBSEntity entity
 	 * 
@@ -88,8 +82,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 		return new SparqlDDBSEntity<SparqlClassProperty>(iEntity, classInspector);
 	}
 	
-	public SparqlClassProperty getUri()
-	{
+	public SparqlClassProperty getUri() {
 		for (SparqlClassProperty sparqlClassProperties : entityProperties) {
 			if (sparqlClassProperties.isUri()) {
 				return sparqlClassProperties;
@@ -108,8 +101,7 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 			
 			SparqlClassProperty uri = getUri();
 			
-			if(uri != null)
-			{
+			if(uri != null) {
 				return "?"+uri.getName();
 			}
 
@@ -130,6 +122,10 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 			}
 		}
 		return listWithoutPeerUID;
+	}
+	
+	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {	
+		super(iEntity.getClass(), classInspector);
 	}
 
 }

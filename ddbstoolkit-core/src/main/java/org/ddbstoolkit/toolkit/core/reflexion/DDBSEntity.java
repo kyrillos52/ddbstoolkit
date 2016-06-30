@@ -169,10 +169,11 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	public List<DDBSEntityProperty> getNotIncrementingEntityProperties() {
 		List<DDBSEntityProperty> listProperties = new ArrayList<>();
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
-			if ((ddbsEntityProperty.isIDEntity() && !ddbsEntityProperty.getDdbsEntityIDProperty()
-					.isAutoIncrement()) || (!ddbsEntityProperty.isIDEntity()
-					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null && !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
-							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY))) {
+			if ((ddbsEntityProperty.isIDEntity() && !ddbsEntityProperty.getDdbsEntityIDProperty().isAutoIncrement()) 
+					|| (!ddbsEntityProperty.isIDEntity()
+					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null 
+					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+							DDBSToolkitSupportedEntity.IENTITY_ARRAY))) {
 				listProperties.add(ddbsEntityProperty);
 			}
 		}
@@ -189,8 +190,9 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 		List<DDBSEntityProperty> listNonIdProperties = new ArrayList<>();
 		for (DDBSEntityProperty ddbsEntityProperty : entityProperties) {
 			if (!ddbsEntityProperty.isIDEntity()
-					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null && !ddbsEntityProperty.getDdbsToolkitSupportedEntity()
-							.equals(DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
+					&& ddbsEntityProperty.getDdbsToolkitSupportedEntity() != null 
+					&& !ddbsEntityProperty.getDdbsToolkitSupportedEntity().equals(
+							DDBSToolkitSupportedEntity.IENTITY_ARRAY)) {
 				listNonIdProperties.add(ddbsEntityProperty);
 			}
 		}
