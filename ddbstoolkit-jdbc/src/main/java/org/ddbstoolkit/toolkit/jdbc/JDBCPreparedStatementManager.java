@@ -5,9 +5,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
-import org.ddbstoolkit.toolkit.jdbc.JDBCPreparedStatements;
-import org.ddbstoolkit.toolkit.jdbc.PreparedStatementType;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSEntityProperty;
 
@@ -21,12 +18,22 @@ public class JDBCPreparedStatementManager {
 	/**
 	 * JDBC Connector
 	 */
-	private JDBCConnector myConnector;
+	private final JDBCConnector myConnector;
 	
 	/**
 	 * Map of Prepared Statements
 	 */
-	private Map<String, JDBCPreparedStatements> mapStatements;
+	private final Map<String, JDBCPreparedStatements> mapStatements;
+	
+	/**
+	 * JDBC Prepared Statement Manager Constructor
+	 * @param myConnector JDBC Connector
+	 */
+	public JDBCPreparedStatementManager(JDBCConnector myConnector) {
+		super();
+		this.myConnector = myConnector;
+		this.mapStatements = new HashMap<String, JDBCPreparedStatements>();
+	}
 
 	/**
 	 * Get JDBCPreparedStatements of the object
@@ -34,10 +41,8 @@ public class JDBCPreparedStatementManager {
 	 * @param type Prepared statement type
 	 * @return JDBCPreparedStatements object
 	 */
-	public PreparedStatement getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type)
-	{
-		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null)
-		{
+	public PreparedStatement getJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type) {
+		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null) {
 			mapStatements.put(ddbsEntity.getDatastoreEntityName(), new JDBCPreparedStatements());
 		}
 		return mapStatements.get(ddbsEntity.getDatastoreEntityName()).getPreparedStatement(type);
@@ -51,10 +56,8 @@ public class JDBCPreparedStatementManager {
 	 * @return JDBCPreparedStatements object
 	 * @throws SQLException SQLException
 	 */
-	public PreparedStatement setJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type, String query) throws SQLException
-	{
-		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null && !hasUnknownDDBSEntityProperties(ddbsEntity))
-		{
+	public PreparedStatement setJDBCPreparedStatements(DDBSEntity<DDBSEntityProperty> ddbsEntity, PreparedStatementType type, String query) throws SQLException {
+		if(mapStatements.get(ddbsEntity.getDatastoreEntityName()) == null && !hasUnknownDDBSEntityProperties(ddbsEntity)) {
 			mapStatements.put(ddbsEntity.getDatastoreEntityName(), new JDBCPreparedStatements());
 		}
 		PreparedStatement preparedStatement = myConnector.prepareStatement(query);
@@ -75,15 +78,5 @@ public class JDBCPreparedStatementManager {
 			}
 		}
 		return false;
-	}
-	
-	/**
-	 * JDBC Prepared Statement Manager Constructor
-	 * @param myConnector JDBC Connector
-	 */
-	public JDBCPreparedStatementManager(JDBCConnector myConnector) {
-		super();
-		this.myConnector = myConnector;
-		this.mapStatements = new HashMap<String, JDBCPreparedStatements>();
 	}
 }

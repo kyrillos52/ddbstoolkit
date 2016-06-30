@@ -24,26 +24,18 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 		super(types);
 	}
 	
-	public static DDBSToolkitSupportedEntity valueOf(Field field) throws IllegalArgumentException, IllegalAccessException
-	{
-		if(!field.getType().isArray())
-		{
-			for(DDBSToolkitSupportedEntity sparqlddbsToolkitSupportedEntity : SUPPORTED_ENTITIES)
-			{
-				for(String type : sparqlddbsToolkitSupportedEntity.getTypes())
-				{
+	public static DDBSToolkitSupportedEntity valueOf(Field field) throws IllegalArgumentException, IllegalAccessException {
+		if(!field.getType().isArray()) {
+			for(DDBSToolkitSupportedEntity sparqlddbsToolkitSupportedEntity : SUPPORTED_ENTITIES) {
+				for(String type : sparqlddbsToolkitSupportedEntity.getTypes()) {
 					if(type.equals(field.getType().getName())) {
 						return sparqlddbsToolkitSupportedEntity;
 					}
 				}
 			}
-		}
-		else
-		{	
-			for(DDBSToolkitSupportedEntity sparqlddbsToolkitSupportedEntity : SUPPORTED_ENTITIES)
-			{
-				for(String type : sparqlddbsToolkitSupportedEntity.getTypes())
-				{
+		} else {	
+			for(DDBSToolkitSupportedEntity sparqlddbsToolkitSupportedEntity : SUPPORTED_ENTITIES) {
+				for(String type : sparqlddbsToolkitSupportedEntity.getTypes()) {
 					if(type.equals(field.getType().getName())) {
 						return sparqlddbsToolkitSupportedEntity;
 					}
@@ -52,14 +44,12 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 			
 			try {
 				
-				if(field.getType().getName().length() > 3)
-				{
+				if(field.getType().getName().length() > 3) {
 					String className = field.getType().getName().substring(2, field.getType().getName().length()-1);
 					
 					Object object = Class.forName(className).newInstance();
 					
-					if(object instanceof IEntity)
-					{
+					if(object instanceof IEntity) {
 						return IENTITY_ARRAY;
 					}
 				}

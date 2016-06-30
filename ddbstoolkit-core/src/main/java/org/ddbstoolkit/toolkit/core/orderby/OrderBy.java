@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public class OrderBy implements Serializable {
+public final class OrderBy implements Serializable {
 
 	/**
 	 * Serial Version Id
@@ -17,12 +17,18 @@ public class OrderBy implements Serializable {
 	/**
 	 * Name
 	 */
-	private String name;
+	private final String name;
 	
 	/**
 	 * Order By type
 	 */
-	private OrderByType type;
+	private final OrderByType type;
+	
+	private OrderBy(String name, OrderByType type) {
+		super();
+		this.name = name;
+		this.type = type;
+	}
 	
 	/**
 	 * Get Name
@@ -38,12 +44,6 @@ public class OrderBy implements Serializable {
 	 */
 	public OrderByType getType() {
 		return type;
-	}
-
-	private OrderBy(String name, OrderByType type) {
-		super();
-		this.name = name;
-		this.type = type;
 	}
 	
 	/**

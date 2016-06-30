@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
  */
 public class DistributedEntity implements IEntity {
 
-    /**
+	/**
 	 * Version Id
 	 */
 	private static final long serialVersionUID = 1L;

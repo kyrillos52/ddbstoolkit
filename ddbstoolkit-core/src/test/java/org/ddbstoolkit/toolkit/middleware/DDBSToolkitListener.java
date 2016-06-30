@@ -12,7 +12,7 @@ public class DDBSToolkitListener implements Runnable {
 	/**
 	 * Distributed receiver interface
 	 */
-	private DistributableReceiverInterface receiverInterface;
+	private final DistributableReceiverInterface receiverInterface;
 	
 	/**
 	 * Indicates if we are continuing to listen
@@ -22,7 +22,7 @@ public class DDBSToolkitListener implements Runnable {
 	/**
 	 * Wait time
 	 */
-	private final int WAIT_TIME = 100;
+	private static final int WAIT_TIME = 100;
 
 	/**
 	 * DDBSToolkit lister constructor

@@ -38,11 +38,16 @@ import info.collide.sqlspaces.commons.TupleSpaceException;
  * @version Creation of the class
  */
 public class SqlSpacesSender implements DistributableSenderInterface {
+	
+	/**
+	 * DDBS Entity manager
+	 */
+	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
 
     /**
      * Peer corresponding to the interface
      */
-    private Peer myPeer;
+    private final Peer myPeer;
 
     /**
      * Indicate if the connection is open
@@ -57,7 +62,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     /**
      * Name of the cluster
      */
-    private String clusterName;
+    private final String clusterName;
 
     /**
      * TupleSpace for peers
@@ -72,17 +77,12 @@ public class SqlSpacesSender implements DistributableSenderInterface {
     /**
      * Ip address of the server
      */
-    private String ipAddressServer;
+    private final String ipAddressServer;
 
     /**
      * Port of the server
      */
-    private int port;
-    
-	/**
-	 * DDBS Entity manager
-	 */
-	protected DDBSEntityManager<DDBSEntity<DDBSEntityProperty>> ddbsEntityManager;
+    private final int port;
 
     /**
      * Create a SqlSpaces Sender using localhost server
@@ -298,15 +298,13 @@ public class SqlSpacesSender implements DistributableSenderInterface {
             } else {
                 return null;
             }
-    	}
-    	catch (TupleSpaceException tse) {
+    	} catch (TupleSpaceException tse) {
 			throw new DDBSToolkitException("Error executing the middleware request", tse);
 		} catch (IOException ioe) {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
 		} catch (ClassNotFoundException cnfe) {
 			throw new DDBSToolkitException("Class not found exception", cnfe);
-		}
-    	catch (Exception e) {
+		} catch (Exception e) {
     		throw new DDBSToolkitException("Error executing the middleware request", e);
     	}
     }

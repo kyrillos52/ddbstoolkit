@@ -12,7 +12,7 @@ public class DistributedEntityConverter {
 	/**
 	 * Peer element
 	 */
-	private Peer peer;
+	private final Peer peer;
 
 	/**
 	 * Distributed Entity converter

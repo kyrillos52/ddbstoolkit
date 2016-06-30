@@ -39,8 +39,7 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 		try {
 			jdbcConnector = connectionPool.getJDBCConnector(connectionPool.getConnection());
 			
-			jdbcPreparedStatementManager = new JDBCPreparedStatementManager(
-						jdbcConnector);
+			jdbcPreparedStatementManager = new JDBCPreparedStatementManager(jdbcConnector);
 
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
@@ -118,16 +117,13 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 		try {
 			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToAdd);
 
-			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD);
+			PreparedStatement preparedRequest = jdbcPreparedStatementManager.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD);
 
 			if (preparedRequest == null) {
 
 				String sqlAddString = getInsertSQLString(ddbsEntity);
 
-				preparedRequest = jdbcPreparedStatementManager
-						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD,
-								sqlAddString);
+				preparedRequest = jdbcPreparedStatementManager.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.ADD,sqlAddString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToAdd);
@@ -147,16 +143,13 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 		try {
 			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToUpdate);
 
-			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE);
+			PreparedStatement preparedRequest = jdbcPreparedStatementManager.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE);
 
 			if (preparedRequest == null) {
 
 				String sqlUpdateString = getUpdateSQLString(ddbsEntity);
 
-				preparedRequest = jdbcPreparedStatementManager
-						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE,
-								sqlUpdateString);
+				preparedRequest = jdbcPreparedStatementManager.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.UPDATE,sqlUpdateString);
 			}
 
 			List<DDBSEntityProperty> listPreparedEntities = new ArrayList<>();
@@ -180,16 +173,13 @@ public abstract class JDBCPoolManager extends JDBCEntityManager {
 		try {
 			DDBSEntity<DDBSEntityProperty> ddbsEntity = ddbsEntityManager.getDDBSEntity(objectToDelete);
 
-			PreparedStatement preparedRequest = jdbcPreparedStatementManager
-					.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE);
+			PreparedStatement preparedRequest = jdbcPreparedStatementManager.getJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE);
 
 			if (preparedRequest == null) {
 
 				String sqlDeleteString = getDeleteSQLString(ddbsEntity);
 
-				preparedRequest = jdbcPreparedStatementManager
-						.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,
-								sqlDeleteString);
+				preparedRequest = jdbcPreparedStatementManager.setJDBCPreparedStatements(ddbsEntity, PreparedStatementType.DELETE,sqlDeleteString);
 			}
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), objectToDelete);

@@ -20,22 +20,22 @@ public class DDBSToolkitSQLSpacesModuleTest extends MiddlewareModuleTest {
 	/**
 	 * SQLLite Database file
 	 */
-	private final static String SQLITE_DATABASE = ":memory:";
+	private static final String SQLITE_DATABASE = ":memory:";
 	
 	/**
 	 * Cluster name
 	 */
-	private final static String CLUSTER_NAME = "defaultCluster";
+	private static final String CLUSTER_NAME = "defaultCluster";
 	
 	/**
 	 * Sender peer name
 	 */
-	private final static String SENDER_NAME = "sender";
+	private static final String SENDER_NAME = "sender";
 	
 	/**
 	 * Receiver peer name
 	 */
-	private final static String RECEIVER_NAME = "receiver";
+	private static final String RECEIVER_NAME = "receiver";
 	
 	@Override
 	public void instantiateReceiverAndSenderInterface() throws Exception {

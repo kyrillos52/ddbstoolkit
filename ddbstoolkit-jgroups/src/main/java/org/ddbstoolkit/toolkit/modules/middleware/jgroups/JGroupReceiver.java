@@ -24,7 +24,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
     /**
      * Name of the cluster
      */
-    private String clusterName;
+    private final String clusterName;
 
     /**
      * TableManager involved
@@ -39,7 +39,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
     /**
      * Current peer of the receiver
      */
-    private Peer myPeer;
+    private final Peer myPeer;
     
     /**
      * Distributed entity converter
@@ -88,6 +88,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
     @Override
     public void stop() throws Exception {
         channel.close();
+        msgDispatcher.close();
     }
 
     /**

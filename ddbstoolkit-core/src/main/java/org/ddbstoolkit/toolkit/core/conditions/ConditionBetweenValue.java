@@ -17,12 +17,20 @@ public class ConditionBetweenValue extends Condition {
 	/**
 	 * Starting value
 	 */
-	private Object startingValue;
+	private final Object startingValue;
 	
 	/**
 	 * Ending value
 	 */
-	private Object endingValue;
+	private final Object endingValue;
+	
+	public ConditionBetweenValue(String propertyName,
+			ConditionType conditionType, Object startingValue,
+			Object endingValue) {
+		super(propertyName, conditionType);
+		this.startingValue = startingValue;
+		this.endingValue = endingValue;
+	}
 	
 	/**
 	 * Get starting value
@@ -38,14 +46,6 @@ public class ConditionBetweenValue extends Condition {
 	 */
 	public Object getEndingValue() {
 		return endingValue;
-	}
-
-	public ConditionBetweenValue(String propertyName,
-			ConditionType conditionType, Object startingValue,
-			Object endingValue) {
-		super(propertyName, conditionType);
-		this.startingValue = startingValue;
-		this.endingValue = endingValue;
 	}
 
 	@Override
