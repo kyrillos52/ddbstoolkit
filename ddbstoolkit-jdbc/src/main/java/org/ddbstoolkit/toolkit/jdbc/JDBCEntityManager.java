@@ -366,11 +366,10 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 			}
 
-			ResultSet results = jdbcConnector
-					.queryPreparedStatement(preparedRequest);
+			ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest);
 
 			List<T> resultList = conversionResultSet(results, object);
-			if (resultList.size() > 0) {
+			if (!resultList.isEmpty()) {
 				return resultList.get(0);
 			}
 

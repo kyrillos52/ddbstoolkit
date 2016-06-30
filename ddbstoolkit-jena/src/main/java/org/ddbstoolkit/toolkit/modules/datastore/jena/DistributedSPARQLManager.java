@@ -362,12 +362,11 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 		testConnection(object);
 
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager
-				.getDDBSEntity(object);
+		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager.getDDBSEntity(object);
 		
 		List<SparqlClassProperty> otherEntities = sparqlEntity.getSupportedPrimaryTypeEntityPropertiesWithoutURI();
 
-		if(otherEntities.size() > 0) {
+		if(!otherEntities.isEmpty()) {
 			SparqlClassProperty uriProperty = sparqlEntity.getUri();
 			String conditionQueryString = "<" + uriProperty.getValue(object)+"> "
 					+ otherEntities.get(0).getNamespaceName() + ":"
@@ -496,8 +495,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						}
 					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
 
-						double[] array = (double[]) sparqlClassProperty
-								.getValue(objectToAdd);
+						double[] array = (double[]) sparqlClassProperty.getValue(objectToAdd);
 						if (array != null) {
 							for (double elementToAdd : array) {
 								addElement(myModel, resourceToAdd,
@@ -816,8 +814,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 			}
 			myData = uris.get(uri);
 
-			for (SparqlClassProperty sparqlClassProperty : sparqlEntity
-					.getEntityProperties()) {
+			for (SparqlClassProperty sparqlClassProperty : sparqlEntity.getEntityProperties()) {
 
 				if (myResult.get(sparqlClassProperty.getName()) != null) {
 
@@ -868,8 +865,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY)) {
 							if(!sparqlClassProperty.isPrimitiveArray()) {
 								sparqlClassProperty.setValue(myData, sparqlResults.getIntegerArray(
-										sparqlClassProperty.getName(), uri)
-										.toArray());
+										sparqlClassProperty.getName(), uri).toArray());
 							} else {
 								Set<Integer> integerSet = sparqlResults.getIntegerArray(
 										sparqlClassProperty.getName(), uri);
@@ -911,9 +907,8 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 								}
 								sparqlClassProperty.setValue(myData, resultFloat);
 							}
-						} else if (sparqlClassProperty
-								.getDdbsToolkitSupportedEntity()
-								.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
+						} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(
+								SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY)) {
 							
 							if(!sparqlClassProperty.isPrimitiveArray()) {
 								sparqlClassProperty.setValue(myData, sparqlResults.getDoubleArray(sparqlClassProperty.getName(), uri).toArray(new Double[] {}));
