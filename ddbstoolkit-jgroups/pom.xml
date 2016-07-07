@@ -3,7 +3,7 @@
 		<parent>
 		<groupId>org.ddbstoolkit.toolkit</groupId>
 		<artifactId>ddbstoolkit-root</artifactId>
-		<version>1.0.0-beta2-SNAPSHOT</version>
+		<version>1.0.0-beta2</version>
 	</parent>
 	<groupId>org.ddbstoolkit.toolkit.modules.middleware.jgroups</groupId>
 	<artifactId>ddbstoolkit-jgroups</artifactId>
@@ -13,20 +13,20 @@
 		<dependency>
 			<groupId>org.ddbstoolkit.toolkit.core</groupId>
 			<artifactId>ddbstoolkit-core</artifactId>
-			<version>1.0.0-beta2-SNAPSHOT</version>
+			<version>1.0.0-beta2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ddbstoolkit.toolkit.core</groupId>
 			<artifactId>ddbstoolkit-core</artifactId>
-			<version>1.0.0-beta2-SNAPSHOT</version>
+			<version>1.0.0-beta2</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ddbstoolkit.toolkit.jdbc</groupId>
 			<artifactId>ddbstoolkit-jdbc</artifactId>
-			<version>1.0.0-beta2-SNAPSHOT</version>
+			<version>1.0.0-beta2</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>org.ddbstoolkit.toolkit.modules.datastore.sqlite</groupId>
 			<artifactId>ddbstoolkit-sqlite</artifactId>
-			<version>1.0.0-beta2-SNAPSHOT</version>
+			<version>1.0.0-beta2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
