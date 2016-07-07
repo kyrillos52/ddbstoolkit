@@ -4,16 +4,6 @@
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `Actor`
---
-
-CREATE TABLE Actor (
-  actor_id SERIAL PRIMARY KEY,
-  actor_name varchar(45) NULL,
-  film_ID int NOT NULL REFERENCES Film (film_ID)
-);
-
 -- --------------------------------------------------------
 
 --
@@ -27,4 +17,14 @@ CREATE TABLE Film (
   creationDate timestamp DEFAULT current_timestamp,
   longField bigint NULL,
   floatField float NULL
+);
+
+--
+-- Table structure for table `Actor`
+--
+
+CREATE TABLE Actor (
+  actor_id SERIAL PRIMARY KEY,
+  actor_name varchar(45) NULL,
+  film_ID int NOT NULL REFERENCES Film (film_ID)
 );
