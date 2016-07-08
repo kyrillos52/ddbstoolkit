@@ -19,6 +19,11 @@ public class DDBSEntityManager<T extends DDBSEntity> {
 	protected ClassInspector classInspector;
 	
 	/**
+	 * Map of computed entities
+	 */
+	protected Map<Class, T> mapEntities = new HashMap<>();
+	
+	/**
 	 * DDBS Entity Manager
 	 * @param classInspector Class inspector
 	 */
@@ -26,11 +31,6 @@ public class DDBSEntityManager<T extends DDBSEntity> {
 		super();
 		this.classInspector = classInspector;
 	}
-
-	/**
-	 * Map of computed entities
-	 */
-	protected Map<Class, T> mapEntities = new HashMap<>();
 	
 	@SuppressWarnings("unchecked")
 	public DDBSEntity<DDBSEntityProperty> getDDBSEntity(IEntity object) {

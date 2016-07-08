@@ -30,7 +30,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	@Before 
 	public void initialiseDatabase() throws ClassNotFoundException, DDBSToolkitException {
 		
-		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
+		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD));
 		
 		manager.open();
 	}

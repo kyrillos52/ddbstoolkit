@@ -46,6 +46,21 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
      * Distributed entity converter
      */
     private DistributedEntityConverter entityConverter;
+    
+    /**
+     * Constructor of the receiver
+     * @param entityManager Manager that will execute commands
+     * @param clusterName Name of the cluster
+     * @param peerName Name of the peer
+     */
+    public JGroupReceiver(DistributableEntityManager entityManager, String clusterName, String peerName) {
+        super();
+        this.entityManager = entityManager;
+        this.clusterName = clusterName;
+
+        this.myPeer = new Peer();
+        this.myPeer.setName(peerName);
+    }
 
     @Override
     public Peer getMyPeer() {
@@ -141,20 +156,5 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
         }
 
         return null;
-    }
-    
-    /**
-     * Constructor of the receiver
-     * @param entityManager Manager that will execute commands
-     * @param clusterName Name of the cluster
-     * @param peerName Name of the peer
-     */
-    public JGroupReceiver(DistributableEntityManager entityManager, String clusterName, String peerName) {
-        super();
-        this.entityManager = entityManager;
-        this.clusterName = clusterName;
-
-        this.myPeer = new Peer();
-        this.myPeer.setName(peerName);
     }
 }

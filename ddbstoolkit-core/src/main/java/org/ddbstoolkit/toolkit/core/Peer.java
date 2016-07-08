@@ -13,6 +13,11 @@ public class Peer implements Serializable {
 	 * Indicate the we select all peer
 	 */
 	public static final Peer ALL = new Peer("ALL", null);
+	
+    /**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
      * Unique identifier (UID) of a peer
@@ -23,11 +28,6 @@ public class Peer implements Serializable {
      * Name of the peer
      */
     protected String name;
-    
-    /**
-	 * Serial Version ID
-	 */
-	private static final long serialVersionUID = 1L;
     
     public Peer() {
 		super();

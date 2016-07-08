@@ -10,7 +10,7 @@ import java.util.List;
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public class Conditions implements Serializable {
+public final class Conditions implements Serializable {
 	
 	/**
 	 * Serial Version UID

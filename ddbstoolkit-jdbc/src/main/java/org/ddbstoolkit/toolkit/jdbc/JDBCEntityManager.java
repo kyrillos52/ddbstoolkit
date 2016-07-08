@@ -243,13 +243,13 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			
 			jdbcConditionConverter.prepareStatement(preparedRequest, conditions, ddbsEntity);
 			
-			ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest);
-
-			if (object instanceof ImplementableEntity) {
-				return ((ImplementableEntity) object).conversionResultSet(
-						results, object);
-			} else {
-				return conversionResultSet(results, object);
+			try(ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest)) {
+				if (object instanceof ImplementableEntity) {
+					return ((ImplementableEntity) object).conversionResultSet(
+							results, object);
+				} else {
+					return conversionResultSet(results, object);
+				}
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
@@ -316,13 +316,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 
 			jdbcConditionConverter.prepareParametersPreparedStatement(preparedRequest, ddbsEntity.getEntityIDProperties(), object);
 
-			ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest);
-
-			List<T> resultList = conversionResultSet(results, object);
-			if (resultList.size() > 0) {
-				return resultList.get(0);
+			try(ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest)) {
+				List<T> resultList = conversionResultSet(results, object);
+				if (!resultList.isEmpty()) {
+					return resultList.get(0);
+				}
 			}
-
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
 					"Error during execution of the SQL request", sqle);

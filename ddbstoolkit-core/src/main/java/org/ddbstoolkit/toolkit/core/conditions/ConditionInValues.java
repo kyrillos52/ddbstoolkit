@@ -22,18 +22,18 @@ public class ConditionInValues extends Condition {
 	 */
 	private final List<? extends Object> values;
 	
+	public ConditionInValues(String propertyName, ConditionType conditionType,
+			List<? extends Object> values) {
+		super(propertyName, conditionType);
+		this.values = values;
+	}
+	
 	/**
 	 * Get list of values
 	 * @return List of values
 	 */
 	public List<? extends Object> getValues() {
 		return values;
-	}
-
-	public ConditionInValues(String propertyName, ConditionType conditionType,
-			List<? extends Object> values) {
-		super(propertyName, conditionType);
-		this.values = values;
 	}
 
 	@Override

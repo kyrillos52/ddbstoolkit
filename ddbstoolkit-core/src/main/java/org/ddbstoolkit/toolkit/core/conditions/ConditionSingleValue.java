@@ -25,18 +25,18 @@ public class ConditionSingleValue extends Condition {
 	 */
 	private final Object value;
 	
+	public ConditionSingleValue(String propertyName,
+			ConditionType conditionType, Object value) {
+		super(propertyName, conditionType);
+		this.value = value;
+	}
+	
 	/**
 	 * Get value
 	 * @return value
 	 */
 	public Object getValue() {
 		return value;
-	}
-
-	public ConditionSingleValue(String propertyName,
-			ConditionType conditionType, Object value) {
-		super(propertyName, conditionType);
-		this.value = value;
 	}
 
 	@Override

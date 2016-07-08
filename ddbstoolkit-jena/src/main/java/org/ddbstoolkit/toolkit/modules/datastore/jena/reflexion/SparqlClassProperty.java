@@ -77,8 +77,7 @@ public class SparqlClassProperty extends DDBSEntityProperty {
 		this.isOptional = isOptional;
 	}
 
-	public boolean isPrimitiveArray()
-	{
+	public boolean isPrimitiveArray() {
 		return isArray && (ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.INTEGER_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.LONG_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.FLOAT_ARRAY) || ddbsToolkitSupportedEntity.equals(SparqlDDBSToolkitSupportedEntity.DOUBLE_ARRAY));
 	}
 }

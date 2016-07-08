@@ -394,8 +394,7 @@ public class SqlSpacesSender implements DistributableSenderInterface {
 			throw new DDBSToolkitException("Error executing the middleware request - IO Exception", ioe);
 		} catch (ClassNotFoundException cnfe) {
 			throw new DDBSToolkitException("Class not found exception", cnfe);
-		}
-    	catch (Exception e) {
+		} catch (Exception e) {
     		throw new DDBSToolkitException("Error executing the middleware request", e);
     	}
     }

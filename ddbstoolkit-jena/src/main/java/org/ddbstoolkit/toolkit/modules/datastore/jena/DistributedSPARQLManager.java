@@ -504,8 +504,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 						}
 					} else if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.STRING_ARRAY)) {
 
-						String[] array = (String[]) sparqlClassProperty
-								.getValue(objectToAdd);
+						String[] array = (String[]) sparqlClassProperty.getValue(objectToAdd);
 						if (array != null) {
 							for (String elementToAdd : array) {
 								addElement(myModel, resourceToAdd,

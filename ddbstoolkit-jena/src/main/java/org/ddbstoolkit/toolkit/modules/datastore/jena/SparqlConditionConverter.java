@@ -38,8 +38,7 @@ public class SparqlConditionConverter implements ConditionsConverter {
 		StringBuilder conditionString = new StringBuilder();
 		
 		@SuppressWarnings("unchecked")
-		SparqlDDBSEntity<SparqlClassProperty> entity = entityManager
-				.getDDBSEntity(object);
+		SparqlDDBSEntity<SparqlClassProperty> entity = entityManager.getDDBSEntity(object);
 		
 		if(conditions.getConditions().size() > 0) {
 			

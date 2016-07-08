@@ -18,6 +18,10 @@ import org.ddbstoolkit.toolkit.modules.datastore.jena.annotation.Service;
  */
 public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<T> {
 	
+	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {	
+		super(iEntity.getClass(), classInspector);
+	}
+	
 	/**
 	 * Get Sparql service URL
 	 * @param entityObject Entity object
@@ -123,9 +127,4 @@ public class SparqlDDBSEntity<T extends SparqlClassProperty> extends DDBSEntity<
 		}
 		return listWithoutPeerUID;
 	}
-	
-	public SparqlDDBSEntity(IEntity iEntity, ClassInspector classInspector) {	
-		super(iEntity.getClass(), classInspector);
-	}
-
 }

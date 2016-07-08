@@ -26,15 +26,15 @@ public enum DDBSAction {
 	 */
 	private int actionCode;
 	
+    private DDBSAction(int actionCode) {
+		this.actionCode = actionCode;
+	}
+	
 	/**
 	 * Get action code
 	 * @return Action code
 	 */
 	public int getActionCode() {
 		return actionCode;
-	}
-	
-    private DDBSAction(int actionCode) {
-		this.actionCode = actionCode;
 	}
 }

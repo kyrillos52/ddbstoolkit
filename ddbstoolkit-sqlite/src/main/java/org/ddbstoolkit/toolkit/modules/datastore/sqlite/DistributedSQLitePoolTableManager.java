@@ -19,6 +19,10 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCPoolManager;
  *          "1characters" table
  */
 public class DistributedSQLitePoolTableManager extends JDBCPoolManager {
+	
+	public DistributedSQLitePoolTableManager(SQLiteConnectionPool pool) {
+		super(pool);
+	}
 
 	@Override
 	public boolean createEntity(IEntity objectToCreate)
@@ -76,9 +80,5 @@ public class DistributedSQLitePoolTableManager extends JDBCPoolManager {
 			throw new DDBSToolkitException("Error while creating the table", sqlException);
 		}
 		
-	}
-
-	public DistributedSQLitePoolTableManager(SQLiteConnectionPool pool) {
-		super(pool);
 	}
 }

@@ -23,14 +23,14 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 public class ClassInspector {
 	
 	/**
-	 * ClassInspector logger
-	 */
-	private static final Logger logger = Logger.getLogger(ClassInspector.class);
-
-	/**
 	 * Peer UID property name
 	 */
 	protected static final String PEER_UID_PROPERTY_NAME = "peerUid";
+	
+	/**
+	 * ClassInspector logger
+	 */
+	private static final Logger logger = Logger.getLogger(ClassInspector.class);
 
     /**
      * List public properties of an object

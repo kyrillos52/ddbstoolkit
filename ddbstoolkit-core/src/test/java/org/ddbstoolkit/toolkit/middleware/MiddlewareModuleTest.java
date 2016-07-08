@@ -23,6 +23,11 @@ import org.junit.rules.ExpectedException;
  */
 public abstract class MiddlewareModuleTest extends DataModuleTest {
 	
+	/**
+	 * Wait time
+	 */
+	private static final int WAIT_TIME = 1000;
+	
 	@Rule
     public ExpectedException thrown = ExpectedException.none();
 	
@@ -45,11 +50,6 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	 * Distributed receiver interface
 	 */
 	protected DistributableReceiverInterface receiverInterface;
-	
-	/**
-	 * Wait time
-	 */
-	private static final int WAIT_TIME = 1000;
 	
 	/**
 	 * Runnable for the listener
@@ -84,8 +84,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	 * Instantiate and start a new listener thread
 	 * @throws Exception throw an error
 	 */
-	public void instantiateAndStartDistributableReceiverInterface() throws Exception
-	{
+	public void instantiateAndStartDistributableReceiverInterface() throws Exception {
 		instantiateReceiverAndSenderInterface();
 		
 		ddbsToolkitListener = new DDBSToolkitListener(receiverInterface);

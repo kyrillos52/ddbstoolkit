@@ -77,8 +77,7 @@ public class DDBSEntityProperty {
      * @param iEntity Entity
      * @return Entity property value
      */
-    public Object getValue(IEntity iEntity)
-    {
+    public Object getValue(IEntity iEntity) {
     	if(!isEncapsulated) {
     		FieldAccess access = FieldAccess.get(iEntity.getClass());
         	return access.get(iEntity, fieldIndex);

@@ -13,6 +13,11 @@ import org.ddbstoolkit.toolkit.core.annotations.Id;
 @EntityName(name="Actor")
 public class ActorBase extends DistributedEntity {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
     @Id
     @EntityName(name="actor_id")
     private Integer actorId;
@@ -33,11 +38,6 @@ public class ActorBase extends DistributedEntity {
 		this.actorName = actorName;
 		this.filmId = filmId;
 	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public Integer getActorId() {
 		return actorId;

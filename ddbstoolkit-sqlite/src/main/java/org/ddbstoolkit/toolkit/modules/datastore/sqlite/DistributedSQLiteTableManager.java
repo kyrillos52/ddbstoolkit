@@ -20,6 +20,10 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
  */
 public class DistributedSQLiteTableManager extends JDBCEntityManager {
 
+	public DistributedSQLiteTableManager(SQLiteConnector myConnector) {
+		super(myConnector);
+	}
+	
 	@Override
 	public boolean createEntity(IEntity objectToCreate)
 			throws DDBSToolkitException {
@@ -76,9 +80,5 @@ public class DistributedSQLiteTableManager extends JDBCEntityManager {
 			throw new DDBSToolkitException("Error while creating the table", sqlException);
 		}
 		
-	}
-
-	public DistributedSQLiteTableManager(SQLiteConnector myConnector) {
-		super(myConnector);
 	}
 }

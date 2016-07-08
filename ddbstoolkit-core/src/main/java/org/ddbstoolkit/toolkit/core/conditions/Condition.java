@@ -27,6 +27,12 @@ public class Condition implements Serializable {
 	 */
 	protected ConditionType conditionType;
 	
+	public Condition(String name, ConditionType conditionType) {
+		super();
+		this.name = name;
+		this.conditionType = conditionType;
+	}
+	
 	/**
 	 * Get property name
 	 * @return Property name
@@ -41,12 +47,6 @@ public class Condition implements Serializable {
 	 */
 	public ConditionType getConditionType() {
 		return conditionType;
-	}
-
-	public Condition(String name, ConditionType conditionType) {
-		super();
-		this.name = name;
-		this.conditionType = conditionType;
 	}
 
 	@Override

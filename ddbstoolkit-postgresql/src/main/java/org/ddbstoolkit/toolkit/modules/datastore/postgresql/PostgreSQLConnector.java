@@ -13,6 +13,11 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
  */
 public class PostgreSQLConnector extends JDBCConnector {
 
+	/**
+	 * PostgreSQL JDBC Driver name
+	 */
+    private static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
+	
     /**
      * PostgreSQL Database URL
      */
@@ -27,8 +32,6 @@ public class PostgreSQLConnector extends JDBCConnector {
      * PostgreSQL User Password
      */
     private String password;
-    
-    private static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
     
     /**
 	 * JDBC Constructor

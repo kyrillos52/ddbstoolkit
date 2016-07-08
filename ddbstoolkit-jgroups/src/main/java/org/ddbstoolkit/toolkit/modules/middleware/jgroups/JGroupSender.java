@@ -293,25 +293,25 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 command.setConditionQueryString(conditionQueryString);
                 command.setOrderBy(orderBy);
 
-                RspList<List<T>> rsp_list;
+                RspList<List<T>> rspList;
                 if(myEntity.getPeerUid() != null && !myEntity.getPeerUid() .isEmpty()) {
                     Address peerToSend = getAddressPeer(myEntity.getPeerUid() );
                     ArrayList<Address> toSend = new ArrayList<Address>();
                     toSend.add(peerToSend);
 
-                    rsp_list = dispatcher.castMessage(toSend,
+                    rspList = dispatcher.castMessage(toSend,
                             new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                     command.setDestination(new Peer(myEntity.getPeerUid(),null) );
                 } else {
-                    rsp_list = dispatcher.castMessage(null,
+                    rspList = dispatcher.castMessage(null,
                             new Message(null, null, command), new RequestOptions(ResponseMode.GET_ALL, timeout));
                 }
 
                 List<T> listEntity = new ArrayList<T>();
 
                 //Merge all the results on the same ArrayList
-                if(rsp_list.getResults().size() > 0) {
-                    for (List<T> list : rsp_list.getResults()) {
+                if(rspList.getResults().size() > 0) {
+                    for (List<T> list : rspList.getResults()) {
                         listEntity.addAll(list);
                     }
                 }

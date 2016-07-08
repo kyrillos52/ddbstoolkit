@@ -13,8 +13,7 @@ public class DDBSToolkitSupportedEntityTest implements IEntity {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public class TestClass
-	{
+	public class TestClass {
 		public int intValue;
 		
 		public Integer integerValue;

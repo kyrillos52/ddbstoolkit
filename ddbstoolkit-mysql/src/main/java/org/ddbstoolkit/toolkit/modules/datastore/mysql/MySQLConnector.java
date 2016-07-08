@@ -13,6 +13,11 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCConnector;
  */
 public class MySQLConnector extends JDBCConnector {
 
+	/**
+	 * MySQL JDBC Driver name
+	 */
+    private static final String MYSQL_DRIVER = "org.gjt.mm.mysql.Driver";
+	
     /**
      * MySQL Database URL
      */
@@ -27,8 +32,6 @@ public class MySQLConnector extends JDBCConnector {
      * MySQL User Password
      */
     private String password;
-    
-    private static final String MYSQL_DRIVER = "org.gjt.mm.mysql.Driver";
     
     /**
 	 * JDBC Constructor

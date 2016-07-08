@@ -39,17 +39,16 @@ public class SparqlClassInspector extends ClassInspector {
      */
 	@SuppressWarnings("unchecked")
 	@Override
-    public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData)
-    {
+    public <T extends DDBSEntityProperty> List<T> exploreProperties(Class<?> classData) {
+		
         Annotation[] classAnnotations = classData.getAnnotations();
 		
 		//Get the default namespace
         String defaultNamespaceName = "";
         String defaultNamespaceUrl = "";
-        for(Annotation annotation : classAnnotations)
-        {
-            if (annotation instanceof DefaultNamespace)
-            {
+        for(Annotation annotation : classAnnotations) {
+        	
+            if (annotation instanceof DefaultNamespace) {
                 DefaultNamespace ns = (DefaultNamespace)annotation;
 
                 defaultNamespaceName = ns.name();
@@ -61,8 +60,7 @@ public class SparqlClassInspector extends ClassInspector {
 
         List<T> listProperties = new ArrayList<>();
         int counterProperties = 0;
-        for(Field field : fields)
-        {
+        for(Field field : fields) {
         	boolean hasGetterAndSetter = hasGetterAndSetter(classData, field.getName());
         	
         	if(!field.getName().equals(PEER_UID_PROPERTY_NAME) && !Modifier.isStatic(field.getModifiers())
@@ -104,23 +102,18 @@ public class SparqlClassInspector extends ClassInspector {
     	AnnotatedElement element = (AnnotatedElement) field;
         Annotation[] propertyAnnotations = element.getAnnotations();
 
-        for(Annotation annotation : propertyAnnotations)
-        {
-            if(annotation instanceof Id)
-            {
+        for(Annotation annotation : propertyAnnotations) {
+            if(annotation instanceof Id) {
             	DDBSEntityIDProperty ddbsEntityIDProperty = new DDBSEntityIDProperty();
             	ddbsEntityIDProperty.setAutoIncrement(((Id)annotation).autoincrement());
             	ddbsEntityProperty.setDdbsEntityIDProperty(ddbsEntityIDProperty);
-            }
-            else if(annotation instanceof EntityName)
-            {
+            } else if(annotation instanceof EntityName) {
                 EntityName myProperty = (EntityName)annotation;
                 ddbsEntityProperty.setPropertyName(myProperty.name());
             }
         }
 		
-		if(ddbsEntityProperty instanceof SparqlClassProperty)
-		{
+		if(ddbsEntityProperty instanceof SparqlClassProperty) {
 			SparqlClassProperty sparqlClassProperty = (SparqlClassProperty)ddbsEntityProperty;
 			sparqlClassProperty.setNamespaceName(defaultNamespaceName);
 	        sparqlClassProperty.setNamespaceURL(defaultNamespaceUrl);
@@ -128,25 +121,17 @@ public class SparqlClassInspector extends ClassInspector {
 			element = (AnnotatedElement) field;
 	        Annotation[] propertiesAnnotations = element.getAnnotations();
 	        
-	        for(Annotation annotation : propertiesAnnotations)
-	        {
-	        	if(annotation instanceof Namespace)
-	            {
+	        for(Annotation annotation : propertiesAnnotations) {
+	        	if(annotation instanceof Namespace) {
 	                Namespace myNamespace = (Namespace)annotation;
 	                
 	                sparqlClassProperty.setNamespaceName(myNamespace.name());
 	                sparqlClassProperty.setNamespaceURL(myNamespace.url());
-	            }
-	            else if(annotation instanceof URI)
-	            {
+	            } else if(annotation instanceof URI) {
 	            	sparqlClassProperty.setUri(true);
-	            }
-	            else if(annotation instanceof Optional)
-	            {
+	            } else if(annotation instanceof Optional) {
 	            	sparqlClassProperty.setOptional(true);
-	            }
-	            else if(annotation instanceof EntityName)
-	            {
+	            } else if(annotation instanceof EntityName) {
 	                EntityName myProperty = (EntityName)annotation;
 	                sparqlClassProperty.setPropertyName(myProperty.name());
 	            }

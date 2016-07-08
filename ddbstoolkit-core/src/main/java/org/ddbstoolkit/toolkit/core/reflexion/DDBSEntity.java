@@ -39,6 +39,30 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 */
 	private ConstructorAccess<?> access;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param classData Class data
+	 * @param classInspector Class inspector
+	 */
+	protected DDBSEntity(Class<?> classData, ClassInspector classInspector) {
+		this.classData = classData;
+		this.entityProperties = classInspector.exploreProperties(classData);
+		this.datastoreEntityName = classData.getSimpleName();
+		
+		AnnotatedElement element = (AnnotatedElement) classData;
+        Annotation[] propertyAnnotations = element.getAnnotations();
+
+        for(Annotation annotation : propertyAnnotations)
+        {
+            if(annotation instanceof EntityName)
+            {
+                EntityName myProperty = (EntityName)annotation;
+                this.datastoreEntityName = myProperty.name();
+            }
+        }
+	}
+	
 	public Object newInstance() {
 		if(access == null) {
 			access = ConstructorAccess.get(classData);
@@ -102,30 +126,6 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 	 */
 	public static DDBSEntity<DDBSEntityProperty> getDDBSEntity(Class<?> classData, ClassInspector classInspector) {
 		return new DDBSEntity<DDBSEntityProperty>(classData, classInspector);
-	}
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param classData Class data
-	 * @param classInspector Class inspector
-	 */
-	protected DDBSEntity(Class<?> classData, ClassInspector classInspector) {
-		this.classData = classData;
-		this.entityProperties = classInspector.exploreProperties(classData);
-		this.datastoreEntityName = classData.getSimpleName();
-		
-		AnnotatedElement element = (AnnotatedElement) classData;
-        Annotation[] propertyAnnotations = element.getAnnotations();
-
-        for(Annotation annotation : propertyAnnotations)
-        {
-            if(annotation instanceof EntityName)
-            {
-                EntityName myProperty = (EntityName)annotation;
-                this.datastoreEntityName = myProperty.name();
-            }
-        }
 	}
 
 	/**
