@@ -20,7 +20,7 @@ public class ConditionInValues extends Condition {
 	/**
 	 * List of values
 	 */
-	private List<? extends Object> values;
+	private final List<? extends Object> values;
 	
 	/**
 	 * Get list of values

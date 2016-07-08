@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.DDBSCommand;
 import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
@@ -27,6 +28,11 @@ import info.collide.sqlspaces.otm.ObjectTupleSpace;
  */
 public class SqlSpacesReceiver implements Callback, DistributableReceiverInterface {
 
+	/**
+	 * SqlSpacesReceiver logger
+	 */
+	private static Logger logger = Logger.getLogger(SqlSpacesReceiver.class);
+	
     /**
      * Name of the cluster
      */
@@ -242,13 +248,13 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 	                }
 
 	            } catch (Exception e) {
-	                e.printStackTrace();
+	            	logger.error("Error while trying to receive the message",e);
 	            } finally {
 
 	                try {
 	                    entityManager.close();
 	                } catch (Exception e) {
-	                    e.printStackTrace();
+	                	logger.error("Error while closing the entity manager",e);
 	                }
 
 	                try {

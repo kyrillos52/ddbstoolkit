@@ -278,12 +278,19 @@ public class DDBSEntityProperty {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof DDBSEntityProperty)
-		{
+		if(obj instanceof DDBSEntityProperty) {
 			DDBSEntityProperty classProperty = (DDBSEntityProperty)obj;
 			return classProperty.getPropertyName().equals(this.name);
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		if(this.name != null) {
+			return this.name.hashCode();
+		}
+		return 0;
 	}
 
 	@Override

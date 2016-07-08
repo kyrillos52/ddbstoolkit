@@ -268,12 +268,12 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 			
 			String listAllQuery = getSelectQueryString(object, conditionQueryString, orderBy);
 
-			ResultSet results = jdbcConnector.query(listAllQuery);
-
-			if (object instanceof ImplementableEntity) {
-				return ((ImplementableEntity) object).conversionResultSet(results, object);
-			} else {
-				return conversionResultSet(results, object);
+			try(ResultSet results = jdbcConnector.query(listAllQuery)) {
+				if (object instanceof ImplementableEntity) {
+					return ((ImplementableEntity) object).conversionResultSet(results, object);
+				} else {
+					return conversionResultSet(results, object);
+				}
 			}
 		} catch (SQLException sqle) {
 			throw new DDBSToolkitException(
@@ -366,11 +366,11 @@ public abstract class JDBCEntityManager implements DistributableEntityManager {
 				}
 			}
 
-			ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest);
-
-			List<T> resultList = conversionResultSet(results, object);
-			if (!resultList.isEmpty()) {
-				return resultList.get(0);
+			try(ResultSet results = jdbcConnector.queryPreparedStatement(preparedRequest)) {
+				List<T> resultList = conversionResultSet(results, object);
+				if (!resultList.isEmpty()) {
+					return resultList.get(0);
+				}
 			}
 
 		} catch (SQLException sqle) {

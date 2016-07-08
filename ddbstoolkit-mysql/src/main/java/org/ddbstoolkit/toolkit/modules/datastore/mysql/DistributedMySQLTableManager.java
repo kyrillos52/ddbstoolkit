@@ -1,6 +1,5 @@
 package org.ddbstoolkit.toolkit.modules.datastore.mysql;
 
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 
 /**
@@ -12,10 +11,6 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 public class DistributedMySQLTableManager extends JDBCEntityManager {
 
     public DistributedMySQLTableManager(MySQLConnector myConnector) {
-    	super(myConnector);
-    }
-
-    public DistributedMySQLTableManager(MySQLConnector myConnector, Peer myPeer) {
     	super(myConnector);
     }
 }

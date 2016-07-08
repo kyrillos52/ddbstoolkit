@@ -8,8 +8,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ddbstoolkit.toolkit.core.annotations.Id;
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.annotations.EntityName;
+import org.ddbstoolkit.toolkit.core.annotations.Id;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 
@@ -20,6 +21,11 @@ import com.esotericsoftware.reflectasm.MethodAccess;
  * @version 1.1: Add of the PropertyName annotation inside the core package
  */
 public class ClassInspector {
+	
+	/**
+	 * ClassInspector logger
+	 */
+	private static Logger logger = Logger.getLogger(ClassInspector.class);
 
 	/**
 	 * Peer UID property name
@@ -133,7 +139,7 @@ public class ClassInspector {
     	try {
 			ddbsEntityProperty.setDdbsToolkitSupportedEntity(DDBSToolkitSupportedEntity.valueOf(field));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			//Do Nothing
+			logger.debug("Error while trying to retrieve the entity property type", e);
 		}
     	
     	AnnotatedElement element = (AnnotatedElement) field;

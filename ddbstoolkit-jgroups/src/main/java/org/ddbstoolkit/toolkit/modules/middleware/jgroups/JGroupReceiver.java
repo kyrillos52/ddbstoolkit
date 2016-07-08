@@ -5,6 +5,7 @@ import org.ddbstoolkit.toolkit.core.DistributableEntityManager;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 import org.ddbstoolkit.toolkit.core.DistributedEntityConverter;
 import org.ddbstoolkit.toolkit.core.Peer;
+import org.ddbstoolkit.toolkit.core.exception.DDBSToolkitException;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.blocks.MessageDispatcher;
@@ -134,7 +135,7 @@ public class JGroupReceiver implements RequestHandler, DistributableReceiverInte
             }
 
         } catch (Exception e) {
-            throw e;
+            throw new DDBSToolkitException("Error while receiving the request",e);
         } finally{
             entityManager.close();
         }

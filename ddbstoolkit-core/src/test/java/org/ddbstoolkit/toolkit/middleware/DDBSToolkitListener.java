@@ -1,5 +1,6 @@
 package org.ddbstoolkit.toolkit.middleware;
 
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
 
 /**
@@ -8,6 +9,11 @@ import org.ddbstoolkit.toolkit.core.DistributableReceiverInterface;
  * @version 1.0 Class creation
  */
 public class DDBSToolkitListener implements Runnable {
+	
+	/**
+	 * DDBSToolkitListener logger
+	 */
+	private static Logger logger = Logger.getLogger(DDBSToolkitListener.class);
 	
 	/**
 	 * Wait time
@@ -53,7 +59,7 @@ public class DDBSToolkitListener implements Runnable {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error while trying to execute the receiver interface",e);
 		}
 	}
 }

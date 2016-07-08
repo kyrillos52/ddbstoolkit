@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion;
 
 import java.lang.reflect.Field;
 
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.IEntity;
 import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
 
@@ -11,6 +12,11 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  * @version 1.0 Class creation
  */
 public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity {
+	
+	/**
+	 * ClassInspector logger
+	 */
+	private static Logger logger = Logger.getLogger(SparqlDDBSToolkitSupportedEntity.class);
 
 	public static final DDBSToolkitSupportedEntity INTEGER_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Integer;","[I"});
 	public static final DDBSToolkitSupportedEntity LONG_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Long;","[J"});
@@ -56,8 +62,7 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 				
 				
 			} catch (InstantiationException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Error while trying to retrieve the array property",e);
 			}
 		}
 		return null;

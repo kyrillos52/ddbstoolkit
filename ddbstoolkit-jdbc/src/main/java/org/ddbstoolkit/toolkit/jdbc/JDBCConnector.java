@@ -13,7 +13,7 @@ import java.sql.Statement;
  * @author Cyril Grandjean
  * @version 1.0 Class creation
  */
-public abstract class JDBCConnector {
+public abstract class JDBCConnector implements AutoCloseable {
 
 	/**
 	 * Connection object
@@ -73,6 +73,7 @@ public abstract class JDBCConnector {
 	 * 
 	 * @throws SQLException SQL Exception
 	 */
+	@Override
 	public void close() throws SQLException {
 		if(connector != null) {
 			connector.close();
@@ -89,8 +90,9 @@ public abstract class JDBCConnector {
 	 */
 	public int executeQuery(String sql) throws SQLException {
 
-		Statement stmt = connector.createStatement();
-		return stmt.executeUpdate(sql);
+		try(Statement stmt = connector.createStatement()) {
+			return stmt.executeUpdate(sql);
+		}
 	}
 
 	/**
@@ -176,5 +178,4 @@ public abstract class JDBCConnector {
 	public void rollback() throws SQLException  {
 		connector.rollback();
 	}
-
 }

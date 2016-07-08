@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.annotations.EntityName;
 import org.ddbstoolkit.toolkit.core.annotations.Id;
 import org.ddbstoolkit.toolkit.core.reflexion.ClassInspector;
@@ -26,6 +27,11 @@ import com.esotericsoftware.reflectasm.MethodAccess;
  */
 public class SparqlClassInspector extends ClassInspector {
 
+	/**
+	 * SparqlClassInspector logger
+	 */
+	private static Logger logger = Logger.getLogger(SparqlClassInspector.class);
+	
     /**
      * Explore properties of a Sparql object
      * @param classData Sparql object
@@ -92,7 +98,7 @@ public class SparqlClassInspector extends ClassInspector {
     	try {
 			ddbsEntityProperty.setDdbsToolkitSupportedEntity(SparqlDDBSToolkitSupportedEntity.valueOf(field));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			//Do Nothing
+			logger.debug("Error while trying to retrieve the entity property type", e);
 		}
     	
     	AnnotatedElement element = (AnnotatedElement) field;

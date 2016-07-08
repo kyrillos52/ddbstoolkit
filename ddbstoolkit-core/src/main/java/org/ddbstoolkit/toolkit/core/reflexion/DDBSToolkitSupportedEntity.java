@@ -2,6 +2,7 @@ package org.ddbstoolkit.toolkit.core.reflexion;
 
 import java.lang.reflect.Field;
 
+import org.apache.log4j.Logger;
 import org.ddbstoolkit.toolkit.core.IEntity;
 
 /**
@@ -11,6 +12,11 @@ import org.ddbstoolkit.toolkit.core.IEntity;
  * @version 1.0 Class creation
  */
 public class DDBSToolkitSupportedEntity {
+	
+	/**
+	 * DDBSToolkitSupportedEntity logger
+	 */
+	private static Logger logger = Logger.getLogger(DDBSToolkitSupportedEntity.class);
 
 	public static final DDBSToolkitSupportedEntity INTEGER = new DDBSToolkitSupportedEntity(
 			new String[] { "int", "java.lang.Integer" });
@@ -67,8 +73,7 @@ public class DDBSToolkitSupportedEntity {
 				}
 				
 			} catch (ClassNotFoundException | InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Error while trying to retrieve the array property",e);
 			}
 		}
 		return null;

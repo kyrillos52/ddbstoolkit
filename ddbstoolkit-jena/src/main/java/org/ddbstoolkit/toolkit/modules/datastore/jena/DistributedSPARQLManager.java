@@ -784,11 +784,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 	@SuppressWarnings("unchecked")
 	protected <T extends IEntity> List<T> conversionResultSet(
 			ResultSet results, T myObject) throws DDBSToolkitException {
-
-		Map<String, T> uris = new LinkedHashMap<>();
 		
-		T myData = null;
-
 		SparqlDDBSEntity<SparqlClassProperty> sparqlEntity = ddbsEntityManager.getDDBSEntity(myObject);
 		
 		List<T> resultList = new ArrayList<T>();
@@ -799,6 +795,9 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 
 		SparqlResults sparqlResults = new SparqlResults();
 
+		Map<String, T> uris = new LinkedHashMap<>();
+		T myData = null;
+		
 		while (results.hasNext()) {
 
 			QuerySolution myResult = results.next();

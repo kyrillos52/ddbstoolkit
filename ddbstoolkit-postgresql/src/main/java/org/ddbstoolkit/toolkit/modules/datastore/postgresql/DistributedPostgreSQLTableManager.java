@@ -1,6 +1,5 @@
 package org.ddbstoolkit.toolkit.modules.datastore.postgresql;
 
-import org.ddbstoolkit.toolkit.core.Peer;
 import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 
 /**
@@ -12,10 +11,6 @@ import org.ddbstoolkit.toolkit.jdbc.JDBCEntityManager;
 public class DistributedPostgreSQLTableManager extends JDBCEntityManager {
 
     public DistributedPostgreSQLTableManager(PostgreSQLConnector myConnector) {
-    	super(myConnector);
-    }
-
-    public DistributedPostgreSQLTableManager(PostgreSQLConnector myConnector, Peer myPeer) {
     	super(myConnector);
     }
 }

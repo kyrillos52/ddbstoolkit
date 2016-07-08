@@ -23,7 +23,7 @@ public class ConditionSingleValue extends Condition {
 	/**
 	 * Value
 	 */
-	private Object value;
+	private final Object value;
 	
 	/**
 	 * Get value

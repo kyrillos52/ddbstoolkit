@@ -21,7 +21,7 @@ import org.ddbstoolkit.toolkit.modules.datastore.jena.reflexion.SparqlEntityMana
  */
 public class SparqlConditionConverter implements ConditionsConverter {
 	
-	private SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> entityManager;
+	private final SparqlEntityManager<SparqlDDBSEntity<SparqlClassProperty>> entityManager;
 	
 	/**
 	 * JDBC Condition converter
