@@ -30,7 +30,7 @@ public class DDBSToolkitPostgreSQLModuleTest extends JDBCModuleTest {
 	@Before 
 	public void initialiseDatabase() throws ClassNotFoundException, DDBSToolkitException {
 		
-		manager = new DistributedPostgreSQLTableManager(new PostgreSQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
+		manager = new DistributedPostgreSQLTableManager(new PostgreSQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD));
 		
 		manager.open();
 	}

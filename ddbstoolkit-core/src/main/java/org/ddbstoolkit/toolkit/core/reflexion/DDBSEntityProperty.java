@@ -205,8 +205,7 @@ public class DDBSEntityProperty {
      * Indicates if it's an ID Entity
      * @return Indicates if it's an ID Entity
      */
-	public boolean isIDEntity()
-	{
+	public boolean isIDEntity() {
 		return ddbsEntityIDProperty != null;
 	}
 
