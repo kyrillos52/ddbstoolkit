@@ -13,11 +13,6 @@ import org.ddbstoolkit.toolkit.core.reflexion.DDBSToolkitSupportedEntity;
  */
 public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity {
 	
-	/**
-	 * ClassInspector logger
-	 */
-	private static Logger logger = Logger.getLogger(SparqlDDBSToolkitSupportedEntity.class);
-
 	public static final DDBSToolkitSupportedEntity INTEGER_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Integer;","[I"});
 	public static final DDBSToolkitSupportedEntity LONG_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Long;","[J"});
 	public static final DDBSToolkitSupportedEntity FLOAT_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.Float;","[F"});
@@ -25,6 +20,11 @@ public class SparqlDDBSToolkitSupportedEntity extends DDBSToolkitSupportedEntity
 	public static final DDBSToolkitSupportedEntity STRING_ARRAY = new DDBSToolkitSupportedEntity(new String[] {"[Ljava.lang.String;"});
 	
 	public static final DDBSToolkitSupportedEntity[] SUPPORTED_ENTITIES = {INTEGER, LONG, FLOAT, DOUBLE, STRING, TIMESTAMP, IENTITY_ARRAY, INTEGER_ARRAY, LONG_ARRAY, FLOAT_ARRAY, DOUBLE_ARRAY, STRING_ARRAY};
+	
+	/**
+	 * ClassInspector logger
+	 */
+	private static final Logger logger = Logger.getLogger(SparqlDDBSToolkitSupportedEntity.class);
 	
 	protected SparqlDDBSToolkitSupportedEntity(String[] types) {
 		super(types);

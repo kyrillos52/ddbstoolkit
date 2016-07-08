@@ -12,7 +12,7 @@ public class DDBSToolkitSQLiteModuleTest extends JDBCModuleTest {
 	/**
 	 * SQLLite Database file
 	 */
-	private final static String SQLITE_DATABASE = ":memory:";
+	private static final String SQLITE_DATABASE = ":memory:";
     
 	@Override
 	public void instantiateManager() throws ClassNotFoundException, DDBSToolkitException {

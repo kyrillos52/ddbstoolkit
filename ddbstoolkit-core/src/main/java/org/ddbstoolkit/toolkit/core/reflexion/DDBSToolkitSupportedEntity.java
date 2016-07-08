@@ -13,11 +13,6 @@ import org.ddbstoolkit.toolkit.core.IEntity;
  */
 public class DDBSToolkitSupportedEntity {
 	
-	/**
-	 * DDBSToolkitSupportedEntity logger
-	 */
-	private static Logger logger = Logger.getLogger(DDBSToolkitSupportedEntity.class);
-
 	public static final DDBSToolkitSupportedEntity INTEGER = new DDBSToolkitSupportedEntity(
 			new String[] { "int", "java.lang.Integer" });
 	public static final DDBSToolkitSupportedEntity LONG = new DDBSToolkitSupportedEntity(
@@ -34,6 +29,11 @@ public class DDBSToolkitSupportedEntity {
 			new String[] {});
 
 	public static final DDBSToolkitSupportedEntity[] SUPPORTED_ENTITIES = { INTEGER, LONG, FLOAT, DOUBLE, STRING, TIMESTAMP, IENTITY_ARRAY };
+	
+	/**
+	 * DDBSToolkitSupportedEntity logger
+	 */
+	private static final Logger logger = Logger.getLogger(DDBSToolkitSupportedEntity.class);
 
 	protected String[] types;
 

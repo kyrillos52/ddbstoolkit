@@ -25,7 +25,7 @@ public class ClassInspector {
 	/**
 	 * ClassInspector logger
 	 */
-	private static Logger logger = Logger.getLogger(ClassInspector.class);
+	private static final Logger logger = Logger.getLogger(ClassInspector.class);
 
 	/**
 	 * Peer UID property name

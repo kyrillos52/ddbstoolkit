@@ -36,8 +36,7 @@ public class DDBSToolkitPostgreSQLModuleTest extends JDBCModuleTest {
 	}
 	
 	@After
-	public void closeConnection() throws DDBSToolkitException
-	{
+	public void closeConnection() throws DDBSToolkitException {
 		if(manager.isOpen()) {
 			manager.close();
 		}

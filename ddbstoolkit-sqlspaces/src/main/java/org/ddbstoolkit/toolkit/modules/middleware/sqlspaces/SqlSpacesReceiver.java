@@ -31,7 +31,7 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 	/**
 	 * SqlSpacesReceiver logger
 	 */
-	private static Logger logger = Logger.getLogger(SqlSpacesReceiver.class);
+	private static final Logger logger = Logger.getLogger(SqlSpacesReceiver.class);
 	
     /**
      * Name of the cluster
@@ -260,13 +260,12 @@ public class SqlSpacesReceiver implements Callback, DistributableReceiverInterfa
 	                try {
 	                    resultSpace.disconnect();
 	                } catch (TupleSpaceException e) {
-	                    e.printStackTrace();
+	                	logger.error("Error while trying to disconnect the result space",e);
 	                }
 	            }
 	        }
 		} catch (ClassNotFoundException | IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error("Error while trying to receive the message",e1);
 		}
 
        

@@ -30,7 +30,7 @@ public class SparqlClassInspector extends ClassInspector {
 	/**
 	 * SparqlClassInspector logger
 	 */
-	private static Logger logger = Logger.getLogger(SparqlClassInspector.class);
+	private static final Logger logger = Logger.getLogger(SparqlClassInspector.class);
 	
     /**
      * Explore properties of a Sparql object

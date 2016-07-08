@@ -13,7 +13,7 @@ public class DDBSToolkitListener implements Runnable {
 	/**
 	 * DDBSToolkitListener logger
 	 */
-	private static Logger logger = Logger.getLogger(DDBSToolkitListener.class);
+	private static final Logger logger = Logger.getLogger(DDBSToolkitListener.class);
 	
 	/**
 	 * Wait time
