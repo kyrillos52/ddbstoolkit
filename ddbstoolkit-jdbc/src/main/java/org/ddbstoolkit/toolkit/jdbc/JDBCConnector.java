@@ -117,9 +117,8 @@ public abstract class JDBCConnector implements AutoCloseable {
 	 * @throws SQLException SQL Exception
 	 */
 	public ResultSet query(String sql) throws SQLException {
-		try(Statement stmt = connector.createStatement()) {
-			return stmt.executeQuery(sql);
-		}	
+		Statement stmt = connector.createStatement();
+		return stmt.executeQuery(sql);	
 	}
 
 	/**
