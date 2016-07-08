@@ -402,13 +402,13 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
                 ArrayList<Address> toSend = new ArrayList<Address>();
                 toSend.add(peerToSend);
 
-                RspList<T> rsp_list = dispatcher.castMessage(toSend,
+                RspList<T> rspList = dispatcher.castMessage(toSend,
                         new Message(peerToSend, null, command), new RequestOptions(ResponseMode.GET_FIRST, timeout));
 
                 T myEntity = null;
 
-                if(rsp_list.getResults().size() > 0) {
-                    myEntity = rsp_list.getResults().get(0);
+                if(rspList.getResults().size() > 0) {
+                    myEntity = rspList.getResults().get(0);
                 }
 
                 return myEntity;
@@ -584,8 +584,7 @@ public class JGroupSender extends ReceiverAdapter implements DistributableSender
             } else {
                 return false;
             }
-    	}
-    	catch (Exception e) {
+    	} catch (Exception e) {
 			throw new DDBSToolkitException("Error executing the middleware request", e);
 		}
     }

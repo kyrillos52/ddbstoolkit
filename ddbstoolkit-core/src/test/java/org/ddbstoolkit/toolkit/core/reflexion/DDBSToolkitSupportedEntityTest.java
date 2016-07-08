@@ -38,8 +38,7 @@ public class DDBSToolkitSupportedEntityTest implements IEntity {
 	}
 	
 	@Test
-	public void testDDBSToolkitSupportedEntity() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-	{
+	public void testDDBSToolkitSupportedEntity() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		Assert.assertTrue(DDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("intValue")).equals(DDBSToolkitSupportedEntity.INTEGER));
 		Assert.assertTrue(DDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("integerValue")).equals(DDBSToolkitSupportedEntity.INTEGER));
 		Assert.assertTrue(DDBSToolkitSupportedEntity.valueOf(new TestClass().getClass().getField("longValue")).equals(DDBSToolkitSupportedEntity.LONG));

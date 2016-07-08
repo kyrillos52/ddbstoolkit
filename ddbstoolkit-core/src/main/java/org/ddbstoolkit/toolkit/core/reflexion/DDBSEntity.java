@@ -53,10 +53,8 @@ public class DDBSEntity<T extends DDBSEntityProperty> {
 		AnnotatedElement element = (AnnotatedElement) classData;
         Annotation[] propertyAnnotations = element.getAnnotations();
 
-        for(Annotation annotation : propertyAnnotations)
-        {
-            if(annotation instanceof EntityName)
-            {
+        for(Annotation annotation : propertyAnnotations) {
+            if(annotation instanceof EntityName) {
                 EntityName myProperty = (EntityName)annotation;
                 this.datastoreEntityName = myProperty.name();
             }

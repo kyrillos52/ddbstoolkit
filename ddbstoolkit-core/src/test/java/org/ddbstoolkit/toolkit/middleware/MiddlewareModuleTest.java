@@ -122,8 +122,7 @@ public abstract class MiddlewareModuleTest extends DataModuleTest {
 	}
 	
 	@After
-	public void closeConnection() throws DDBSToolkitException 
-	{
+	public void closeConnection() throws DDBSToolkitException {
 		try {
 			ddbsToolkitListener.setKeepListening(false);
 			receiverInterface.stop();

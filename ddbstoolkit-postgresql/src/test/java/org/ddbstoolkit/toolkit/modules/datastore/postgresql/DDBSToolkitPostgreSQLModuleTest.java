@@ -44,7 +44,7 @@ public class DDBSToolkitPostgreSQLModuleTest extends JDBCModuleTest {
     
 	@Override
 	public void instantiateManager() throws ClassNotFoundException {
-		manager = new DistributedPostgreSQLTableManager(new PostgreSQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
+		manager = new DistributedPostgreSQLTableManager(new PostgreSQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD));
 	}
 
 	@Override

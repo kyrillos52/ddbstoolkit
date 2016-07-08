@@ -93,8 +93,7 @@ public class DDBSEntityProperty {
      * @param iEntity Entity
      * @param object Object
      */
-    public void setValue(IEntity iEntity, Object object)
-    {
+    public void setValue(IEntity iEntity, Object object) {
     	if(!isEncapsulated) {
     		FieldAccess access = FieldAccess.get(iEntity.getClass());
         	access.set(iEntity, fieldIndex, object);

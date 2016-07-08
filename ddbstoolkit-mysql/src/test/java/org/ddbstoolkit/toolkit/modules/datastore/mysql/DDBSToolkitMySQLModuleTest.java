@@ -36,8 +36,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
 	}
 	
 	@After
-	public void closeConnection() throws DDBSToolkitException
-	{
+	public void closeConnection() throws DDBSToolkitException {
 		if(manager.isOpen()) {
 			manager.close();
 		}
@@ -45,7 +44,7 @@ public class DDBSToolkitMySQLModuleTest extends JDBCModuleTest {
     
 	@Override
 	public void instantiateManager() throws ClassNotFoundException {
-		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD)) ;
+		manager = new DistributedMySQLTableManager(new MySQLConnector(JDBC_STRING, JDBC_USER, JDBC_PASSWORD));
 	}
 
 	@Override
