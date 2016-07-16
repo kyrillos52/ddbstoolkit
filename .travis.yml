@@ -2,24 +2,25 @@ language: java
 jdk:
 - oraclejdk7
 services:
-  - mysql
-  - postgresql
+- mysql
+- postgresql
 addons:
-    code_climate:
-        repo_token: 95a12cbbe44ff8aa72641407ab5f814b2ebf3b5af4fe4ef62cb7f37ce4620398
+  code_climate:
+    repo_token: 95a12cbbe44ff8aa72641407ab5f814b2ebf3b5af4fe4ef62cb7f37ce4620398
 before_install:
-  - mysql -e 'create database ddbstoolkit;'
-  - mysql --user=root --password= ddbstoolkit < ./ddbstoolkit-mysql/src/main/resources/sql/model.sql
-  - psql -c 'create database ddbstoolkit;' -U postgres
-  - psql -U postgres ddbstoolkit < ./ddbstoolkit-postgresql/src/main/resources/sql/model.sql
-  - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
-install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B
-  -V
+- mysql -e 'create database ddbstoolkit;'
+- mysql --user=root --password= ddbstoolkit < ./ddbstoolkit-mysql/src/main/resources/sql/model.sql
+- psql -c 'create database ddbstoolkit;' -U postgres
+- psql -U postgres ddbstoolkit < ./ddbstoolkit-postgresql/src/main/resources/sql/model.sql
+- sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g'
+  ~/.m2/settings.xml
+install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
 cache:
   directories:
   - ~/.m2/repository
 after_success:
 - ./cd/before-deploy.sh
+- ./cd/code-coverage.sh
 - ./cd/deploy.sh
 env:
   global:
@@ -27,3 +28,4 @@ env:
   - secure: 6zdv6+wjTfZ50OhDFU7otBfEyDv+iIAruvyA1V6ldkHwDLfZZcyO29g1MYmjj31xsY/vzZXbMd5nN6yEdtvsGFaFtKT7lyapxmUHyFyb+89BxU6V5Hyn+naIFUsHaYSmv0dRa9JPy0fnqYWkJ52cbVgHBfeUAb7jxQ+OyH465esdMFUYbIOOpnvOlGMo3g/fymGCqtfSXaBjM85pxHuFfqoL9jtAHI5hR6WH+9efKbPtQB94AM1a7dPlDyMS5D7AaxzO/7Livixv+u4MQwGTQ3N9bJwv30sxbYB8xOxum1iyejJms0OOy9QXaapYV2OcGpZRyxXCPvUH6/P4r5lWLGNuEzuwudXAlw17aXepX1TmArlQKoR3f3fhmt/ZPL4mP5te0y4eGofBWYhI5oJKYvus0711DY9u5bp9WgXo5rARD410l3dRonwfVx1J3d0S5NGuNOmIJgNOSuZqSsodhQvwhq/53ZXRyjJaVKxc1i6ojfG1mpU69JVrJ+6uF34bROZtrFvuaC5m40rcMmsr16Mv417q+HU7O29IKtaUkEKyZ7cG/A+TleOF9eCoRqoD7u3S7VrCxveTgOAAqUx50zD2mrSVy0mFHRVZCDAjNJ1GJxREFxyNnUP7Y6g1hRgd1OMa/M6H+HDFhCmvn/9uTl+HhmcRIjjfjDhkUlUTdRs=
   - secure: NxOPm/wmjOszarTRVzIN26HH29dzdmcApOoSM1INWA0rh9tEwOj3wto0n8zXKpjDGuSpw5U/RgcRqIBIY4WbFCkE4D7v5Gc3Q1sRiLuN+jocT1h7Hxjn94Y3BGVpNGNy4YzIk5FWyC1zvX+ruiaxwexROdLweLEg2tYE5834uwtfTHaZgNwEs1ZYV5498TJZboCQUG5MrXQnqMLNxNzHYzB5dL8tOdtxlYISZSIO8YCerH4b8tqTEKaqHu5poDLP11i39mcpJh0W2iVhlVB0SPAbJkqDiiM79K8Py+DHgFWFCh1VfmnM/iqEGiwezNoFV5B+0mQR6dYn0m06AMdHGWEgIfBHIbEL8TUkHytAvYNfCmzaKV2NZx/mY4Own46HAT/R8ynvKnlbxYTk7oYAfWj2pGkJnhheln07XtqKPBOXcRqvNmAIEH5hSPJeVS6jDheNNBbyyyr99B1d4fkRLqBchspyAAjSc0bFxrOBBzzEaGgYt5IAVXKQQWwIAe/f9N520OYurcQhgxKUIhvKsPFBZ2pytMWk8zzfMz2qYUeqymMdzcI5TEcNlDBIxt6POgV10CPYwwJiihozV/kTPMfUnLMFKqZoOsy6G9fC5arGIMvAgaY2//GLMA0DwOtsiZa6qwi02LDIjcvH8nZBREC1t/lznS+kZ4O24dDNuss=
   - secure: boH5q/TvvrhP7s0tpxUKYodTM6IJuAMmYtZQRVARTk9XSx9BpVwz1imYX/uVnXGUOVFDdSw8/iylJxNaBQQIYzWIuC+U9B+BmGgyE2H0J0bP7rLfQfDvQfxZCdwX71rQqY5POut2tNnHo78kGCVLH6cy4KRDtsbFNEpOEESJX965Fu3z9nQwnV5djEXee4vPksNkA+iaoSHfE9nctEPf7ChRJWrs4+AeN0LL1hF9derfW4CQIQkEwnq6u5VmJXzr6JEROFpp58QVzOjFlqtWHmWVfzYnU++6L6f5oJPJgwq5G5v9eevVgGaYe6Ao1XbI1NVsAIJO0+/hyhuduspgFZiww5xegPZQAebGVyp1MXocPUwvolUhTET0Cuoqc4KhVW92j8E59b9WLdP0A0Rre8SL58aQyUm4Rbs6clmJB2XuC0s7DAYWM/J+rh2GB27wZY/1dru9m4OfD/2NmL2auOLe6stRfe60Lh+tKAS6moCpahxj47TQ/P9HG0kswTUMczqsO1sZ5ZUiKWEPh3bdvEd8gVsUKA07GS5Yh9ytmvnAxsB2V5WzKQ0CZKoDoCq3HowVKXc2BOW9KgLOSB4KUrlWlPr6V6+CxRqShi2lT2H0MD6f5/HcMBRkXgphOKBna+1sDxWP3BIhCY7K65m52nnD09KG2dEhpfBP0ctYCB0=
+  - secure: WGoLJZYLCkGnr6ff3MgIHZS9lELi1g3NW0t1N4sdaWRGgKUlno+gAmolCECYUAsvGIZoWjo6X7MwFZyM4q4ke63CHidPjLXioqUE/w4CnRdF4MkAZkpQ1UJw+PAu0UnVbHdQv75G0zrcS2jWcn9YMxc+5tQBKHRLrcHVVDoqMD/udw7KAZOgxLo/edgqvVuUY/Mh7jM2Kbaeh8JdLvaAZtgYUyyJhxkEQ+kgoN4yOejxaBNXYcuLB/XC+hZRR333eZko2WwtB/UIA4DVDHwAxxQuwn3M1JvkItVfBcBbHqrjySe0DT9DgERxL8MbFoDl5p/T2TI7T7EldTVRXbStnr3/gxU5iu6mobF2ytm6ZUV6YnPWEqkb6GtI5eEOVZPnJdb/SdrLsvO2sOlrCBF1BiP8TmWwXMWYY2lqw+tDYZic3uJljQhdDN/3L7FvObZf+YhNR6GyQbxClh3rxozFS8ni2ERLlJMBZfeTKMWaIxoCfRi64lA9qYI4H71zuw8T+IHP+TTj+Er291ovA2gMRFIiKoPrTqN7Vs7zGHCsvrmwn4HLwaF9/CmGkkk/DPRSGK+n5nVjOy2JbQYnBgxxMKud+SuwfsHVezLaOjyHG64h2W+8WOU21qzDv3C5yX7s7r2mAzT4q8cMPush3bmOcfG88izW065+Yz/+Hneo4RQ=
