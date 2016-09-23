@@ -4,10 +4,6 @@ jdk:
 services:
 - mysql
 - postgresql
-addons:
-  apt:
-     packages:
-        - jpm
 before_install:
 - mysql -e 'create database ddbstoolkit;'
 - mysql --user=root --password= ddbstoolkit < ./ddbstoolkit-mysql/src/main/resources/sql/model.sql
@@ -21,7 +17,7 @@ cache:
   - ~/.m2/repository
 after_success:
 - ./cd/before-deploy.sh
-- ./cd/code-coverage.sh
+- bash <(curl -s https://codecov.io/bash)
 - ./cd/deploy.sh
 env:
   global:
