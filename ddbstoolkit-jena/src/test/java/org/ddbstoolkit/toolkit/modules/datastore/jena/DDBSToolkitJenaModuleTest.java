@@ -471,6 +471,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
 	* JUnit tests for the listAll function for MySQL
 	* @throws Exception Exception thrown
 	*/
+	/*
 	@Test
 	public void testListAllRemoteEndPoint() throws Exception {
 		
@@ -506,7 +507,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
         Assert.assertNotNull(myBook.author);
         Assert.assertNotNull(myBook.genre);
         Assert.assertNotNull(myBook.character);
-    }
+    }*/
 	
     /**
      * JUnit test to test the Read function
