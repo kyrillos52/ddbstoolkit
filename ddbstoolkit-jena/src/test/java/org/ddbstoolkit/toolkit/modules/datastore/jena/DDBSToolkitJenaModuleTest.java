@@ -512,6 +512,7 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
      * JUnit test to test the Read function
      * @throws Exception Exception thrown
      */
+	/*
     @Test
     public void testReadRemoteEndpoint() throws Exception {
 
@@ -528,6 +529,6 @@ public class DDBSToolkitJenaModuleTest extends DataModuleTest {
         Assert.assertEquals(filmExtracted.film_uri, "http://data.linkedmdb.org/resource/film/1025");
         Assert.assertEquals(filmExtracted.title, "The Return of the King");
         Assert.assertEquals(filmExtracted.runtime, 98);
-    }
+    }*/
 
 }
