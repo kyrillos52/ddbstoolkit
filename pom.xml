@@ -177,42 +177,42 @@
 								<mkdir dir="${basedir}/target/coverage-report" />
 								<report>
 									<executiondata>
-										<fileset dir="../ddbstoolkit-core/target">
+										<fileset dir="ddbstoolkit-core/target">
 											<include name="jacoco.exec" />
 										</fileset>
-										<fileset dir="../ddbstoolkit-jdbc/target">
+										<fileset dir="ddbstoolkit-jdbc/target">
 											<include name="jacoco.exec" />
 										</fileset>
-										<fileset dir="../ddbstoolkit-mysql/target">
+										<fileset dir="ddbstoolkit-mysql/target">
 											<include name="jacoco.exec" />
 										</fileset>
-										<fileset dir="../ddbstoolkit-sqlite/target">
+										<fileset dir="ddbstoolkit-sqlite/target">
 											<include name="jacoco.exec" />
 										</fileset>
-										<fileset dir="../ddbstoolkit-jena/target">
+										<fileset dir="ddbstoolkit-jena/target">
 											<include name="jacoco.exec" />
 										</fileset>
-										<fileset dir="../ddbstoolkit-postgresql/target">
+										<fileset dir="ddbstoolkit-postgresql/target">
 											<include name="jacoco.exec" />
 										</fileset>
 									</executiondata>
 									<structure name="jacoco-multi Coverage Project">
 										<group name="jacoco-multi">
 											<classfiles>
-												<fileset dir="../ddbstoolkit-core/target/classes" />
-												<fileset dir="../ddbstoolkit-jdbc/target/classes" />
-												<fileset dir="../ddbstoolkit-mysql/target/classes" />
-												<fileset dir="../ddbstoolkit-sqlite/target/classes" />
-												<fileset dir="../ddbstoolkit-jena/target/classes" />
-												<fileset dir="../ddbstoolkit-postgresql/target/classes" />
+												<fileset dir="ddbstoolkit-core/target/classes" />
+												<fileset dir="ddbstoolkit-jdbc/target/classes" />
+												<fileset dir="ddbstoolkit-mysql/target/classes" />
+												<fileset dir="ddbstoolkit-sqlite/target/classes" />
+												<fileset dir="ddbstoolkit-jena/target/classes" />
+												<fileset dir="ddbstoolkit-postgresql/target/classes" />
 											</classfiles>
 											<sourcefiles encoding="UTF-8">
-												<fileset dir="../ddbstoolkit-core/target/generated-sources/annotations" />
-												<fileset dir="../ddbstoolkit-jdbc/target/generated-sources/annotations" />
-												<fileset dir="../ddbstoolkit-mysql/target/generated-sources/annotations" />
-												<fileset dir="../ddbstoolkit-sqlite/target/generated-sources/annotations" />
-												<fileset dir="../ddbstoolkit-jena/target/generated-sources/annotations" />
-												<fileset dir="../ddbstoolkit-postgresql/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-core/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-jdbc/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-mysql/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-sqlite/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-jena/target/generated-sources/annotations" />
+												<fileset dir="ddbstoolkit-postgresql/target/generated-sources/annotations" />
 											</sourcefiles>
 										</group>
 									</structure>
