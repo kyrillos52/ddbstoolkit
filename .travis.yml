@@ -12,6 +12,7 @@ before_install:
 - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g'
   ~/.m2/settings.xml
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
+script: "mvn cobertura:cobertura"
 cache:
   directories:
   - ~/.m2/repository
