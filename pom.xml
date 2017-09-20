@@ -113,6 +113,19 @@
 			  </configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+					<check />
+				</configuration>
+			</plugin>
+			<!--
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.7.7.201606060606</version>
@@ -135,7 +148,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
-					<!-- Copy the ant tasks jar. Needed for ts.jacoco.report-ant . -->
 					<execution>
 						<id>jacoco-dependency-ant</id>
 						<goals>
@@ -169,7 +181,6 @@
 						</goals>
 						<configuration>
 							<target>
-								<!-- Execute an ant task within maven -->
 								<echo message="Generating JaCoCo Reports" />
 								<taskdef name="report" classname="org.jacoco.ant.ReportTask">
 									<classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar" />
@@ -232,6 +243,7 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			-->
 		</plugins>
 	</build>
 	<profiles>
