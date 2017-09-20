@@ -35,9 +35,9 @@
 			<version>0.8.0.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ddbstoolkit.toolkit.modules.datastore.mysql</groupId>
-			<artifactId>ddbstoolkit-mysql</artifactId>
-			<version>1.0.0-beta3-SNAPSHOT</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.6</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
