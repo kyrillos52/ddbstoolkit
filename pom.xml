@@ -43,6 +43,14 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -122,7 +130,20 @@
 						<format>xml</format>
 					</formats>
 					<check />
+					<instrumentation>
+						<excludes>
+							<exclude>**/DDBSToolkitSQLSpacesModuleTest.java</exclude>
+							<exclude>**/DDBSToolkitJGroupsModuleTest.java</exclude>
+						</excludes>
+					</instrumentation>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<!--
 			<plugin>
