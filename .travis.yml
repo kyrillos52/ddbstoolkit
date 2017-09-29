@@ -12,7 +12,10 @@ before_install:
 - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g'
   ~/.m2/settings.xml
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
-script: "mvn cobertura:cobertura"
+script:
+  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+  - mvn cobertura:cobertura
 cache:
   directories:
   - ~/.m2/repository
@@ -20,6 +23,11 @@ after_success:
 - ./cd/before-deploy.sh
 - bash <(curl -s https://codecov.io/bash)
 - ./cd/deploy.sh
+addons:
+  sonarcloud:
+    organization: "kyrillos52-github" # the key of the org you chose at step #3
+    token:
+      secure: SONAR_TOKEN # encrypted value of your token
 env:
   global:
   - secure: w+YciORadRF8RlJcizrrRBLWF1iBL35lYXw40gS1PjU2HE4/ZZ14GE/qBu63uq3D/GgZSaJEi8K0nFISk3Bpd9B7uWwn6Nd35v1cBh/+t4uxCsPWsMntFOs1HFsiAa8SCzIwa58grBxzcJRRrW2RCdK+8zF5auDKA3SSD/jCvMs/XNI+cMwKVXLsY+LLs3nhBn9jV4aMJciCZW0jrwiK2uttV8kMRbpq0CqLeGNkOpjZf0teih1RrXNKfDq1XgwpdxQLjeRRy6EVY7HDiNFWRy0B8XXDUFlJtHjNWwBaYvHDSTYkmRDD4FtyJ06v62HuSGpQiBkMXGbw4B3YYhdKy5k1TqnWZ9JOOAMHTJlIaiuxTEoYN2wPJkAof8Pmaje9ErG63sWfSN5aNGas0xsVKGOxaK7L3+qmTJTX8LI0yePWX8lLw1+qt4tZ7eIqajV+J8kQb+9YK8jujpxshACc/Zzj/bP+13OmkBLYVjA2/Yl/68WflAv8mxCrRyr6FgJ8HS+9kQY+AL1YG2jOUn4thQyUkyLgSZQUsRHH2vS00zcStjJrpFwoXrz7c/SiQNaDgB698KUSM1CJuKCAUdXaqxDp+EynTiKSUfTdu/IOA7BlI8U5iJ3mZ8iVHUpOkzD+pOh72OeoIhAOfGkx3kE0+1anHaCzPxSbKmH1XCMS9Bg=
