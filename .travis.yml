@@ -14,11 +14,12 @@ before_install:
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  #- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
-  - mvn cobertura:cobertura
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+  #- mvn cobertura:cobertura
 cache:
   directories:
   - ~/.m2/repository
+  - ~/.sonar/cache
 after_success:
 - ./cd/before-deploy.sh
 - bash <(curl -s https://codecov.io/bash)
