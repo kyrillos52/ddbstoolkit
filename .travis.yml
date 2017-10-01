@@ -14,7 +14,7 @@ before_install:
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
 script:
 - mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=kyrillos52-github -Dsonar.login=$SONAR_TOKEN
-- mvn cobertura:cobertura
+#- mvn cobertura:cobertura
 cache:
   directories:
   - ~/.m2/repository
