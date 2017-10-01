@@ -13,7 +13,8 @@ before_install:
   ~/.m2/settings.xml
 install: mvn install -P !build-extras -Dmaven.javadoc.skip=true -B -V
 script:
-- mvn sonar:sonar
+#- mvn sonar:sonar
+- mvn cobertura:cobertura
 cache:
   directories:
   - ~/.m2/repository
