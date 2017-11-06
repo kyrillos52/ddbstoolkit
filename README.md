@@ -131,3 +131,4 @@ In order to create your own middleware module, you will have to :
 
 ## More information, link to the documentation
 [ddbstoolkit.org](https://ddbstoolkit.org)
+[Sonarcloud](https://sonarcloud.io/dashboard?id=org.ddbstoolkit.toolkit%3Addbstoolkit-root)
