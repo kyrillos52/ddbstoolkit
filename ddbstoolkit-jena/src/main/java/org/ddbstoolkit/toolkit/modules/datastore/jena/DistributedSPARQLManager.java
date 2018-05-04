@@ -453,6 +453,7 @@ public class DistributedSPARQLManager implements DistributableEntityManager {
 					if (sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.INTEGER)
 						|| sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.LONG)
 						|| sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.FLOAT)
+						|| sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.LONG)
 						|| sparqlClassProperty.getDdbsToolkitSupportedEntity().equals(SparqlDDBSToolkitSupportedEntity.STRING)) {
 						addElement(myModel, resourceToAdd, sparqlClassProperty,
 								sparqlClassProperty.getValue(objectToAdd));
