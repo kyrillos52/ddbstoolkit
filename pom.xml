@@ -14,7 +14,7 @@
 		<module>ddbstoolkit-sqlite</module>
 		<module>ddbstoolkit-jena</module>
 		<module>ddbstoolkit-jgroups</module>
-		<module>ddbstoolkit-sqlspaces</module>
+		<!--<module>ddbstoolkit-sqlspaces</module>-->
 		<module>ddbstoolkit-postgresql</module>
 	</modules>
 	<licenses>
