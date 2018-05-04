@@ -130,4 +130,5 @@ In order to create your own middleware module, you will have to :
 * Implement the interface DistributableReceiverInterface
 
 ## More information, link to the documentation
-[ddbstoolkit.org](https://ddbstoolkit.org)
+* Project website : [ddbstoolkit.org](https://ddbstoolkit.org)
+* Sonar Cloud project dashboard : [Sonarcloud](https://sonarcloud.io/dashboard?id=org.ddbstoolkit.toolkit%3Addbstoolkit-root)
